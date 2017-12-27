@@ -19,7 +19,7 @@ WIDTH = 320
 HEIGHT = 240
 FULLSCREAN = False
 DISPLAY_MODE = pygame.RESIZABLE
-
+USE_SCANLINE = True
 # Address for map's default position: 
 #    (used if GPS is inactive)
 defaultPlace = "Blumenau SC"
@@ -27,6 +27,11 @@ defaultPlace = "Blumenau SC"
 # Player data:
 PLAYERNAME = 'Wallmourne'
 PLAYERLEVEL = 24
+PLAYEREXP = 66
+PLAYEREXPMAX = 100
+
+PLAYERHP = 210
+PLAYERHPMAX = 210
 
 FPS = 15
 
@@ -100,7 +105,7 @@ if not os.path.exists(CACHEPATH):
     os.makedirs(CACHEPATH)
 
 DRAWCOLOUR = pygame.Color (255, 255, 255)
-TINTCOLOUR = pygame.Color (33, 255, 156)
+TINTCOLOUR = pygame.Color (0, 255, 0)
 SELBOXGREY = 50
 
 EVENTS = {
@@ -176,12 +181,24 @@ FONT_LRG = pygame.font.Font(kernedFontName, int (HEIGHT * (24.0 / 360.0)))
 MONOFONT = pygame.font.Font(monoFontName, int (HEIGHT * (16.0 / 360.0)))
 
 # Find monofont's character-size:
-tempImg = MONOFONT.render("X", True, DRAWCOLOUR, (0, 0, 0))
-charHeight = tempImg.get_height()
-charWidth = tempImg.get_width()
+tempImg = FONT_SML.render("X", True, DRAWCOLOUR, (0, 0, 0))
+SMLcharHeight = tempImg.get_height()
+SMLcharWidth = tempImg.get_width()
+del tempImg
+
+tempImg = FONT_MED.render("X", True, DRAWCOLOUR, (0, 0, 0))
+MEDcharHeight = tempImg.get_height()
+MEDcharWidth = tempImg.get_width()
 del tempImg
 
 tempImg = FONT_LRG.render("X", True, DRAWCOLOUR, (0, 0, 0))
 LRGcharHeight = tempImg.get_height()
 LRGcharWidth = tempImg.get_width()
 del tempImg
+
+# Find monofont's character-size:
+tempImg = MONOFONT.render("X", True, DRAWCOLOUR, (0, 0, 0))
+charHeight = tempImg.get_height()
+charWidth = tempImg.get_width()
+del tempImg
+

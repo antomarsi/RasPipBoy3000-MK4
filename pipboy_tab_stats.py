@@ -433,8 +433,38 @@ class Tab_Stats:
     
     # Generate text for header:
     def getHeaderText(self):
-        return [self.name, "LVL %s" %(config.PLAYERLEVEL), "HP 210/210", "AP 92/92", "XP 719/1000",]
-        
+        return ["HP %s/%s" %(config.PLAYERHP, config.PLAYERHPMAX), "LVL %s" %(config.PLAYERLEVEL), "AP 92/92"]
+
+    # Generate Text of the footer
+    def drawFooter(self, footer):
+        spliceX = (footer.get_width()-(config.charWidth*2)) / 5
+        texts = self.getHeaderText()
+
+        pygame.draw.rect(footer, (40,40,40), Rect((0,0), (spliceX, config.charHeight)))
+        textImg = config.FONT_MED.render(texts[0], True, (255,255,255))
+        footer.blit(textImg, (config.MEDcharWidth/2,0))
+
+        bigPart = ((spliceX*3)-(config.charWidth*2))
+        pygame.draw.rect(footer, (40, 40, 40), Rect(
+                (spliceX+config.charWidth, 0),
+                (bigPart, config.charHeight)
+            ))
+        textImg = config.FONT_MED.render(texts[1], True, (255,255,255))
+        footer.blit(textImg, (spliceX+config.charWidth,0))
+        pygame.draw.rect(footer, (255, 255, 255), Rect(
+                (spliceX+config.charWidth+config.LRGcharWidth + textImg.get_width(), config.charHeight*0.1),
+                (bigPart-textImg.get_width()-(config.LRGcharWidth*2), config.charHeight*0.9)
+            ), 1)
+
+        pygame.draw.rect(footer, (255, 255, 255), Rect(
+                (spliceX+config.charWidth+config.LRGcharWidth + textImg.get_width(), config.charHeight*0.1),
+                ((bigPart-textImg.get_width()-(config.LRGcharWidth*2)) * (config.PLAYEREXP / config.PLAYEREXPMAX), config.charHeight*0.9)
+            ))
+        pygame.draw.rect(footer, (40,40,40), Rect((spliceX*4,0), (spliceX, config.charHeight)))
+        textImg = config.FONT_MED.render(texts[2], True, (255,255,255))
+        footer.blit(textImg, (footer.get_width()-textImg.get_width()-(config.MEDcharWidth*2), 0))
+
+        return footer
     # Trigger page-functions
     def drawPage(self,modeNum):
         pageCanvas, pageChanged = self.modes[modeNum].drawPage()

@@ -16,56 +16,6 @@ class Header:
         self.parent = args[0]
         self.rootParent = self.parent.rootParent
         self.canvas = pygame.Surface((config.WIDTH, config.HEIGHT))
-    
-    def drawHeader(self):
-        # self.canvas.fill((0,0,0))
-        # headerStrings = self.headerStrings
-
-        # # Draw lines:
-        # lineDn = (cornerPadding + (config.charHeight * 1.6))
-        # midLineDn = (cornerPadding + (config.charHeight * 1.2))
-        # lineX = config.WIDTH - cornerPadding
-        
-        # HalfCharHeight = (config.charHeight / 2)
-        # TitleTextY = (cornerPadding - HalfCharHeight)
-        # TextPad = ((lineDn - cornerPadding) / 2) - HalfCharHeight
-        # UnderTextY = cornerPadding + TextPad
-
-        # # Draw header-text list in reverse order, from right to left:
-        # rightIdx = (len(headerStrings)-1)
-        # for n in range(rightIdx,-1,-1):
-            
-        #     thisText = headerStrings[n]
-        #     textImg = config.FONT_LRG.render(thisText, True, config.DRAWCOLOUR)
-            
-        #     TextWidth = (textImg.get_width())
-        #     TextHeight = (textImg.get_height())
-        #     TextX, TextY = 0, 0
-            
-        #     if (n == 0):
-        #         TextX = lineDn
-        #         TextY = TitleTextY
-                
-        #         TextRect = (TextX - 2, TextY - 2, TextWidth + 4, config.charHeight + 4)
-        #         pygame.draw.rect(self.canvas, (0,0,0), TextRect, 0)
-        #     else:
-        #         TextX = (lineX - TextPad - TextWidth)
-        #         TextY = UnderTextY
-                
-        #         thisLineDn = midLineDn
-        #         if (n == rightIdx):
-        #             thisLineDn = lineDn
-                
-        #         if (n == 1):
-        #             pygame.draw.lines(self.canvas, config.DRAWCOLOUR, False, [(lineX, thisLineDn), (lineX, cornerPadding), (cornerPadding, cornerPadding), (cornerPadding, lineDn), ], 2)
-        #         else:
-        #             lineLeft = (TextX - TextPad)
-        #             pygame.draw.lines(self.canvas, config.DRAWCOLOUR, False, [(lineX, thisLineDn), (lineX, cornerPadding), (lineLeft, cornerPadding)], 2)
-
-        #     self.canvas.blit(textImg, (TextX, TextY))
-            
-        #     lineX = (lineLeft - 6)
-        return self.canvas
         
     def getHeader(self):
         
@@ -74,9 +24,11 @@ class Header:
         
         # Only redraw header if text has changed:
         if (changed):
-            self.headerStrings = newHeaderStrings
-            self.drawHeader()
-        
+            footer = pygame.Surface((config.WIDTH-(config.charWidth*2), config.MEDcharHeight))
+            footer.fill((0, 0, 0))
+
+            self.canvas.blit(self.parent.drawFooter(footer), (config.charWidth, config.HEIGHT-config.MEDcharHeight*1.5))
+
         return self.canvas, changed
 #Generate The tabs menu
 def genHeaderTabs(tabs, currentTab):

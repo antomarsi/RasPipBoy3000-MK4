@@ -14,7 +14,10 @@ class CmdLineClass:
         self.canvas = pygame.Surface(self.parent.canvasSize)
         
         # Use scanlines as base, with tint:
-        self.baseOverlay = self.parent.scanLines.convert()
+        if config.USE_SCANLINE:
+            self.baseOverlay = self.parent.scanLines.convert()
+        else:
+            self.baseOverlay = self.canvas
         self.baseOverlay.fill(config.TINTCOLOUR,None,pygame.BLEND_RGB_MULT)
         self.cursorRect = [0,0,config.charWidth,config.charWidth]
         self.cursorYoffset = (config.charHeight - config.charWidth - 4)
