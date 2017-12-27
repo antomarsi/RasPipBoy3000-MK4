@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+selectnone-raspipboy-73553033cfbc/
+.vscode/
+cache/
