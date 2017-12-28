@@ -164,6 +164,41 @@ if USE_SOUND:
             "camerastart":    pygame.mixer.Sound('sounds/vats/ui_vats_enter.wav'),
             #"cameraexit":    pygame.mixer.Sound('sounds/vats/ui_vats_exit.wav'),
         }
+
+        NEW_SOUNDS = {
+            "BootSequence": [
+                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_A.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_B.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_C.wav')
+            ],
+            "Move": [
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_01.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_02.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_03.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_04.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_05.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_06.wav')
+            ],
+            "BurstStatic": [
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_01.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_02.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_03.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_04.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_05.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_06.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_07.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_08.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_09.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_10.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_11.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_12.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_13.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_14.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_15.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_16.wav'),
+                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_17.wav')
+            ]
+        }
         SOUNDS["hum"].set_volume(MINHUMVOL)
         print ("(done)")
     except:
