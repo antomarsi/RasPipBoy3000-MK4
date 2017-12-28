@@ -4,6 +4,7 @@
 
 import pygame, os, time, random, math, datetime
 from pygame.locals import *
+from PIL import Image, ImageFilter
 import config
 
 from pipboy_gps import *
@@ -75,26 +76,26 @@ class Engine:
         
         self.screen = pygame.display.set_mode(self.screenSize)
         
-        self.background = config.IMAGES["background"]
-        self.background = pygame.transform.smoothscale(self.background, self.canvasSize)
+        if config.USE_BACKGROUND:
+            self.background = config.IMAGES["background"]
+            self.background = pygame.transform.smoothscale(self.background, self.canvasSize)
         
-        # Lighten background:
-        backAdd = 30
-        self.background.fill((backAdd, backAdd, backAdd),None,pygame.BLEND_RGB_ADD)
-        
-        # Untextured background:
-        self.background = pygame.Surface(self.canvasSize)
-        greyback = 0
-        self.background.fill((greyback,greyback,greyback))
-        
-        
+            # Lighten background:
+            backAdd = 30
+            self.background.fill((backAdd, backAdd, backAdd),None,pygame.BLEND_RGB_ADD)
+        else:
+            # Untextured background:
+            self.background = pygame.Surface(self.canvasSize)
+            greyback = 0
+            self.background.fill((greyback,greyback,greyback))
+
         self.background = self.background.convert()
         
         # Scanlines:
         if config.USE_SCANLINE:
             scanline = config.IMAGES["scanline"]
 
-            lineCount = 80 # 48 60 80
+            lineCount = 120 # 48 60 80
             lineHeight = config.HEIGHT / lineCount
             scanline = pygame.transform.smoothscale (scanline, (config.WIDTH, int(lineHeight)))
             
@@ -105,12 +106,12 @@ class Engine:
                 yPos += lineHeight
             
             # Increase contrast, darken:
-            self.scanLines.blit(self.scanLines, (0, 0), None, pygame.BLEND_RGB_MULT)
+            self.scanLines.blit(self.scanLines, (0, 0), None, pygame.BLEND_RGB_ADD)
             
             #scanMult = 0.5
             scanMult = 0.7
             scanMultColour = (scanMult * 255, scanMult * 255, scanMult * 255)
-            self.scanLines.fill(scanMultColour, None, pygame.BLEND_RGBA_MULT)
+            self.scanLines.fill(scanMultColour, None, pygame.BLEND_RGBA_ADD)
             self.scanLines = self.scanLines.convert()
         
         # Start humming sound:
@@ -182,7 +183,7 @@ class Engine:
                     thisFrame.blit(distortLine, (0, distortY), None, pygame.BLEND_RGB_ADD)
                     
                     # Tint screen:
-                    thisFrame.fill(config.TINTCOLOUR,None,pygame.BLEND_RGB_ADD)
+                    thisFrame.fill(config.TINTCOLOUR,None,pygame.BLEND_RGB_MULT)
         
                     thisFrame = thisFrame.convert()
                     self.overlayFrames.append(thisFrame)
