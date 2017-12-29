@@ -106,7 +106,7 @@ class Engine:
                 yPos += lineHeight
             
             # Increase contrast, darken:
-            self.scanLines.blit(self.scanLines, (0, 0), None, pygame.BLEND_RGB_ADD)
+            self.scanLines.blit(self.scanLines, (0, 0), None, pygame.BLEND_RGB_MULT)
             
             #scanMult = 0.5
             scanMult = 0.7
@@ -358,8 +358,7 @@ class Engine:
             tab.canvas = pageCanvas.convert()
             tab.canvas.blit(headFoot.genHeaderTabs(self.tabs, tab), (config.WIDTH*0.05,0), None, pygame.BLEND_ADD)
             tab.canvas.blit(headerCanvas, (0,0), None, pygame.BLEND_ADD)
-            tab.canvas.blit(tab.footerImgs[self.modeNum], (0,0), None, pygame.BLEND_ADD)
-        
+            tab.canvas.blit(tab.footerImgs[self.modeNum], (config.WIDTH*0.05, (config.HEIGHT*0.13)-(config.MEDcharHeight/2)), None, pygame.BLEND_ADD)
         self.drawnPage = pageNums
         
         return tab.canvas, canvasChange

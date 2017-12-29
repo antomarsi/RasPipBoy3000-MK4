@@ -11,7 +11,7 @@ USE_SOUND = True        # Play sounds via RasPi's current sound-source
 USE_CAMERA = False        # Use RasPi camera-module as V.A.T.S
 USE_SERIAL = False        # Communicate with custom serial-port controller
 
-QUICKLOAD = False       # If true, commandline-startup bits aren't rendered
+QUICKLOAD = True       # If true, commandline-startup bits aren't rendered
 FORCE_DOWNLOAD = False    # Don't use cached map-data, if online
 
 # Render screen-objects at this size - smaller is faster
@@ -164,39 +164,11 @@ if USE_SOUND:
             "camerastart":    pygame.mixer.Sound('sounds/vats/ui_vats_enter.wav'),
             #"cameraexit":    pygame.mixer.Sound('sounds/vats/ui_vats_exit.wav'),
         }
-
         NEW_SOUNDS = {
             "BootSequence": [
-                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_A.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_B.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BootSequence/UI_PipBoy_BootSequence_C.wav')
-            ],
-            "Move": [
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_01.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_02.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_03.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_04.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_05.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/Move/UI_PipBoy_Move_06.wav')
-            ],
-            "BurstStatic": [
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_01.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_02.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_03.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_04.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_05.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_06.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_07.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_08.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_09.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_10.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_11.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_12.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_13.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_14.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_15.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_16.wav'),
-                 pygame.mixer.Sound('sounds/Fallout4/BurstStatic/UI_PipBoy_BurstStatic_17.wav')
+                 pygame.mixer.Sound('sounds/new/boot/a.ogg'),
+                 pygame.mixer.Sound('sounds/new/boot/b.ogg'),
+                 pygame.mixer.Sound('sounds/new/boot/c.ogg')
             ]
         }
         SOUNDS["hum"].set_volume(MINHUMVOL)
@@ -237,4 +209,3 @@ tempImg = MONOFONT.render("X", True, DRAWCOLOUR, (0, 0, 0))
 charHeight = tempImg.get_height()
 charWidth = tempImg.get_width()
 del tempImg
-

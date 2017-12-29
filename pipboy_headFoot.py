@@ -39,7 +39,7 @@ def genHeaderTabs(tabs, currentTab):
     SizeLen = len(tabs)
 
     SpacingX = SizeX/SizeLen
-    lines = [(0, SizeY), (0, SizeY-config.charHeight)]
+    lines = [(0, SizeY-(config.charHeight/2)), (0, SizeY-config.charHeight)]
     
     lines
     BoxColour = (80,0,0)
@@ -63,7 +63,7 @@ def genHeaderTabs(tabs, currentTab):
             lines.append((TextX+TextWidth+config.charWidth,topPad+config.LRGcharHeight/2))
             lines.append((TextX+TextWidth+config.charWidth,SizeY-config.charHeight))
             lines.append((SizeX-2, SizeY-config.charHeight))
-            lines.append((SizeX-2, SizeY))
+            lines.append((SizeX-2, SizeY-(config.charHeight/2)))
             pygame.draw.lines(img, config.DRAWCOLOUR, False, lines, 1)
             pygame.draw.rect(img, BoxColour, [
                 TextX-2, topPad,
@@ -82,55 +82,41 @@ def genHeaderTabs(tabs, currentTab):
 def genFooterImgs(ModeNames):
 
     footerImgs = []
-
-    for thisModeNum in range(0,len(ModeNames)):
-        img = pygame.Surface((config.WIDTH, config.HEIGHT))
+    sizeModes = len(ModeNames)
+    print (ModeNames)
+    for thisModeNum in range(0,sizeModes):
+        img = pygame.Surface((config.WIDTH*0.9, config.MEDcharHeight))
         footerImgs.append(img)
-        
+        # img.fill((255,0,0))
+
         TextXPadding = (config.charHeight * 1)
         TextCentreDiff = ((config.WIDTH - (TextXPadding * 2)) / 5)
         TextCentreX = TextXPadding + (TextCentreDiff / 2)
         TextY = (config.HEIGHT - config.charHeight - 4)
-        
+
         # Draw lines:
         topPad = config.HEIGHT/8
         topLine = config.HEIGHT/6
         rgtPad = config.WIDTH - cornerPadding
-        
-        # pygame.draw.lines(img, config.DRAWCOLOUR, False, [
-        #     (cornerPadding, topLine),
-        #     (rgtPad, topLine),
-        #     ], 2)
-        
-        # Draw mode-names, with box around selected one
-        # for ModeNum in range(0,5):
-            
-            # doSelBox = (ModeNum == thisModeNum)
-            # BoxColour = (0,0,0)
-            
-            # thisText = ModeNames[ModeNum]
-            #print thisText
-            
-            # textImg = config.FONT_LRG.render(thisText, True, config.DRAWCOLOUR)
-            
-            # TextWidth = (textImg.get_width())
-            # TextX = (TextCentreX - (TextWidth / 2))
-            # textPos = (TextX, topPad)
-            #BoxColour
-            # pygame.draw.rect(img, pygame.Color (80, 80, 0), (
-            #             TextX-4,
-            #             topPad,
-            #             TextWidth+8,
-            #             config.charHeight
-            #         ), 0)
 
-            # if (not doSelBox):
-            #     pygame.draw.lines(img, pygame.Color (255, 255, 255), False, [
-            #     ((TextCentreX - (TextWidth/2)-4),  topLine),
-            #     ((TextCentreX + (TextWidth/2)+4) , topLine),
-            #     ], 2)
-            # img.blit(textImg, textPos)
+        # pygame.draw.rect(img, pygame.Color (80, 80, 0), (0, 0, img.get_width(), img.get_height() ), 0)
+        listModes = []
+        for ModeNum in range(thisModeNum, sizeModes):
+            listModes.append(ModeNum)
+        for ModeNum in range(0, thisModeNum):
+            listModes.append(ModeNum)
+        posX = config.MEDcharWidth
+        # Draw mode-names, with box around selected one
+        modifier = 1.0
+        for ModeNum in listModes:
             
-            # TextCentreX += TextCentreDiff
-        
+            doSelBox = (ModeNum == thisModeNum)
+            thisText = ModeNames[ModeNum]
+            print (thisText)
+            textColor = (255*modifier, 255*modifier, 255*modifier)
+            textImg = config.FONT_MED.render(thisText, True, textColor)
+            img.blit(textImg, (posX, 0))
+            posX += textImg.get_width() + config.MEDcharWidth
+            modifier -= 0.25
+
     return footerImgs

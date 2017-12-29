@@ -39,13 +39,11 @@ class Tab_Stats:
                     self.pageCanvas.blit(image, (((config.WIDTH - imageSize) / 2), 0), None, pygame.BLEND_ADD)
                     
                     # Print player-name/level under statusboy:
-                    text = ("%s - LEVEL %s" %(config.PLAYERNAME, config.PLAYERLEVEL))
-                    textImg = config.FONT_LRG.render(text, True, config.DRAWCOLOUR, (0, 0, 0))
+                    textImg = config.FONT_LRG.render(config.PLAYERNAME, True, config.DRAWCOLOUR, (0, 0, 0))
                     self.pageCanvas.blit(textImg, ((config.WIDTH - textImg.get_width()) / 2, config.HEIGHT * 0.805), None, pygame.BLEND_ADD)
                     
                     # Add page-list:
-                    self.pageCanvas.blit(self.pageListImg, (0,0), None, pygame.BLEND_ADD)
-                
+                    
                 return self.pageCanvas, pageChanged
             
             # Called every view changes to this sub-page:
@@ -54,13 +52,13 @@ class Tab_Stats:
             # Consume events passed to this sub-page:
             def ctrlEvents(self,events):
                 True
-        
+
         # Used for line-based stats:
         class StatLine:
-            
+
             changed = True
             firstDraw = True
-            
+
             # Default values:
             curVal = -1
             minVal = 0
@@ -74,7 +72,7 @@ class Tab_Stats:
                 self.rootParent = self.parent.rootParent
                 self.name = args[1]
                 self.pageCanvas = pygame.Surface((config.WIDTH, config.HEIGHT))
-                
+
             def updateStatus(self):
                 
                 newVal = -1
@@ -249,52 +247,13 @@ class Tab_Stats:
         def __init__(self, *args, **kwargs):
             self.parent = args[0]
             self.rootParent = self.parent.rootParent
-            self.name = "Status"
+            self.name = "STATUS"
             
             # Set up list of sub-pages:
             Condition = self.Condition
             StatLine = self.StatLine
             self.subPages = [Condition(self),StatLine(self,'RAD'),StatLine(self,'TMP'),StatLine(self,'BAT'),StatLine(self,'WAN'),StatLine(self,'GPS')]
-            
-            # Generate list-image for each sub-page:
-            for thisPageNum in range(0,len(self.subPages)):
-                
-                thisPage = self.subPages[thisPageNum]
-                thisPage.pageListImg = pygame.Surface((config.WIDTH, config.HEIGHT))
-                
-                TextX = (config.charWidth * 2.9)
-                TextY = (config.charHeight * 3)
-                
-                # Draw page-names, with box around selected one
-                for subPageNum in range(0,len(self.subPages)):
-                    
-                    doSelBox = (subPageNum == thisPageNum)
-                    
-                    BackColour = None
-                    if doSelBox:
-                        BoxColour = (config.SELBOXGREY,config.SELBOXGREY,config.SELBOXGREY)
-                    
-                    thisText = self.subPages[subPageNum].name
-                    #print thisText
-                    
-                    textImg = config.FONT_LRG.render(thisText, True, config.DRAWCOLOUR, (0,0,0))
-                    
-                    TextWidth = (textImg.get_width())
-                    textPos = (TextX, TextY)
-                    
-                    if (doSelBox):
-                        TextRect = (TextX - 2, TextY - 2, TextWidth + 4, config.charHeight + 4)
-                        pygame.draw.rect(thisPage.pageListImg, BoxColour, TextRect, 0)
-                        TextRect = (TextRect[0] - 2, TextRect[1], TextRect[2] + 2, TextRect[3])
-                        pygame.draw.rect(thisPage.pageListImg, config.DRAWCOLOUR, TextRect, 2)
-                    
-                    thisPage.pageListImg.blit(textImg, textPos, None, pygame.BLEND_ADD)
-                    
-                    TextY += (config.charHeight * 1.5)
-                
-                # Do initial page-draw, caching for later use:
-                thisPage.drawPage()
-        
+
         def drawPage(self):
             # Pass sub-page canvas up to tab-draw function...
             subPageCanvas,subPageChanged = self.curSubPage.drawPage()
@@ -342,7 +301,7 @@ class Tab_Stats:
         def __init__(self, *args, **kwargs):
             self.parent = args[0]
             self.rootParent = self.parent.rootParent
-            self.name = "S.P.E.C.I.A.L."
+            self.name = "SPECIAL"
             self.pageCanvas = pygame.Surface((config.WIDTH, config.HEIGHT))
             
         def drawPage(self):
@@ -358,7 +317,7 @@ class Tab_Stats:
         # Consume events passed to this page:
         def ctrlEvents(self,events):
             True
-            
+
     class Mode_Skills:
         
         changed = True
@@ -366,7 +325,7 @@ class Tab_Stats:
         def __init__(self, *args, **kwargs):
             self.parent = args[0]
             self.rootParent = self.parent.rootParent
-            self.name = "Skills"
+            self.name = "SKILLS"
             self.pageCanvas = pygame.Surface((config.WIDTH, config.HEIGHT))
         
         def drawPage(self):
@@ -382,7 +341,7 @@ class Tab_Stats:
         # Consume events passed to this page:
         def ctrlEvents(self,events):
             True
-            
+
     class Mode_Perks:
         
         changed = True
@@ -390,7 +349,7 @@ class Tab_Stats:
         def __init__(self, *args, **kwargs):
             self.parent = args[0]
             self.rootParent = self.parent.rootParent
-            self.name = "Perks"
+            self.name = "PERKS"
             self.pageCanvas = pygame.Surface((config.WIDTH, config.HEIGHT))
             
         def drawPage(self):
@@ -406,31 +365,7 @@ class Tab_Stats:
         # Consume events passed to this page:
         def ctrlEvents(self,events):
             True
-    class Mode_General:
-        
-        changed = True
-        
-        def __init__(self, *args, **kwargs):
-            self.parent = args[0]
-            self.rootParent = self.parent.rootParent
-            self.name = "General"
-            self.pageCanvas = pygame.Surface((config.WIDTH, config.HEIGHT))
-            
-        def drawPage(self):
-            pageChanged = self.changed
-            self.changed = False
-            if(pageChanged):
-                True                
-            return self.pageCanvas, pageChanged
-        
-        # Called every view changes to this page:
-        def resetPage(self):
-            True
-        # Consume events passed to this page:
-        def ctrlEvents(self,events):
-            True
-    
-    
+
     # Generate text for header:
     def getHeaderText(self):
         return ["HP %s/%s" %(config.PLAYERHP, config.PLAYERHPMAX), "LVL %s" %(config.PLAYERLEVEL), "AP 92/92"]
@@ -481,11 +416,11 @@ class Tab_Stats:
         self.canvas = pygame.Surface((config.WIDTH, config.HEIGHT))
         self.drawnPageNum = -1
         
-        self.modes = [self.Mode_Status(self),self.Mode_SPECIAL(self),self.Mode_Skills(self),self.Mode_Perks(self),self.Mode_General(self)]
+        self.modes = [self.Mode_Status(self),self.Mode_SPECIAL(self),self.Mode_Skills(self),self.Mode_Perks(self)]
         
-        self.modeNames = ["","","","",""]
-        for n in range(0,5):
-            self.modeNames[n] = self.modes[n].name
+        self.modeNames = []
+        for n in range(0,len(self.modes)):
+            self.modeNames.insert(n, self.modes[n].name)
             
         self.header = headFoot.Header(self)
         
