@@ -27,13 +27,13 @@ class CmdLineClass:
         self.printY = self.homeY
         
         self.maxCursorY = config.HEIGHT - (3 * config.charHeight)
-        
-    def printText (self, thisLine):
+                
+    def printText (self, thisLine, charBychar = False):
         if config.QUICKLOAD:
             print (thisLine)
         elif thisLine == "**cls":
             # Revert screen:
-            time.sleep(2)
+            pygame.time.wait(2000)
             self.canvas.fill((0,0,0))
             self.printY = self.homeY
         else:
@@ -56,9 +56,9 @@ class CmdLineClass:
                 
                 # Only actually redraw screen every so often:
                 lastChar = (charNum == lineEndNum)
-                if (math.fmod(charNum,6) == 0) or (lastChar):
+                if (math.fmod(charNum,6) == 0) or (lastChar) or (charBychar):
                     if config.USE_SOUND:
-                        config.SOUNDS["changemode"].play()
+                        random.choice(config.NEW_SOUNDS["BurstDriveA"]).play()
                     
                     charImage = config.MONOFONT.render(drawChars, True, config.DRAWCOLOUR, (0, 0, 0))
                     self.canvas.blit(charImage, (printX, self.printY))
@@ -69,7 +69,6 @@ class CmdLineClass:
                     # Put cursor on next line if at end of line:
                     if (lastChar):
                         self.cursorRect[0] = self.homeX
-                        
                         if (self.cursorRect[1] < self.maxCursorY):                        
                             self.cursorRect[1] += config.charHeight
                         else:
@@ -103,12 +102,13 @@ class CmdLineClass:
                     firstChar = False
                     if (char == ">"):
                         isInputLine = True
-                        time.sleep(1)
-                
+                        pygame.time.wait(1000)
+                if charBychar:
+                    pygame.time.wait(50)
                 charNum += 1
                 
             self.printY += config.charHeight
 
             # Add wait for "processing" at end of "user-input" lines:
             if (isInputLine):
-                time.sleep(0.5)
+                pygame.time.wait(500)

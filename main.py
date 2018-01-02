@@ -116,8 +116,8 @@ class Engine:
         
         # Start humming sound:
         if config.USE_SOUND:
-            config.SOUNDS["start"].play()
-            self.humSound = config.SOUNDS["hum"]
+            random.choice(config.NEW_SOUNDS['Up']).play()
+            self.humSound = config.NEW_SOUNDS["Loop"]
             self.humSound.play(loops=-1)
             self.humVolume = self.humSound.get_volume()
         
@@ -133,29 +133,35 @@ class Engine:
         print ("START")
         
         cmdLine = CmdLineClass(self)
-    
+
+        if (not config.QUICKLOAD):
+            canvas = self.scanLines.convert()
+            maxChar = (config.WIDTH / config.SMLcharWidth)-2
+            codes = []
+            for line in range(0, 150):
+                textLine = ""
+                for row in range(0, int(maxChar)):
+                    textLine += random.choice(["0", "1"])
+                codes.append(textLine)
+                cmdLine.printText(textLine)
+            maxlines = config.HEIGHT / config.SMLcharHeight
+            for row in range(0, int(maxlines)):
+                cmdLine.printText(" ")
+                pygame.time.wait(100)
+            cmdLine.printText("**cls")
+
         bootPrintQueue = [
-            "WELCOME TO ROBCO INDUSTRIES (TM) TERMLINK",
-            ">SET TERMINAL/INQUIRE",
+            "******************** PIP-OS(R) V7.1.0.8 ********************",
             "",
-            "RIT-V300",
             "",
-            ">SET FILE/PROTECTION=OWNER:RWED ACCOUNTS.F",
-            ">SET HALT RESTART/MAINT",
-            "",
-            "Initializing Robco Industries(TM) MF Boot Agent v2.3.0",
-            "RETROS BIOS",
-            "RBIOS-4.02.08.00 52EE5.E7.E8",
-            "Copyright 2201-2203 Robco Ind.",
-            "Uppermem: 64 KB",
-            "Root (5A8)",
-            "Maintenance Mode",
-            "",
-            ">RUN DEBUG/ACCOUNTS.F",
-            "**cls",
-            "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM",
-            "COPYRIGHT 2075-2077 ROBCO INDUSTRIES",
-            "",
+            "COPYRIGHT 2075 ROBCO(R)",
+            "LOADER V1.1",
+            "EXEC VERSION 41.10",
+            "64K RAM SYSTEM",
+            "38911 BYTES FREE",
+            "NO HOLOTAPE FOUND",
+            "LOAD ROM(1) DEITRIX 303",
+            "**cls"
         ]
         
         # Print Robco boot-up text, interleaving lines with overlay-frame generation:
@@ -166,7 +172,7 @@ class Engine:
             willPrint = (lineNum < len(bootPrintQueue))
             if canPrint:
                 thisLine = bootPrintQueue[lineNum]
-                cmdLine.printText(thisLine)
+                cmdLine.printText(thisLine, True)
                 
                 lineNum += 1
                 canPrint = (lineNum < len(bootPrintQueue))
@@ -227,7 +233,7 @@ class Engine:
         self.currentTab.resetPage(self.modeNum)
         tabCanvas, tabChanged = self.drawTab()
         self.screenCanvas = tabCanvas.convert()
-        self.updateCanvas("changetab")
+        self.updateCanvas("RotaryHorizontal")
 
     # Show bootup-logo, play sound:
     def showBootLogo(self):
@@ -286,10 +292,10 @@ class Engine:
     def updateCanvas(self, updateSound = None):
         
         if config.USE_SOUND and (updateSound != None):
-            config.SOUNDS[updateSound].play()
+            random.choice(config.NEW_SOUNDS[updateSound]).play()
         
         # Do focus-in effect when changing tab (i.e. the lit buttons)
-        if (updateSound == "changetab"):
+        if (updateSound == "RotatoryHorizontal"):
             self.focusInDraw(self.screenCanvas)
         
         # Bake the background into the canvas-image:
@@ -397,21 +403,21 @@ class Engine:
                                 self.torchMode = True
                             elif (serBuffer == 'lightoff'): # Torch Off
                                 self.torchMode = False
-                            elif (serBuffer == '1'):
+                            elif (serBuffer == '1' and len(self.tabs) >= 1):
                                 self.tabNum = 0
-                            elif (serBuffer == '2'):
+                            elif (serBuffer == '2' and len(self.tabs) >= 2):
                                 self.tabNum = 1
-                            elif (serBuffer == '3'):
+                            elif (serBuffer == '3' and len(self.tabs) >= 3):
                                 self.tabNum = 2
-                            elif (serBuffer == 'q'):
+                            elif (serBuffer == 'q' and len(self.currentTab.modes) >= 1):
                                 self.modeNum = 0
-                            elif (serBuffer == 'w'):
+                            elif (serBuffer == 'w' and len(self.currentTab.modes) >= 2):
                                 self.modeNum = 1
-                            elif (serBuffer == 'e'):
+                            elif (serBuffer == 'e' and len(self.currentTab.modes) >= 3):
                                 self.modeNum = 2
-                            elif (serBuffer == 'r'):
+                            elif (serBuffer == 'r' and len(self.currentTab.modes) >= 4):
                                 self.modeNum = 3
-                            elif (serBuffer == 't'):
+                            elif (serBuffer == 't' and len(self.currentTab.modes) >= 5):
                                 self.modeNum = 4
                             elif (serBuffer == 'select'): # Select
                                 pageEvents.append('sel')
@@ -462,16 +468,24 @@ class Engine:
                         self.tabNum = 1
                     elif event.key == pygame.K_3:
                         self.tabNum = 2
-                    elif event.key == pygame.K_q:
+                    elif event.key == pygame.K_q and len(self.currentTab.modes) >= 1:
                         self.modeNum = 0
-                    elif event.key == pygame.K_w:
+                    elif event.key == pygame.K_w and len(self.currentTab.modes) >= 2:
                         self.modeNum = 1
-                    elif event.key == pygame.K_e:
+                    elif event.key == pygame.K_e and len(self.currentTab.modes) >= 3:
                         self.modeNum = 2
-                    elif event.key == pygame.K_r:
+                    elif event.key == pygame.K_r and len(self.currentTab.modes) >= 4:
                         self.modeNum = 3
-                    elif event.key == pygame.K_t:
+                    elif event.key == pygame.K_t and len(self.currentTab.modes) >= 5:
                         self.modeNum = 4
+                    elif event.key == pygame.K_m:
+                        self.modeNum += 1
+                        if self.modeNum > len(self.currentTab.modes)-1:
+                            self.modeNum = 0
+                    elif event.key == pygame.K_n:
+                        self.modeNum-=1
+                        if self.modeNum < 0:
+                            self.modeNum = len(self.currentTab.modes)-1
                     elif event.key == pygame.K_RETURN:
                         pageEvents.append('sel')
                     elif event.key == pygame.K_UP: # List up
@@ -488,13 +502,14 @@ class Engine:
             
             if(changedTorch):
                 if(self.torchMode):
-                    updateSound = "lighton"
+                    updateSound = "LightOn"
                 else:
-                    updateSound = "lightoff"
-            
+                    updateSound = "LightOff"
+            if(changedMode):
+                updateSound = "RotaryVertical"
             if(changedTab):
-                updateSound = "changetab"
-                
+                updateSound = "RotaryHorizontal"
+
             doUpdate = (changedTorch or changedTab or changedMode)
             
             if(doUpdate):

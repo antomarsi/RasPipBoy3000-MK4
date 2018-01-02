@@ -11,7 +11,7 @@ USE_SOUND = True        # Play sounds via RasPi's current sound-source
 USE_CAMERA = False        # Use RasPi camera-module as V.A.T.S
 USE_SERIAL = False        # Communicate with custom serial-port controller
 
-QUICKLOAD = True       # If true, commandline-startup bits aren't rendered
+QUICKLOAD = False       # If true, commandline-startup bits aren't rendered
 FORCE_DOWNLOAD = False    # Don't use cached map-data, if online
 
 # Render screen-objects at this size - smaller is faster
@@ -169,6 +169,40 @@ if USE_SOUND:
                  pygame.mixer.Sound('sounds/new/boot/a.ogg'),
                  pygame.mixer.Sound('sounds/new/boot/b.ogg'),
                  pygame.mixer.Sound('sounds/new/boot/c.ogg')
+            ],
+            "Up": [
+                 pygame.mixer.Sound('sounds/new/UpDown/up_1.ogg'),
+                 pygame.mixer.Sound('sounds/new/UpDown/up_2.ogg')
+            ],
+            "Loop": pygame.mixer.Sound('sounds/new/UI_PipBoy_Hum_LP.wav'),
+            "RotaryVertical": [
+                pygame.mixer.Sound('sounds/new/RotaryVertical/rotary_01.ogg'),
+                pygame.mixer.Sound('sounds/new/RotaryVertical/rotary_03.ogg')
+            ],
+            "RotaryHorizontal": [
+                pygame.mixer.Sound('sounds/new/RotaryHorizontal/rotary_01.ogg'),
+                pygame.mixer.Sound('sounds/new/RotaryHorizontal/rotary_02.ogg')
+            ],
+            "LightOn": [pygame.mixer.Sound('sounds/new/UI_PipBoy_LightOn.ogg')],
+            "LightOff": [pygame.mixer.Sound('sounds/new/UI_PipBoy_LightOff.ogg')],
+            "BurstDriveA": [
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_01.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_02.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_03.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_04.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_05.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_06.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_07.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_08.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_09.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_10.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_11.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_12.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_13.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_14.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_15.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_16.ogg'),
+                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_17.ogg'),
             ]
         }
         SOUNDS["hum"].set_volume(MINHUMVOL)
