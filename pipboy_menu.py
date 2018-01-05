@@ -1,12 +1,14 @@
 # RasPipBoy: A Pip-Boy 3000 implementation for Raspberry Pi
 #    Neal D Corbett, 2013
 # Screen header/footer
+# TODO CONVERT TO FALLOUT4
 
-import pygame, config, main
+import pygame
+import config, main
 
 cornerPadding = 10
 
-class TopMenu:
+class Header:
     
     headerStrings = []
     
@@ -15,7 +17,7 @@ class TopMenu:
         self.rootParent = self.parent.rootParent
         self.canvas = pygame.Surface((config.WIDTH, config.HEIGHT))
         
-    def getMenu(self):
+    def getHeader(self):
         
         newHeaderStrings = self.parent.getHeaderText()
         changed = (newHeaderStrings != self.headerStrings)
