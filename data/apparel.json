@@ -1,0 +1,14 @@
+[
+    {
+        "baseid":"0022da6a",
+        "title":"10mm pisto",
+        "icon":null,
+        "image": "icons/FO4InvPageIcons/icon_253.png",
+        "armorType": 10,
+        "weight":3.5,
+        "value":20,
+        "DR":0,
+        "ER":5,
+        "RR":10
+    }
+]

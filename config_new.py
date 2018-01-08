@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, os, glob, json
 # RasPipBoy: A Pip-Boy 3000 implementation for Raspberry Pi
 #    Neal D Corbett, 2013
 # Configuration data
@@ -26,6 +26,11 @@ USE_BACKGROUND = False
 defaultPlace = "Blumenau SC"
 
 CHARACTER_JSON_FILE = "character.json"
+
+ITEM_DATABASE = []
+for f in glob.glob("data/*.json"):
+    with open(f, "rb") as infile:
+        ITEM_DATABASE.append(json.load(infile))
 
 FPS = 15
 
@@ -108,10 +113,10 @@ EVENTS = {
 
 print ("Loading images...")
 IMAGES = {
-    "background":pygame.image.load('images/pipboy_back.png'),
-    "scanline":pygame.image.load('images/pipboyscanlines.png'),
-    "distort":pygame.image.load('images/pipboydistorteffectmap.png'),
-    "statusboy":pygame.image.load('images/pipboy_statusboy.png'),
+    "background":pygame.image.load('assets/images/pipboy_back.png'),
+    "scanline":pygame.image.load('assets/images/pipboyscanlines.png'),
+    "distort":pygame.image.load('assets/images/pipboydistorteffectmap.png'),
+    "statusboy":pygame.image.load('assets/images/pipboy_statusboy.png'),
 }
 
 print ("(done)")
@@ -142,43 +147,43 @@ if USE_SOUND:
         pygame.mixer.init(44100, -16, 2, 2048)
         NEW_SOUNDS = {
             "BootSequence": [
-                 pygame.mixer.Sound('sounds/new/boot/a.ogg'),
-                 pygame.mixer.Sound('sounds/new/boot/b.ogg'),
-                 pygame.mixer.Sound('sounds/new/boot/c.ogg')
+                 pygame.mixer.Sound('assets/sounds/new/boot/a.ogg'),
+                 pygame.mixer.Sound('assets/sounds/new/boot/b.ogg'),
+                 pygame.mixer.Sound('assets/sounds/new/boot/c.ogg')
             ],
             "Up": [
-                 pygame.mixer.Sound('sounds/new/UpDown/up_1.ogg'),
-                 pygame.mixer.Sound('sounds/new/UpDown/up_2.ogg')
+                 pygame.mixer.Sound('assets/sounds/new/UpDown/up_1.ogg'),
+                 pygame.mixer.Sound('assets/sounds/new/UpDown/up_2.ogg')
             ],
-            "Loop": pygame.mixer.Sound('sounds/new/UI_PipBoy_Hum_LP.wav'),
+            "Loop": pygame.mixer.Sound('assets/sounds/new/UI_PipBoy_Hum_LP.wav'),
             "RotaryVertical": [
-                pygame.mixer.Sound('sounds/new/RotaryVertical/rotary_01.ogg'),
-                pygame.mixer.Sound('sounds/new/RotaryVertical/rotary_03.ogg')
+                pygame.mixer.Sound('assets/sounds/new/RotaryVertical/rotary_01.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/RotaryVertical/rotary_03.ogg')
             ],
             "RotaryHorizontal": [
-                pygame.mixer.Sound('sounds/new/RotaryHorizontal/rotary_01.ogg'),
-                pygame.mixer.Sound('sounds/new/RotaryHorizontal/rotary_02.ogg')
+                pygame.mixer.Sound('assets/sounds/new/RotaryHorizontal/rotary_01.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/RotaryHorizontal/rotary_02.ogg')
             ],
-            "LightOn": [pygame.mixer.Sound('sounds/new/UI_PipBoy_LightOn.ogg')],
-            "LightOff": [pygame.mixer.Sound('sounds/new/UI_PipBoy_LightOff.ogg')],
+            "LightOn": [pygame.mixer.Sound('assets/sounds/new/UI_PipBoy_LightOn.ogg')],
+            "LightOff": [pygame.mixer.Sound('assets/sounds/new/UI_PipBoy_LightOff.ogg')],
             "BurstDriveA": [
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_01.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_02.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_03.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_04.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_05.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_06.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_07.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_08.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_09.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_10.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_11.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_12.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_13.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_14.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_15.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_16.ogg'),
-                pygame.mixer.Sound('sounds/new/BurstDriveA/bustdrivea_17.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_01.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_02.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_03.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_04.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_05.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_06.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_07.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_08.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_09.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_10.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_11.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_12.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_13.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_14.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_15.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_16.ogg'),
+                pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_17.ogg'),
             ]
         }
         SOUNDS["hum"].set_volume(MINHUMVOL)
@@ -189,8 +194,8 @@ print ("SOUND: %s" %(USE_SOUND))
 
 # Set up fonts:
 pygame.font.init()
-kernedFontName = 'fonts/monofonto-kerned.ttf'
-monoFontName = 'fonts/monofonto.ttf'
+kernedFontName = 'assets/fonts/monofonto-kerned.ttf'
+monoFontName = 'assets/fonts/monofonto.ttf'
 
 # Scale font-sizes to chosen resolution:
 FONT_SML = pygame.font.Font(kernedFontName, int (HEIGHT * (12.0 / 360)))
