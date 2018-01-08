@@ -1,4 +1,4 @@
-from abstract.Item import Item
+from classes.abstract.Item import Item
 
 class Weapon(Item):
     
@@ -31,3 +31,9 @@ class Weapon(Item):
         data["ammo"] = self.ammo
 
         return data
+
+    def draw(self):
+        super()
+
+    def toJSON(self):
+        super()

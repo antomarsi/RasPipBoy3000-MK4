@@ -21,6 +21,7 @@ FULLSCREAN = False
 DISPLAY_MODE = pygame.RESIZABLE
 USE_SCANLINE = True
 USE_BACKGROUND = False
+POST_PROCESSING = True
 # Address for map's default position: 
 #    (used if GPS is inactive)
 defaultPlace = "Blumenau SC"
@@ -30,8 +31,7 @@ CHARACTER_JSON_FILE = "character.json"
 ITEM_DATABASE = []
 for f in glob.glob("data/*.json"):
     with open(f, "rb") as infile:
-        ITEM_DATABASE.append(json.load(infile))
-
+        ITEM_DATABASE += (json.load(infile))
 FPS = 15
 
 # My Google-API key:

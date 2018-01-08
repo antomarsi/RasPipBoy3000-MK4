@@ -1,4 +1,4 @@
-from abstract.Item import Item
+from classes.abstract.Item import Item
 from enum import Enum
 
 class ArmorType(Enum):
@@ -40,3 +40,9 @@ class Apparel(Item):
         data["RR"] = self.radiationResistance
         data["armorType"] = self.armorType
         return data
+
+    def draw(self):
+        super()
+
+    def toJSON(self):
+        super()

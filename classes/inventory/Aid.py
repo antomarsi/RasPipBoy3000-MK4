@@ -1,4 +1,4 @@
-from abstract.Item import Item
+from classes.abstract.Item import Item
 
 class Aid(Item):
 
@@ -21,3 +21,9 @@ class Aid(Item):
         data["rads"] = self.rads
         data["effects"] = self.addedEffects
         return data
+
+    def draw(self):
+        super()
+
+    def toJSON(self):
+        super()

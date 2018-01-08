@@ -7,7 +7,7 @@
         "weight":3.5,
         "value":50,
         "fire_rate":46,
-        "range":83,
+        "range_distance":83,
         "accuracy":60,
         "damage":18,
         "ammo":"0001f276"

@@ -1,6 +1,6 @@
 #Classe responsavel para controlar informações do usuario, como itens, skills SPECIAl e Exception
 import json
-import Inventory
+from classes.inventory.inventory import *
 import config_new as config
 
 class VaultDweller:
@@ -39,7 +39,7 @@ class VaultDweller:
     }
 
     perks = []
-    inventory = Inventory
+    inventory = Inventory()
     quests = []
 
     def __init__(self, *args, **kwargs):
@@ -119,7 +119,9 @@ class VaultDweller:
         self.apMax = data['ap']['max']
         self.SPECIAl = data['SPECIAL']
         self.bodypartsCond = data['bodypartsCond']
-        self.inventory = Inventory(data["inventory"])
+        self.inventory.loadFrom(data["inv"])
+
+        return self
 
         ##TODO
         

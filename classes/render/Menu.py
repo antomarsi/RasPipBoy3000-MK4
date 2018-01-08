@@ -4,119 +4,95 @@
 # TODO CONVERT TO FALLOUT4
 
 import pygame
-import config, main
+import config_new as config
 
-cornerPadding = 10
+class Menu:
 
-class Header:
+    size_header_x = config.WIDTH*0.9
+    size_header_y = config.HEIGHT*0.15
+    old_tab = -1
     
-    headerStrings = []
-    
-    def __init__(self, *args, **kwargs):
-        self.parent = args[0]
-        self.rootParent = self.parent.rootParent
-        self.canvas = pygame.Surface((config.WIDTH, config.HEIGHT))
-        
-    def getHeader(self):
-        
-        newHeaderStrings = self.parent.getHeaderText()
-        changed = (newHeaderStrings != self.headerStrings)
-        
-        # Only redraw header if text has changed:
-        if (changed):
-            footer = pygame.Surface((config.WIDTH-(config.charWidth*2), config.MEDcharHeight))
-            footer.fill((0, 0, 0))
+    def __init__(self):
+        self.header = pygame.Surface((self.size_header_x, self.size_header_y))
 
-            self.canvas.blit(self.parent.drawFooter(footer), (config.charWidth, config.HEIGHT-config.MEDcharHeight*1.5))
+    #Generate The tabs menu on the top
+    def draw_header(self, current_tab, tabs):
+        if (self.old_tab == current_tab):
+            return self.header
+        self.old_tab = current_tab
+        self.header = pygame.Surface((self.size_header_x, self.size_header_y))
 
-        return self.canvas, changed
-#Generate The tabs menu
-def genHeaderTabs(tabs, currentTab):
-    SizeX = config.WIDTH*0.9
-    SizeY = config.HEIGHT*0.15
+        len_tab = len(tabs)
 
-    img = pygame.Surface((config.WIDTH*0.9, config.HEIGHT*0.15))
-    SizeLen = len(tabs)
+        SpacingX = self.size_header_x/len_tab
+        lines = [(0, self.size_header_y-(config.charHeight/2)), (0, self.size_header_y-config.charHeight)]
 
-    SpacingX = SizeX/SizeLen
-    lines = [(0, SizeY-(config.charHeight/2)), (0, SizeY-config.charHeight)]
-    
-    lines
-    BoxColour = (80,0,0)
-    
-    # Draw mode-names, with box around selected one
-    for tabNum in range(0, SizeLen):
-        doSelBox = (tabs[tabNum] == currentTab)
+        # Draw mode-names, with box around selected one
+        for tabNum in range(0, len_tab):
+            textImg = config.FONT_LRG.render(tabs[tabNum].tabName, True, config.DRAWCOLOUR)
+            TextWidth = (textImg.get_width())
+            topPad = self.size_header_y-textImg.get_height()*1.5
+            TextX = ((SpacingX*tabNum) + (TextWidth / len_tab-1))
+            textPos = (TextX, topPad)
+            if (tabNum == current_tab):
+                lines.append((TextX-config.charWidth,self.size_header_y-config.charHeight))
+                lines.append((TextX-config.charWidth,topPad+config.LRGcharHeight/2))
+                lines.append((TextX+TextWidth+config.charWidth,topPad+config.LRGcharHeight/2))
+                lines.append((TextX+TextWidth+config.charWidth,self.size_header_y-config.charHeight))
+                lines.append((self.size_header_x-2, self.size_header_y-config.charHeight))
+                lines.append((self.size_header_x-2, self.size_header_y-(config.charHeight/2)))
+                pygame.draw.lines(self.header, config.DRAWCOLOUR, False, lines, 1)
+                pygame.draw.rect(self.header, (80,0,0), [
+                    TextX-2, topPad,
+                    TextWidth+4, textImg.get_height()*5,
+                ],0)
 
-        thisText = tabs[tabNum].name
-        #print (thisText)
-
-        textImg = config.FONT_LRG.render(thisText, True, config.DRAWCOLOUR)
-        TextWidth = (textImg.get_width())
-        topPad = SizeY-textImg.get_height()*1.5
-        TextX = ((SpacingX*tabNum) + (TextWidth / 2))
-        textPos = (TextX, topPad)
-
-        if (doSelBox):
-            lines.append((TextX-config.charWidth,SizeY-config.charHeight))
-            lines.append((TextX-config.charWidth,topPad+config.LRGcharHeight/2))
-            lines.append((TextX+TextWidth+config.charWidth,topPad+config.LRGcharHeight/2))
-            lines.append((TextX+TextWidth+config.charWidth,SizeY-config.charHeight))
-            lines.append((SizeX-2, SizeY-config.charHeight))
-            lines.append((SizeX-2, SizeY-(config.charHeight/2)))
-            pygame.draw.lines(img, config.DRAWCOLOUR, False, lines, 1)
-            pygame.draw.rect(img, BoxColour, [
-                TextX-2, topPad,
-                TextWidth+4, textImg.get_height()*5,
-            ],0)
-            
-            
-            # pygame.draw.lines(img, pygame.Color (255, 255, 255), False, [
-            # ((TextCentreX - (TextWidth/2)-4),  topLine),
-            # ((TextCentreX + (TextWidth/2)+4) , topLine),
-            # ], 2)
-        img.blit(textImg, textPos)
-    return img
+                # pygame.draw.lines(img, pygame.Color (255, 255, 255), False, [
+                # ((TextCentreX - (TextWidth/2)-4),  topLine),
+                # ((TextCentreX + (TextWidth/2)+4) , topLine),
+                # ], 2)
+            self.header.blit(textImg, textPos)
+        return self.header
 
 # Generates footer-image:
-def genFooterImgs(ModeNames):
+# def genFooterImgs(ModeNames):
 
-    footerImgs = []
-    sizeModes = len(ModeNames)
-    print (ModeNames)
-    for thisModeNum in range(0,sizeModes):
-        img = pygame.Surface((config.WIDTH*0.9, config.MEDcharHeight))
-        footerImgs.append(img)
-        # img.fill((255,0,0))
+#     footerImgs = []
+#     sizeModes = len(ModeNames)
+#     print (ModeNames)
+#     for thisModeNum in range(0,sizeModes):
+#         img = pygame.Surface((config.WIDTH*0.9, config.MEDcharHeight))
+#         footerImgs.append(img)
+#         # img.fill((255,0,0))
 
-        TextXPadding = (config.charHeight * 1)
-        TextCentreDiff = ((config.WIDTH - (TextXPadding * 2)) / 5)
-        TextCentreX = TextXPadding + (TextCentreDiff / 2)
-        TextY = (config.HEIGHT - config.charHeight - 4)
+#         TextXPadding = (config.charHeight * 1)
+#         TextCentreDiff = ((config.WIDTH - (TextXPadding * 2)) / 5)
+#         TextCentreX = TextXPadding + (TextCentreDiff / 2)
+#         TextY = (config.HEIGHT - config.charHeight - 4)
 
-        # Draw lines:
-        topPad = config.HEIGHT/8
-        topLine = config.HEIGHT/6
-        rgtPad = config.WIDTH - cornerPadding
+#         # Draw lines:
+#         topPad = config.HEIGHT/8
+#         topLine = config.HEIGHT/6
+#         rgtPad = config.WIDTH - cornerPadding
 
-        # pygame.draw.rect(img, pygame.Color (80, 80, 0), (0, 0, img.get_width(), img.get_height() ), 0)
-        listModes = []
-        for ModeNum in range(thisModeNum, sizeModes):
-            listModes.append(ModeNum)
-        for ModeNum in range(0, thisModeNum):
-            listModes.append(ModeNum)
-        posX = config.MEDcharWidth
-        # Draw mode-names, with box around selected one
-        modifier = 1.0
-        for ModeNum in listModes:
+#         # pygame.draw.rect(img, pygame.Color (80, 80, 0), (0, 0, img.get_width(), img.get_height() ), 0)
+#         listModes = []
+#         for ModeNum in range(thisModeNum, sizeModes):
+#             listModes.append(ModeNum)
+#         for ModeNum in range(0, thisModeNum):
+#             listModes.append(ModeNum)
+#         posX = config.MEDcharWidth
+#         # Draw mode-names, with box around selected one
+#         modifier = 1.0
+#         for ModeNum in listModes:
             
-            doSelBox = (ModeNum == thisModeNum)
-            thisText = ModeNames[ModeNum]
-            print (thisText)
-            textColor = (255*modifier, 255*modifier, 255*modifier)
-            textImg = config.FONT_MED.render(thisText, True, textColor)
-            img.blit(textImg, (posX, 0))
-            posX += textImg.get_width() + config.MEDcharWidth
-            modifier -= 0.25
+#             doSelBox = (ModeNum == thisModeNum)
+#             thisText = ModeNames[ModeNum]
+#             print (thisText)
+#             textColor = (255*modifier, 255*modifier, 255*modifier)
+#             textImg = config.FONT_MED.render(thisText, True, textColor)
+#             img.blit(textImg, (posX, 0))
+#             posX += textImg.get_width() + config.MEDcharWidth
+#             modifier -= 0.25
 
-    return footerImgs
+#     return footerImgs

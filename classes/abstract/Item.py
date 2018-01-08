@@ -29,6 +29,7 @@ class Item(metaclass=ABCMeta):
     def getFromBaseid(self, baseid):
         baseitem = None
         for item in config.ITEM_DATABASE:
+            print(item)
             if baseid == item["baseid"]:
                 baseitem = item
         if baseitem == None:
