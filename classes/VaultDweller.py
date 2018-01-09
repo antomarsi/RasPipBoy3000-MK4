@@ -2,6 +2,13 @@
 import json
 from classes.inventory.inventory import *
 import config_new as config
+from enum import Enum
+
+class CondType(Enum):
+    POISONED = 0
+    ADDICTED = 1 
+    GHOUL = 2
+    OTHER = 3
 
 class VaultDweller:
 
@@ -11,7 +18,7 @@ class VaultDweller:
     expMax = 10
 
     health = 100
-    healthMax = 10
+    healthMax = 100
 
     ap = 100
     apMax = 100
@@ -31,11 +38,11 @@ class VaultDweller:
     }
 
     bodypartsCond = {
-        "Head": 100,
-        "LArm" : 100,
-        "RArm" : 100,
-        "LLeg" : 100,
-        "RLeg" : 100
+        "H": 100,
+        "LA" : 100,
+        "RA" : 100,
+        "LL" : 100,
+        "RL" : 100
     }
 
     perks = []
@@ -44,6 +51,44 @@ class VaultDweller:
 
     def __init__(self, *args, **kwargs):
         print ("Carregando VaultDweller de arquivo json")
+
+    def getBodyImage(self):
+        filename = ""
+        if self.bodypartsCond['LL'] == 0 and self.bodypartsCond['RL'] == 0:
+            filename += "BothLeg"
+        elif self.bodypartsCond['LL'] == 0:
+            filename += "LeftLeg"
+        elif self.bodypartsCond['RL'] == 0:
+            filename += "RightLeg"
+        
+        if self.bodypartsCond['LA'] == 0 and self.bodypartsCond['RA'] == 0:
+            filename += "BothArm"
+        elif self.bodypartsCond['LA'] == 0:
+            filename += "LeftArm"
+        elif self.bodypartsCond['RA'] == 0:
+            filename += "RightArm"
+
+        if not filename:
+            return config.IMAGES['health_cond']['Body']["Normal"]
+        return config.IMAGES['health_cond']['Body'][filename]
+
+    def getHeadImage(self):
+        filename = "Normal"
+
+        for cond in self.conditions:
+            if cond.type == CondType.GHOUL:
+                filename = "Ghoul"
+                break
+            elif cond.type == CondType.ADDICTED:
+                filename = "Addicted"
+                break
+            elif cond.type == CondType.POISONED:
+                filename = "Poisoned"
+                break
+        if self.bodypartsCond['H'] == 0:
+            filename += "Injured"
+
+        return config.IMAGES['health_cond']['Head'][filename]
 
     def toArray(self):
         data = {
@@ -71,11 +116,11 @@ class VaultDweller:
                 "Luck":self.special["Luck"],
             },
             "bodypartsCond" : {
-                "H":self.bodypartsCond["Head"],
-                "LA":self.bodypartsCond["LArm"],
-                "RA":self.bodypartsCond["RArm"],
-                "LL":self.bodypartsCond["LLeg"],
-                "RL":self.bodypartsCond["RLeg"],
+                "H":self.bodypartsCond["H"],
+                "LA":self.bodypartsCond["LA"],
+                "RA":self.bodypartsCond["RA"],
+                "LL":self.bodypartsCond["LL"],
+                "RL":self.bodypartsCond["RL"],
             },
             "conditions": [],
             "inv": {
@@ -118,7 +163,11 @@ class VaultDweller:
         self.ap = data['ap']['now']
         self.apMax = data['ap']['max']
         self.SPECIAl = data['SPECIAL']
-        self.bodypartsCond = data['bodypartsCond']
+        self.bodypartsCond['H'] = data['bodypartsCond']["H"]
+        self.bodypartsCond['LL'] = data['bodypartsCond']["LL"]
+        self.bodypartsCond['RL'] = data['bodypartsCond']["RL"]
+        self.bodypartsCond['LA'] = data['bodypartsCond']["LA"]
+        self.bodypartsCond['RA'] = data['bodypartsCond']["RA"]
         self.inventory.loadFrom(data["inv"])
 
         return self

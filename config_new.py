@@ -111,15 +111,45 @@ EVENTS = {
     'SONG_END': pygame.USEREVENT + 1
 }
 
-print ("Loading images...")
+print("Loading images...")
 IMAGES = {
     "background":pygame.image.load('assets/images/pipboy_back.png'),
     "scanline":pygame.image.load('assets/images/pipboyscanlines.png'),
     "distort":pygame.image.load('assets/images/pipboydistorteffectmap.png'),
     "statusboy":pygame.image.load('assets/images/pipboy_statusboy.png'),
+    "health_cond":{
+        "Body":{
+            "Normal":pygame.image.load('assets/img/health_cond/icon_condition_body_0.png'),
+            "LeftArm":pygame.image.load('assets/img/health_cond/icon_condition_body_1.png'),
+            "RightArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_2.png'),
+            "BothArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_3.png'),
+            "LeftLegload":pygame.image.load('assets/img/health_cond/icon_condition_body_4.png'),
+            "LeftLegLeftArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_5.png'),
+            "LeftLegRightArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_6.png'),
+            "LeftLegBothArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_7.png'),
+            "RightLegload":pygame.image.load('assets/img/health_cond/icon_condition_body_8.png'),
+            "RightLegLeftArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_9.png'),
+            "RightLegRightArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_10.png'),
+            "RightLegBothArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_11.png'),
+            "BothLegload":pygame.image.load('assets/img/health_cond/icon_condition_body_12.png'),
+            "BothLegLeftArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_13.png'),
+            "BothLegRightArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_14.png'),
+            "BothLegBothArmload":pygame.image.load('assets/img/health_cond/icon_condition_body_15.png')
+        },
+        "Head": {
+            "Normal": pygame.image.load('assets/img/health_cond/icon_condition_head_1.png'),
+            "Poisoned": pygame.image.load('assets/img/health_cond/icon_condition_head_3.png'),
+            "Addicted": pygame.image.load('assets/img/health_cond/icon_condition_head_5.png'),
+            "Ghoul": pygame.image.load('assets/img/health_cond/icon_condition_head_7.png'),
+            "NormalInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_9.png'),
+            "PoisonedInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_9.png'),
+            "AddictedInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_11.png'),
+            "GhoulInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_13.png'),
+        }
+    }
 }
 
-print ("(done)")
+print("(done)")
 
 # Test internet connection:
 if USE_INTERNET:
