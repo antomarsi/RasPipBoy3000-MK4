@@ -24,15 +24,15 @@ class Menu:
 
         len_tab = len(tabs)
 
-        SpacingX = self.size_header_x/len_tab
+        SpacingX = (self.size_header_x/len_tab) *0.8
         lines = [(0, self.size_header_y-(config.charHeight/2)), (0, self.size_header_y-config.charHeight)]
 
         # Draw mode-names, with box around selected one
         for tabNum in range(0, len_tab):
-            textImg = config.FONT_LRG.render(tabs[tabNum].tabName, True, config.DRAWCOLOUR)
+            textImg = config.FONT_LRG.render(tabs[tabNum].tabName, False, config.DRAWCOLOUR)
             TextWidth = (textImg.get_width())
             topPad = self.size_header_y-textImg.get_height()*1.5
-            TextX = ((SpacingX*tabNum) + (TextWidth / len_tab-1))
+            TextX = ((SpacingX*tabNum) + (TextWidth / len_tab-1)) + SpacingX*0.5
             textPos = (TextX, topPad)
             if (tabNum == current_tab):
                 lines.append((TextX-config.charWidth,self.size_header_y-config.charHeight))

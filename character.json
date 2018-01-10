@@ -39,7 +39,14 @@
                 "eqp": true
             }
         ],
-        "Apparel": [],
+        "Apparel": [
+            {
+                "baseid": "0022da6a",
+                "qtd": 1,
+                "fav": false,
+                "eqp": true
+            }
+        ],
         "Aid": [],
         "Misc": [],
         "Junk": [],

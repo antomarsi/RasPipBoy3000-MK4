@@ -10,8 +10,11 @@ from classes.VaultDweller import VaultDweller
 class Engine():
 
     menuNum = 0
-    subMenuNum = 0
     torchMode = False
+    blurimage = None
+    glowimage = None
+    scan_lines = None
+    changed = True
     def __init__(self, *args, **kwargs):
 
         if(config.USE_SERIAL):
@@ -47,24 +50,32 @@ class Engine():
         self.background = None
 
     def drawAll(self):
+
+
         top = self.menu.draw_header(self.current_tab, self.tabs)
         self.screen.blit(top, (config.WIDTH*0.05, 0), None, pygame.BLEND_ADD)
 
+        submenu = self.tabs[self.current_tab].draw_submenus()
+        self.screen.blit(submenu, (config.WIDTH*0.05+10, config.HEIGHT*0.1), None, pygame.BLEND_ADD)
+
         tab = self.tabs[self.current_tab].draw(self.character)
-        self.screen.blit(tab, (0, config.HEIGHT*0.15), None, pygame.BLEND_ADD)
+        self.screen.blit(tab, (0, config.HEIGHT*0.2), None, pygame.BLEND_ADD)
 
         footer = self.tabs[self.current_tab].drawFooter(self.character)
         self.screen.blit(footer, (config.WIDTH*0.05, config.HEIGHT-config.MEDcharHeight-(config.HEIGHT*0.05)), None, pygame.BLEND_ADD)
 
-    def drawOverlay(self):
-        scan_lines = self.screen.convert_alpha()
-        scan_lines.fill((255, 255, 255, 25))
-        for j in range(0, self.screenSize[1], 2):
-            scan_lines.fill((0, 0, 0, 75), (0, j, self.screenSize[0], 1), pygame.BLEND_RGBA_MULT)
 
-        self.screen.blit(scan_lines, (0, 0)) 
+    def drawOverlay(self):
         self.background = self.screen.convert_alpha()
         self.background.fill((0, 200, 0), None, pygame.BLEND_RGBA_MULT)
+        self.screen.blit(self.background, (0,0))
+
+        if not self.scan_lines or self.changed:
+            self.scan_lines = self.screen.convert_alpha()
+            for j in range(0, self.screenSize[1], 2):
+                pygame.draw.line(self.scan_lines, (0, 0, 0, 25), (0, j), (self.screenSize[0], j), 1)
+        self.screen.blit(self.scan_lines, (0, 0))
+
         if False:
             if self.scanline_effect.height < 32:
                 self.scanline_effect.height += 4
@@ -74,24 +85,46 @@ class Engine():
                 self.scanline_effect.x = 0
                 self.scanline_effect.y = 0
                 self.scanline_effect.height = 1
-
-            self.background.fill((50, 50, 50, 0), self.scanline_effect, pygame.BLEND_RGBA_SUB)
-        self.screen.blit(self.background, (0,0))
             
         if config.POST_PROCESSING:
-            ##EFEITO DE GLOW
-            self.screen.blit(Effects.blur_surf(self.screen, 1), (0,0), None, pygame.BLEND_ADD)
 
             #EFEITO DE BLINK
-            if (self.blur_cooldown.fire()):
-                self.screen.blit(Effects.blur_surf(self.screen, 3), (0,0), None, pygame.BLEND_ADD)
-                self.blur_cooldown.cooldown = random.randint(100,1000)
+            if (self.blur_cooldown.fire()) and config.BLINK:
+                if not self.blurimage:
+                    self.blurimage = Effects.blur_surf(self.screen, 4)
+                    self.blurimage.set_alpha(128)
+                self.screen.blit(self.blurimage, (0,0), None, pygame.BLEND_RGBA_ADD)
+                self.blur_cooldown.cooldown = random.randint(500,1000)
+
+            ##EFEITO DE GLOW
+            if not self.glowimage or self.changed:
+                self.glowimage = Effects.blur_surf(self.screen, 1)
+            self.screen.blit(self.glowimage, (0,0), None, pygame.BLEND_RGB_ADD)
+
+    def inputs(self):
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key in config.KEYS.values():
+                self.changed = True
+                if event.key == config.KEYS['PREVIUS_MENU']:
+                    if self.menuNum > 0:
+                        self.menuNum -= 1
+                if event.key == config.KEYS['NEXT_MENU']:
+                    if self.menuNum < len(self.tabs)-1:
+                        self.menuNum += 1
+                if event.key == config.KEYS['PREVIUS_SUB']:
+                    self.tabs[self.menuNum].prev_sub()
+                if event.key == config.KEYS['NEXT_SUB']:
+                    self.tabs[self.menuNum].next_sub()
+                if event.key == config.KEYS['QUIT']:
+                    pygame.quit()
 
     def run(self):
         # Main Loop
         running = True
         
         while running:
+            self.inputs()
             bg = self.screen.convert()
 
             bg.fill((0, 0, 0))
@@ -102,6 +135,8 @@ class Engine():
             pygame.display.flip()
             self.clock.tick(config.FPS)
 
+            self.character.changed = False
+            self.changed = False
         pygame.quit()
 
 if __name__ == '__main__': 

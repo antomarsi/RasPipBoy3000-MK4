@@ -1,9 +1,9 @@
 [
     {
         "baseid":"0022da6a",
-        "title":"10mm pisto",
+        "title":"101 Jumpsuit",
         "icon":null,
-        "image": "icons/FO4InvPageIcons/icon_253.png",
+        "image": "img/apparel/vault_suit_toon.png",
         "armorType": 10,
         "weight":3.5,
         "value":20,

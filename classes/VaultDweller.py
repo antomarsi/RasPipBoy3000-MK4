@@ -1,6 +1,6 @@
 #Classe responsavel para controlar informações do usuario, como itens, skills SPECIAl e Exception
 import json
-from classes.inventory.inventory import *
+from classes import Inventory as inv
 import config_new as config
 from enum import Enum
 
@@ -11,6 +11,8 @@ class CondType(Enum):
     OTHER = 3
 
 class VaultDweller:
+
+    changed = False
 
     name = "Vault Dweller"
     level = 1
@@ -46,11 +48,24 @@ class VaultDweller:
     }
 
     perks = []
-    inventory = Inventory()
+    inventory = inv.Inventory()
     quests = []
 
     def __init__(self, *args, **kwargs):
         print ("Carregando VaultDweller de arquivo json")
+
+    def getEquipedWeapon(self):
+        for item in self.inventory.getWeapons():
+            if item["equip"]:
+                return item["item"]
+        return None
+
+    def getEquipedApparels(self):
+        apparels = []
+        for item in self.inventory.getApparels():
+            if item["equip"]:
+                apparels.append(item["item"])
+        return apparels
 
     def getBodyImage(self):
         filename = ""
@@ -169,7 +184,7 @@ class VaultDweller:
         self.bodypartsCond['LA'] = data['bodypartsCond']["LA"]
         self.bodypartsCond['RA'] = data['bodypartsCond']["RA"]
         self.inventory.loadFrom(data["inv"])
-
+        self.changed = True
         return self
 
         ##TODO

@@ -22,6 +22,7 @@ DISPLAY_MODE = pygame.RESIZABLE
 USE_SCANLINE = True
 USE_BACKGROUND = False
 POST_PROCESSING = True
+BLINK = False
 # Address for map's default position: 
 #    (used if GPS is inactive)
 defaultPlace = "Blumenau SC"
@@ -48,6 +49,20 @@ SERIALPORT = '/dev/teensy'
 # Pi GPIO serial:
 #SERIALPORT = '/dev/ttyAMA0'
 
+KEYS = {
+    "UP":pygame.K_UP,
+    "DOWN":pygame.K_DOWN,
+    "LEFT":pygame.K_LEFT,
+    "RIGHT":pygame.K_RIGHT,
+    "SELECT":pygame.K_RETURN,
+    "BACK":pygame.K_BACKSPACE,
+    "NEXT_MENU":pygame.K_e,
+    "PREVIUS_MENU":pygame.K_q,
+    "NEXT_SUB":pygame.K_d,
+    "PREVIUS_SUB":pygame.K_a,
+    "FAVORITE":pygame.K_f,
+    "QUIT":pygame.K_ESCAPE
+}
 # Test serial-controller:
 if USE_SERIAL:
     # Load libraries used by serial device, if present:
@@ -117,6 +132,14 @@ IMAGES = {
     "scanline":pygame.image.load('assets/images/pipboyscanlines.png'),
     "distort":pygame.image.load('assets/images/pipboydistorteffectmap.png'),
     "statusboy":pygame.image.load('assets/images/pipboy_statusboy.png'),
+    "status_page": {
+        "damage": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_3.png'),
+        "water": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_5.png'),
+        "fire": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_7.png'),
+        "electric": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_9.png'),
+        "frost": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_11.png'),
+        "radiation": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_13.png'),
+    },
     "health_cond":{
         "Body":{
             "Normal":pygame.image.load('assets/img/health_cond/icon_condition_body_0.png'),
