@@ -58,7 +58,7 @@ class Tab(metaclass=ABCMeta):
                 color = (255, 255, 255)
             else:
                 color = (80, 80, 80)
-            text = config.FONT_LRG.render(self.subMenus[index], False, color)
+            text = config.FONT_LRG.render(self.subMenus[index], True, color)
             self.submenu_surface.blit(text, (
                 spacing, 0
             ))
@@ -88,13 +88,9 @@ class TabStat(Tab):
         head = character.getHeadImage()
 
         scale = 0.35
-        body = pygame.transform.scale(
-            body, (int(body.get_width()*scale), int(body.get_height()*scale))
-            )
+        body = pygame.transform.rotozoom(body, 0, scale)
         scale = 0.175
-        head = pygame.transform.scale(
-            head, (int(head.get_width()*scale), int(head.get_height()*scale))
-            )
+        head = pygame.transform.rotozoom(head, 0, scale)
 
         rect = img.get_rect()
         body_pos = img.blit(body, (
@@ -166,6 +162,12 @@ class TabStat(Tab):
 
         armor_rect = pygame.draw.rect(img, (40, 40, 40), (rect.centerx - (max_size/2), top_padding, max_size, max_size))
 
+        icon = Effects.aspect_scale(
+            config.IMAGES['status_page']['armor'],
+            armor_rect.width*0.75,
+            armor_rect.height*0.75
+            )
+        img.blit(icon, (armor_rect.centerx-icon.get_width()/2, armor_rect.centery-icon.get_height()/2))
 
         index = 1
         for res in resistences:
@@ -180,7 +182,21 @@ class TabStat(Tab):
             index += 1
             text_res = config.FONT_MED.render(str(res), True, (255, 255, 255))
             img.blit(text_res, (res_rect.centerx-(text_res.get_width()*0.5), res_rect.centery+max_size/15))
-
+        weaponEquip = character.getEquipedWeapon()
+        if weaponEquip:
+            res_rect = pygame.draw.rect(img, (40, 40, 40),(
+                rect.centerx - (max_size) - config.SMLcharWidth*(0.5),
+                top_padding,
+                max_size/2, max_size)
+            )
+            icon = Effects.aspect_scale(
+                config.IMAGES['damage_type'][weaponEquip.ammo.damage_type],
+                 max_size/2.5, max_size/2.5
+                 )
+            img.blit(icon, (res_rect.centerx - (icon.get_width()/2), res_rect.centery - max_size/3))
+            text_res = config.FONT_MED.render(str(weaponEquip.damage), True, (255, 255, 255))
+            img.blit(text_res, (res_rect.centerx-(text_res.get_width()*0.5), res_rect.centery+max_size/15))
+            
         #img.fill((255, 255, 255), (0,img.get_height()*0.8, img.get_width(), img.get_height()*0.2))
         return img
 
@@ -210,13 +226,13 @@ class TabStat(Tab):
         #draw Texts
         hp_text = config.FONT_MED.render(
             "HP {}/{}".format(character.health, character.healthMax),
-            False, white)
+            True, white)
 
-        level_text = config.FONT_MED.render("LEVEL {}".format(character.level), False, white)
+        level_text = config.FONT_MED.render("LEVEL {}".format(character.level), True, white)
 
         ap_text = config.FONT_MED.render(
             "AP {}/{}".format(character.ap, character.apMax),
-            False, white)
+            True, white)
 
         img.blit(hp_text, (config.SMLcharWidth, 0))
         img.blit(level_text, (width_slice+(config.SMLcharWidth*1.5), 0))

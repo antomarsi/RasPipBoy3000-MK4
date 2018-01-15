@@ -41,7 +41,7 @@ class Effects(object):
                 sy = scale_factor * iy
             else:
                 sy = by
-        return pygame.transform.scale(img, (int(sx),int(sy)))
+        return pygame.transform.smoothscale(img, (int(sx),int(sy)))
 class Unit():
     def __init__(self, cooldown):
         self.last = pygame.time.get_ticks()

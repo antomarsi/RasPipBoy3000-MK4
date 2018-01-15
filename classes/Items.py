@@ -14,6 +14,15 @@ class ArmorType(Enum):
     SHIRT = 9
     JUMPSUIT = 10
 
+class DamageType(Enum):
+    BULLET = 1
+    ELETRIC = 2 
+    FIRE = 3
+    FROST = 4
+    EXPLOSIVE = 5
+    MINE = 6
+    LASER = 7
+
 class Aid(Item):
 
     hpRestore = 0
@@ -43,6 +52,20 @@ class Aid(Item):
         super()
 
 class Ammo(Item):
+
+    damage_type = DamageType.BULLET
+
+    def getFromBaseid(self, baseid):
+        baseitem = super().getFromBaseid(baseid)
+        self.damage_type = baseitem["damage_type"]
+
+        return baseitem
+
+    def toArray(self):
+        data = super().toArray()
+        data["damage_type"] = self.damage_type
+
+        return data
 
     def draw(self):
         super()
@@ -108,12 +131,11 @@ class Mods(Item):
         super()
 
 class Weapon(Item):
-    
     fire_rate = 0
     range_distance = 0
     accuracy = 60
     damage = 18
-    ammo = ""
+    ammo = None
 
     def __init__(self):
         pass
@@ -125,7 +147,9 @@ class Weapon(Item):
         self.range_distance = baseitem["range_distance"]
         self.accuracy = baseitem["accuracy"]
         self.damage = baseitem["damage"]
-        self.ammo = baseitem["ammo"]
+        ammo = Ammo()
+        ammo.getFromBaseid(baseitem["ammo"])
+        self.ammo = ammo
 
         return baseitem
 
@@ -135,7 +159,10 @@ class Weapon(Item):
         data["range_distance"] = self.range_distance
         data["accuracy"] = self.accuracy
         data["damage"] = self.damage
-        data["ammo"] = self.ammo
+        if self.ammo:
+            data["ammo"] = self.ammo.baseid
+        else:
+            data["ammo"] = ""
 
         return data
 

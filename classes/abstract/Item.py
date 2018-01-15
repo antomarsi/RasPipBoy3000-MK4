@@ -35,8 +35,10 @@ class Item(metaclass=ABCMeta):
         if baseitem == None:
             print ("Item "+baseid+" not found")
             return None
-        self.image = baseitem['image']
-        self.icon = baseitem['icon']
+        if 'image' in baseitem and baseitem['image']:
+            self.image = baseitem['image']
+        if 'icon' in baseitem and baseitem['icon']:
+            self.icon = baseitem['icon']
         self.title = baseitem['title']
         self.weight = baseitem['weight']
         self.value = baseitem['value']

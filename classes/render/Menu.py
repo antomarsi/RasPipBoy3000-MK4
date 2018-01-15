@@ -29,7 +29,7 @@ class Menu:
 
         # Draw mode-names, with box around selected one
         for tabNum in range(0, len_tab):
-            textImg = config.FONT_LRG.render(tabs[tabNum].tabName, False, config.DRAWCOLOUR)
+            textImg = config.FONT_LRG.render(tabs[tabNum].tabName, True, config.DRAWCOLOUR)
             TextWidth = (textImg.get_width())
             topPad = self.size_header_y-textImg.get_height()*1.5
             TextX = ((SpacingX*tabNum) + (TextWidth / len_tab-1)) + SpacingX*0.5

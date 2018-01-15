@@ -139,6 +139,7 @@ IMAGES = {
         "electric": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_9.png'),
         "frost": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_11.png'),
         "radiation": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_13.png'),
+        "armor": pygame.image.load('assets/icons/FO4StatsPageIcons/icon_154.png'),
     },
     "health_cond":{
         "Body":{
@@ -169,7 +170,17 @@ IMAGES = {
             "AddictedInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_11.png'),
             "GhoulInjured": pygame.image.load('assets/img/health_cond/icon_condition_head_13.png'),
         }
-    }
+    },
+    "damage_type": [
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_206.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_46.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_40.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_38.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_42.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_138.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_140.png'),
+        pygame.image.load('assets/icons/FO4InvPageIcons/icon_44.png')
+    ]
 }
 
 print("(done)")
