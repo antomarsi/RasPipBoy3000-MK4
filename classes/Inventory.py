@@ -16,7 +16,7 @@ class Inventory():
     #     "Ammo": []
 
     def __init__(self, loader = []):
-        print(loader)
+        pass
     
     def loadFrom(self, data):
         self.backpack.clear()

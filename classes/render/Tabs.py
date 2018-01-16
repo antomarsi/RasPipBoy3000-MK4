@@ -1,7 +1,8 @@
 import pygame, config_new as config
 import classes.VaultDweller as VaultDweller
-from classes.render.effects import Effects
+from classes.render.effects import Effects, AnimatedSprite
 from abc import ABCMeta, abstractmethod
+import json
 
 class Tab(metaclass=ABCMeta):
 
@@ -75,11 +76,23 @@ class Tab(metaclass=ABCMeta):
     def drawFooter(self):
         return pygame.Surface(self.footerSize)
 
+    def inputs(self, events):
+        pass
+
 class TabStat(Tab):
 
     tabName = "STAT"
     subMenus = ["STATUS", "SPECIAL", "PERKS"]
+    status = None
+    special = None
+    movedUp = False
+    movedDown = False
+    selectedSpecial = 0
+    updates = []
     
+    def __init__(self):
+        with open(config.SPECIAL_INFO, 'r') as f:
+            self.specialinfos = json.load(f)
 
     def drawStatus(self, character:VaultDweller):
         img = super().draw()
@@ -196,14 +209,68 @@ class TabStat(Tab):
             img.blit(icon, (res_rect.centerx - (icon.get_width()/2), res_rect.centery - max_size/3))
             text_res = config.FONT_MED.render(str(weaponEquip.damage), True, (255, 255, 255))
             img.blit(text_res, (res_rect.centerx-(text_res.get_width()*0.5), res_rect.centery+max_size/15))
-            
+
         #img.fill((255, 255, 255), (0,img.get_height()*0.8, img.get_width(), img.get_height()*0.2))
         return img
+    def drawSpecial(self, character):
+        img = super().draw()
+        index = 0
+        for key, item in character.special.items():
+            text_color = (255, 255, 255)
+            rect = pygame.Rect(img.get_width()*0.05, index*(config.MEDcharHeight),
+                    img.get_width()/2 - img.get_width()*0.05,
+                    config.MEDcharHeight)
+            if self.selectedSpecial == index:
+                pygame.draw.rect(img, (255, 255, 255), (
+                    rect
+                ))
+                text_color = (0, 0, 0)
+                info = self.specialinfos[key]
+                Effects.drawText(img, info["description"], (255, 255, 255), (
+                    pygame.Rect(img.get_width()/2, img.get_height()*0.60, img.get_width()*0.45,img.get_height()*0.40)
+                ), config.FONT_SML, True)
+
+            text = config.FONT_MED.render(key, True, text_color)
+            points = config.FONT_MED.render(str(item), True, text_color)
+            
+            img.blit(text, rect.topleft)
+            img.blit(points, (rect.topright[0] - points.get_width() - config.MEDcharWidth, rect.topright[1]))
+
+            index += 1
+        
+
+        return img
+
+    def inputs(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key in config.KEYS.values():
+                self.changed = True
+                if event.key == config.KEYS['UP']:
+                    if self.selectedSpecial > 0:
+                        self.selectedSpecial -= 1
+                        config.NEW_SOUNDS['RotaryVertical'][0].play()
+                        self.special = None
+                if event.key == config.KEYS['DOWN']:
+                    if self.selectedSpecial < 6:
+                        self.selectedSpecial += 1
+                        config.NEW_SOUNDS['RotaryVertical'][1].play()
+                        self.special = None
 
     def draw(self, character: VaultDweller):
         if self.selectedSubmenu == 0:
-            if not self.menu or character.changed:
-                self.menu = self.drawStatus(character)
+            if not self.status or character.changed:
+                self.status = self.drawStatus(character)
+            if self.status != self.menu:
+                self.menu = self.status
+        elif self.selectedSubmenu == 1:
+            if not self.special or character.changed:
+                self.updates.clear()
+                self.special = self.drawSpecial(character)
+            if self.special != self.menu:
+                self.menu = self.special
+        for up in self.updates:
+            up.update()
+
         return self.menu
 
     def drawFooter(self, character:VaultDweller):

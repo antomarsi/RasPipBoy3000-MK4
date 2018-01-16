@@ -33,6 +33,8 @@ ITEM_DATABASE = []
 for f in glob.glob("data/*.json"):
     with open(f, "rb") as infile:
         ITEM_DATABASE += (json.load(infile))
+
+SPECIAL_INFO = "infos/special.json"
 FPS = 15
 
 # My Google-API key:
@@ -250,9 +252,10 @@ if USE_SOUND:
                 pygame.mixer.Sound('assets/sounds/new/BurstDriveA/bustdrivea_17.ogg'),
             ]
         }
-        SOUNDS["hum"].set_volume(MINHUMVOL)
+        NEW_SOUNDS["Loop"].set_volume(MINHUMVOL)
         print ("(done)")
     except:
+        print("Unexpected error:", sys.exc_info()[0])
         USE_SOUND = False
 print ("SOUND: %s" %(USE_SOUND))
 

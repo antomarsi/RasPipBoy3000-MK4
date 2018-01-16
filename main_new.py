@@ -15,6 +15,9 @@ class Engine():
     glowimage = None
     scan_lines = None
     changed = True
+    changedMenu = False
+    changedSubMenu = False
+    top = menu = submenu = footer = tab = None
     def __init__(self, *args, **kwargs):
 
         if(config.USE_SERIAL):
@@ -49,20 +52,28 @@ class Engine():
         self.scanline_effect = Rect(0, 0, config.WIDTH, 0)
         self.background = None
 
+        if config.USE_SOUND:
+            random.choice(config.NEW_SOUNDS['Up']).play()
+            self.humSound = config.NEW_SOUNDS["Loop"]
+            self.humSound.play(loops=-1)
+            self.humVolume = self.humSound.get_volume()
+
     def drawAll(self):
 
+        if not self.top or self.changedMenu:
+            self.top = self.menu.draw_header(self.current_tab, self.tabs)
+        self.screen.blit(self.top, (config.WIDTH*0.05, 0), None, pygame.BLEND_ADD)
 
-        top = self.menu.draw_header(self.current_tab, self.tabs)
-        self.screen.blit(top, (config.WIDTH*0.05, 0), None, pygame.BLEND_ADD)
+        if not self.submenu or self.changedSubMenu:
+           self.submenu = self.tabs[self.current_tab].draw_submenus()
+        self.screen.blit(self.submenu, (config.WIDTH*0.05+10, config.HEIGHT*0.1), None, pygame.BLEND_ADD)
 
-        submenu = self.tabs[self.current_tab].draw_submenus()
-        self.screen.blit(submenu, (config.WIDTH*0.05+10, config.HEIGHT*0.1), None, pygame.BLEND_ADD)
+        self.tab = self.tabs[self.current_tab].draw(self.character)
+        self.screen.blit(self.tab, (0, config.HEIGHT*0.2), None, pygame.BLEND_ADD)
 
-        tab = self.tabs[self.current_tab].draw(self.character)
-        self.screen.blit(tab, (0, config.HEIGHT*0.2), None, pygame.BLEND_ADD)
-
-        footer = self.tabs[self.current_tab].drawFooter(self.character)
-        self.screen.blit(footer, (config.WIDTH*0.05, config.HEIGHT-config.MEDcharHeight-(config.HEIGHT*0.05)), None, pygame.BLEND_ADD)
+        if not self.footer or (self.changedMenu or self.changedSubMenu or self.character.changed):
+            self.footer = self.tabs[self.current_tab].drawFooter(self.character)
+        self.screen.blit(self.footer, (config.WIDTH*0.05, config.HEIGHT-config.MEDcharHeight-(config.HEIGHT*0.05)), None, pygame.BLEND_ADD)
 
 
     def drawOverlay(self):
@@ -109,34 +120,42 @@ class Engine():
                 if event.key == config.KEYS['PREVIUS_MENU']:
                     if self.menuNum > 0:
                         self.menuNum -= 1
+                        config.NEW_SOUNDS['RotaryHorizontal'][0].play()
                 if event.key == config.KEYS['NEXT_MENU']:
                     if self.menuNum < len(self.tabs)-1:
                         self.menuNum += 1
+                        config.NEW_SOUNDS['RotaryHorizontal'][1].play()                        
                 if event.key == config.KEYS['PREVIUS_SUB']:
                     self.tabs[self.menuNum].prev_sub()
+                    self.changedSubMenu = True
+                    config.NEW_SOUNDS['RotaryHorizontal'][0].play()
                 if event.key == config.KEYS['NEXT_SUB']:
                     self.tabs[self.menuNum].next_sub()
+                    self.changedSubMenu = True
+                    config.NEW_SOUNDS['RotaryHorizontal'][1].play()
                 if event.key == config.KEYS['QUIT']:
                     pygame.quit()
+        return events
 
     def run(self):
         # Main Loop
         running = True
-        
         while running:
-            self.inputs()
+            events = self.inputs()
+            self.tabs[self.current_tab].inputs(events)
             bg = self.screen.convert()
 
             bg.fill((0, 0, 0))
             self.screen.blit(bg, (0,0))
             self.drawAll()
             self.drawOverlay()
-
             pygame.display.flip()
             self.clock.tick(config.FPS)
 
             self.character.changed = False
             self.changed = False
+            self.changedMenu = False
+            self.changedSubMenu = False
         pygame.quit()
 
 if __name__ == '__main__': 

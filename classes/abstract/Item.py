@@ -29,11 +29,9 @@ class Item(metaclass=ABCMeta):
     def getFromBaseid(self, baseid):
         baseitem = None
         for item in config.ITEM_DATABASE:
-            print(item)
             if baseid == item["baseid"]:
                 baseitem = item
         if baseitem == None:
-            print ("Item "+baseid+" not found")
             return None
         if 'image' in baseitem and baseitem['image']:
             self.image = baseitem['image']

@@ -1,0 +1,66 @@
+{
+    "Strength":{
+        "images":[
+            "icon_strength_1.png",
+            "icon_strength_3.png",
+            "icon_strength_4.png",
+            "icon_strength_5.png",
+            "icon_strength_6.png"
+        ],
+        "description": "A measure of your raw physical power. It affects how much you can carry and the damage of all melee attacks."
+    },
+    "Perception":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"Perception is a measurement of your environmental and situational awareness. It directly affects weapon accuracy in V.A.T.S., lock-picking skills, and successful attempts at stealing items."
+    },
+    "Endurance":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"A measure of your overall physical fitness. It affects your total Health and the Action Point drain from sprinting."
+    },
+    "Charisma":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"Your ability to charm and convince others. It affects your success to persuade in dialogue, prices when you barter, and the maximum number of settlers in settlements."
+    },
+    "Intelligence":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"A measure of your overall mental acuity. It affects the number of Experience Points earned and reduces the number of dud words when hacking terminals."
+    },
+    "Agility":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"A measure of your overall finesse and reflexes. It affects the number of Action Points in V.A.T.S. and your ability to sneak."
+    },
+    "Luck":{
+        "images":[
+            "icon_agility_1.png",
+            "icon_agility_2.png",
+            "icon_agility_3.png",
+            "icon_agility_4.png"
+        ],
+        "description":"A measure of your general good fortune and affects the recharge rate of critical hits."
+    }
+}
