@@ -11,37 +11,52 @@
     },
     "Perception":{
         "images":[
-            "icon_agility_1.png",
-            "icon_agility_2.png",
-            "icon_agility_3.png",
-            "icon_agility_4.png"
+            "icon_perception_1.png",
+            "icon_perception_2.png",
+            "icon_perception_3.png",
+            "icon_perception_4.png",
+            "icon_perception_5.png",
+            "icon_perception_6.png",
+            "icon_perception_7.png"
         ],
         "description":"Perception is a measurement of your environmental and situational awareness. It directly affects weapon accuracy in V.A.T.S., lock-picking skills, and successful attempts at stealing items."
     },
     "Endurance":{
         "images":[
-            "icon_agility_1.png",
-            "icon_agility_2.png",
-            "icon_agility_3.png",
-            "icon_agility_4.png"
+            "icon_endurance_1.png",
+            "icon_endurance_2.png",
+            "icon_endurance_3.png",
+            "icon_endurance_4.png"
         ],
         "description":"A measure of your overall physical fitness. It affects your total Health and the Action Point drain from sprinting."
     },
     "Charisma":{
         "images":[
-            "icon_agility_1.png",
-            "icon_agility_2.png",
-            "icon_agility_3.png",
-            "icon_agility_4.png"
+            "icon_charisma_1.png",
+            "icon_charisma_2.png",
+            "icon_charisma_3.png",
+            "icon_charisma_4.png",
+            "icon_charisma_5.png",
+            "icon_charisma_6.png"
         ],
         "description":"Your ability to charm and convince others. It affects your success to persuade in dialogue, prices when you barter, and the maximum number of settlers in settlements."
     },
     "Intelligence":{
         "images":[
-            "icon_agility_1.png",
-            "icon_agility_2.png",
-            "icon_agility_3.png",
-            "icon_agility_4.png"
+            "icon_intelligencee_1.png",
+            "icon_intelligencee_2.png",
+            "icon_intelligencee_3.png",
+            "icon_intelligencee_4.png",
+            "icon_intelligencee_5.png",
+            "icon_intelligencee_6.png",
+            "icon_intelligencee_7.png",
+            "icon_intelligencee_8.png",
+            "icon_intelligencee_9.png",
+            "icon_intelligencee_10.png",
+            "icon_intelligencee_11.png",
+            "icon_intelligencee_12.png",
+            "icon_intelligencee_13.png",
+            "icon_intelligencee_14.png"
         ],
         "description":"A measure of your overall mental acuity. It affects the number of Experience Points earned and reduces the number of dud words when hacking terminals."
     },
@@ -56,10 +71,17 @@
     },
     "Luck":{
         "images":[
-            "icon_agility_1.png",
-            "icon_agility_2.png",
-            "icon_agility_3.png",
-            "icon_agility_4.png"
+            "icon_luck_1.png",
+            "icon_luck_2.png",
+            "icon_luck_3.png",
+            "icon_luck_4.png",
+            "icon_luck_5.png",
+            "icon_luck_6.png",
+            "icon_luck_7.png",
+            "icon_luck_8.png",
+            "icon_luck_9.png",
+            "icon_luck_10.png",
+            "icon_luck_11.png"
         ],
         "description":"A measure of your general good fortune and affects the recharge rate of critical hits."
     }
