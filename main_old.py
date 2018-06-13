@@ -96,7 +96,6 @@ class Engine():
                 self.scanline_effect.x = 0
                 self.scanline_effect.y = 0
                 self.scanline_effect.height = 1
-            
         if config.POST_PROCESSING:
 
             #EFEITO DE BLINK
@@ -124,7 +123,7 @@ class Engine():
                 if event.key == config.KEYS['NEXT_MENU']:
                     if self.menuNum < len(self.tabs)-1:
                         self.menuNum += 1
-                        config.NEW_SOUNDS['RotaryHorizontal'][1].play()                        
+                        config.NEW_SOUNDS['RotaryHorizontal'][1].play()
                 if event.key == config.KEYS['PREVIUS_SUB']:
                     self.tabs[self.menuNum].prev_sub()
                     self.changedSubMenu = True

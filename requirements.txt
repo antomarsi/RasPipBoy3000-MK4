@@ -2,3 +2,4 @@ pygame
 numpy
 geocoder
 spotipy
+python-dotenv
