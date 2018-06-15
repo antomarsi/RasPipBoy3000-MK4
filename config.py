@@ -96,7 +96,7 @@ if USE_CAMERA:
             return True
         except:
             return False
-    
+
     USE_CAMERA = hasCamera()
 print ("CAMERA: %s" %(USE_CAMERA))
 
