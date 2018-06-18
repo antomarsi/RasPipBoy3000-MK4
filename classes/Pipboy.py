@@ -13,8 +13,8 @@ class Pipboy(MenuInterface):
         self.margin = (self.size[0]*0.1, self.size[1]*0.08)
         self.padding_menu = ((int(self.size[0]-(self.margin[1]*2))/self.max_menus), 0)
 
-        self.menu_position = (0, int(self.size[1]*0.15))
         self.surface = pygame.Surface(self.size)
+        self.menu_position = (0, int(self.size[1]*0.15))
         self.menus = []
         self.selected_menu = None
         self.selected_menu_index = 0
@@ -23,7 +23,7 @@ class Pipboy(MenuInterface):
     def prev_menu(self):
         if len(self.menus) == 0:
             raise IndexError
-        if self.selected_menu_index-1 >= 0:
+        if self.selected_menu_index > 0:
             self.selected_menu_index -= 1
             self.selected_menu = self.menus[self.selected_menu_index]
         else:
@@ -33,7 +33,7 @@ class Pipboy(MenuInterface):
     def next_menu(self):
         if len(self.menus) == 0:
             raise IndexError
-        if len(self.menus) < self.selected_menu_index:
+        if len(self.menus) > self.selected_menu_index+1:
             self.selected_menu_index += 1
             self.selected_menu = self.menus[self.selected_menu_index]
         else:
@@ -47,10 +47,12 @@ class Pipboy(MenuInterface):
 
     def event(self, event):
         if event.type== pygame.KEYDOWN:
+            print(self.selected_menu_index)
             if event.key == K_KP1:
                 self.prev_menu()
             elif event.key == K_KP3:
                 self.next_menu()
+            print(self.selected_menu_index)
         if (self.selected_menu):
             self.selected_menu.event(event)
         pass
@@ -73,7 +75,6 @@ class Pipboy(MenuInterface):
         pass
 
     def draw_menu_title(self, text, order, selected=False):
-        print('printing '+text+' at '+ str(order))
         text_render = settings.FONT_LG.render(text, 1, settings.DRAW_COLOR)
         text_width = text_render.get_width()
         text_height = text_render.get_height()
@@ -101,6 +102,7 @@ class Pipboy(MenuInterface):
 
     def draw(self):
         i = 0
+        pygame.draw.rect(self.surface, settings.BACK_COLOR, [0,0,self.size[0], self.size[1]*0.1])
         for menu in (self.menus):
             self.draw_menu_title(menu.name, i, menu == self.selected_menu)
             i += 1

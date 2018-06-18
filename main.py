@@ -3,6 +3,7 @@ from pygame.locals import *
 from classes.Pipboy import Pipboy
 from classes.StatMenu import StatMenu
 from classes.InvMenu import InvMenu
+from classes.DataMenu import DataMenu
 from PIL import Image, ImageFilter
 from dotenv import load_dotenv
 from pathlib import Path
@@ -38,9 +39,13 @@ class Engine():
         self.pipboy.add_menu(stat_menu)
         print('(done)')
         print('Adding Menu: Inv')
-        Inv_menu = InvMenu()
-        self.pipboy.add_menu(Inv_menu)
-        print('(done)') 
+        inv_menu = InvMenu()
+        self.pipboy.add_menu(inv_menu)
+        print('(done)')
+        print('Adding Menu: Data')
+        data_menu = DataMenu()
+        self.pipboy.add_menu(data_menu)
+        print('(done)')
         print('on_init: (done)')
 
     def on_event(self, event):

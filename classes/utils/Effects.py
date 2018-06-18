@@ -10,12 +10,12 @@ class Effects(object):
         return pygame.image.fromstring(pil_blured.tobytes('raw', 'RGBA'), size, image_mode)
 
     @staticmethod
-    def draw_progressbar(img, position, value, max_value):
+    def draw_progressbar(surface, rect, value, max_value, color):
         percentage = (value/max_value)
         if percentage != 1:
-            pygame.draw.rect(img, (255, 255, 255), position, 1)
-            position.width *= percentage
-        pygame.draw.rect(img, (255, 255, 255), position)
+            pygame.draw.rect(surface, color, rect, 1)
+            rect[2] *= percentage
+        pygame.draw.rect(surface, color, rect)
 
     @staticmethod
     def aspect_scale(img, bx, by):
@@ -43,7 +43,7 @@ class Effects(object):
         return pygame.transform.smoothscale(img, (int(sx),int(sy)))
 
     @staticmethod
-    def drawText(surface, text, color, rect, font, aa=False, bkg=None):
+    def draw_text(surface, text, color, rect, font, aa=False, bkg=None):
         rect = pygame.Rect(rect)
         y = rect.top
         lineSpacing = -2

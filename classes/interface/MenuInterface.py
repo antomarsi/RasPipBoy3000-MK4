@@ -2,6 +2,7 @@ import abc
 
 class MenuInterface(metaclass=abc.ABCMeta):
 
+
     @abc.abstractmethod
     def event(self, event):
         return
