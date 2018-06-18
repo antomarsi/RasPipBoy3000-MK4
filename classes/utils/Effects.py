@@ -7,7 +7,6 @@ class Effects(object):
     def blur_surf(surface, radius, opacity = 1):
         size, image_mode, raw = surface.get_size(), 'RGBA', pygame.image.tostring(surface, 'RGBA')
         pil_blured = Image.frombytes('RGBA', size, raw).filter(ImageFilter.GaussianBlur(radius=radius))
-
         return pygame.image.fromstring(pil_blured.tobytes('raw', 'RGBA'), size, image_mode)
 
     @staticmethod
@@ -48,10 +47,8 @@ class Effects(object):
         rect = pygame.Rect(rect)
         y = rect.top
         lineSpacing = -2
-
         # get the height of the font
         fontHeight = font.size("Tg")[1]
-
         while text:
             i = 1
             # determine if the row of text will be outside our area
@@ -74,30 +71,3 @@ class Effects(object):
             # remove the text we just blitted
             text = text[i:]
         return text
-
-class Unit():
-    def __init__(self, cooldown):
-        self.last = pygame.time.get_ticks()
-        self.cooldown = cooldown
-
-    def fire(self):
-        now = pygame.time.get_ticks()
-        if now - self.last >= self.cooldown:
-            self.last = now
-            return True
-        return False
-
-class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, sprites, rect):
-        super(AnimatedSprite, self).__init__()
-        self.images = []
-        for sprite in sprites:
-            self.images.append(pygame.image.load(sprite))
-        self.index = 0
-        self.image = self.images[self.index]
-        self.rect = rect
-    def update(self):
-        self.index += 1
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]

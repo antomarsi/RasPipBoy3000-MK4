@@ -10,5 +10,6 @@ class MenuInterface(metaclass=abc.ABCMeta):
     def process(self):
         return
 
+    @abc.abstractmethod
     def draw(self):
         return

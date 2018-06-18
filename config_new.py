@@ -83,18 +83,14 @@ if(USE_SERIAL):
         print ("Init serial: %s" %(SERIALPORT))
         ser = serial.Serial(SERIALPORT, 9600)
         ser.timeout=1
-        
         print ("  Requesting device identity...")
         ser.write("\nidentify\n")
-        
         ident = ser.readline()
         ident = ident.strip()
         print ("    Value: %s" %(str(ident)))
-        
         if (ident != "PIPBOY"):
             print ("Pip-Boy controls not found on serial-port!")
             #config.USE_SERIAL = False
-        
     except:
         print ("* Failed to access serial! Ignoring serial port")
         USE_SERIAL = False
@@ -111,7 +107,6 @@ if USE_CAMERA:
             return True
         except:
             return False
-    
     USE_CAMERA = hasCamera()
 print ("CAMERA: %s" %(USE_CAMERA))
 
@@ -191,7 +186,6 @@ print("(done)")
 if USE_INTERNET:
     from urllib.request import Request, urlopen
     from urllib.error import URLError, HTTPError
-    
     def internet_on():
         req = Request('http://www.google.com')
         try:
@@ -200,7 +194,6 @@ if USE_INTERNET:
             return True
         except URLError as e: pass
         return False
-    
     USE_INTERNET = internet_on()
 print ("INTERNET: %s" %(USE_INTERNET))
 

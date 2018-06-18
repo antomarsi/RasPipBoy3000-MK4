@@ -3,3 +3,4 @@ numpy
 geocoder
 spotipy
 python-dotenv
+pillow

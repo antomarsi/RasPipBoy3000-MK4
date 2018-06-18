@@ -232,12 +232,10 @@ class TabStat(Tab):
 
             text = config.FONT_MED.render(key, True, text_color)
             points = config.FONT_MED.render(str(item), True, text_color)
-            
             img.blit(text, rect.topleft)
             img.blit(points, (rect.topright[0] - points.get_width() - config.MEDcharWidth, rect.topright[1]))
 
             index += 1
-        
 
         return img
 

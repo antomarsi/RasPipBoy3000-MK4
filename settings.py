@@ -6,8 +6,10 @@ env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (int(os.getenv('SCREEN_WIDTH')), int(os.getenv('SCREEN_HEIGHT')))
-DRAW_COLOR = tuple(int(os.getenv('DRAW_COLOR')[i:i+2], 16) for i in (0, 2 ,4))
-TINT_COLOR = tuple(int(os.getenv('TINT_COLOR')[i:i+2], 16) for i in (0, 2 ,4))
+DRAW_COLOR = tuple(int(os.getenv('DRAW_COLOR', '#FFFFFF')[i:i+2], 16) for i in (0, 2 ,4))
+BACK_COLOR = tuple(int(os.getenv('BACK_COLOR', '#000000')[i:i+2], 16) for i in (0, 2 ,4))
+TINT_COLOR = tuple(int(os.getenv('TINT_COLOR', '#00C800')[i:i+2], 16) for i in (0, 2 ,4))
+MAX_MENUS = int(os.getenv('MAX_MENUS', 5))
 
 pygame.font.init()
 fontName = os.getenv('TEXT_FONT')
