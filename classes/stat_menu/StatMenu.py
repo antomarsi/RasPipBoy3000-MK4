@@ -44,6 +44,8 @@ class StatMenu(TabMenuInterface):
             self.selected_menu = self.menus[0]
 
     def event(self, event):
+        if self.selected_menu:
+            self.selected_menu.event(event)
         pass
 
     def draw_bottom(self):
@@ -59,10 +61,10 @@ class StatMenu(TabMenuInterface):
         text_render = settings.FONT_SM.render('LEVEL: 1', 1, settings.DRAW_COLOR)
         self.surface.blit(text_render, [self.margin[0]+one_slice_width+settings.SM_WIDTH*2, pos_y])
         Effects.draw_progressbar(self.surface, [
-            self.margin[0]+one_slice_width+(settings.SM_WIDTH*2)+text_render.get_width(),
-            pos_y+settings.SM_HEIGHT*0.1,
-            (one_slice_width*2)-text_render.get_width()-(settings.SM_WIDTH*4),
-            settings.SM_HEIGHT*0.8
+            self.margin[0]+one_slice_width+(settings.LG_WIDTH*2)+text_render.get_width(),
+            pos_y+settings.SM_HEIGHT/4,
+            (one_slice_width*2)-text_render.get_width()-(settings.LG_WIDTH*3),
+            settings.SM_HEIGHT/2
             ], 80, 100, settings.DRAW_COLOR)
         # DRAW 3rd  RIGHT BAR
         pygame.draw.rect (self.surface, settings.MID_COLOR, [self.size[0]-self.margin[0]-one_slice_width, pos_y, one_slice_width, size[1]])
