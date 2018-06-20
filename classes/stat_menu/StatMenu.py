@@ -18,6 +18,12 @@ class StatMenu(TabMenuInterface):
         self.selected_menu_index = 0
         print('(done)')
 
+    def on_init(self):
+        print('Adding SubMenu StatusSubMenu')
+        status = StatusSubMenu()
+        self.add_sub_menu(status)
+        print('(done)')
+
     def prev_sub_menu(self):
         if len(self.menus) == 0:
             raise IndexError
@@ -52,10 +58,12 @@ class StatMenu(TabMenuInterface):
         size = (self.size[0]-(self.margin[0]*2), settings.SM_HEIGHT)
         one_slice_width = size[0] / 4
         pos_y = self.size[1]-((settings.SM_HEIGHT)*2)-self.margin[1]
+
         # DRAW HP - LEFT BAR
         pygame.draw.rect (self.surface, settings.MID_COLOR, [self.margin[0], pos_y, one_slice_width, size[1]])
         text_render = settings.FONT_SM.render('HP: 100/100', 1, settings.DRAW_COLOR)
         self.surface.blit(text_render, [self.margin[0]+settings.SM_WIDTH, pos_y])
+
         # DRAW XP - MID BAR
         pygame.draw.rect(self.surface, settings.MID_COLOR, [self.margin[0]+one_slice_width+settings.SM_WIDTH, pos_y, (one_slice_width*2)-settings.SM_WIDTH*2, size[1]])
         text_render = settings.FONT_SM.render('LEVEL: 1', 1, settings.DRAW_COLOR)
@@ -66,11 +74,11 @@ class StatMenu(TabMenuInterface):
             (one_slice_width*2)-text_render.get_width()-(settings.LG_WIDTH*3),
             settings.SM_HEIGHT/2
             ], 80, 100, settings.DRAW_COLOR)
+
         # DRAW 3rd  RIGHT BAR
         pygame.draw.rect (self.surface, settings.MID_COLOR, [self.size[0]-self.margin[0]-one_slice_width, pos_y, one_slice_width, size[1]])
         text_render = settings.FONT_SM.render('AP: 100', 1, settings.DRAW_COLOR)
         self.surface.blit(text_render, [self.size[0]-self.margin[0]-text_render.get_width()-settings.SM_WIDTH, pos_y])
-        #pygame.draw.rect(self.surface, settings.MID_COLOR, [self.margin[0], self.size[1]-settings.MD_HEIGHT*2, size[0], size[1]])
 
     def process(self):
         pass
