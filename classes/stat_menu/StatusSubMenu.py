@@ -10,8 +10,8 @@ class StatusSubMenu(TabMenuInterface):
         print('Initialize StatusSubMenu', end='')
         self.size = (
                 int(os.getenv('SCREEN_WIDTH')),
-                int(int(os.getenv('SCREEN_HEIGHT'))*0.5
-            )
+                int(int(os.getenv('SCREEN_HEIGHT'))*0.8)
+                )
         self.margin = (self.size[0]*0.02, self.size[1]*0.02)
         self.surface = pygame.Surface(self.size)
         print('(done)')
@@ -23,4 +23,5 @@ class StatusSubMenu(TabMenuInterface):
         pass
 
     def draw(self):
+        self.surface.fill(settings.DRAW_COLOR)
         pass

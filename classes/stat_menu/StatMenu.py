@@ -1,27 +1,31 @@
 import os, abc, pygame, settings
 from classes.interface.TabMenuInterface import TabMenuInterface
+from classes.stat_menu.StatusSubMenu import StatusSubMenu
 from classes.utils.Effects import Effects
 
 class StatMenu(TabMenuInterface):
 
     name = 'Stat'
     surface = None
-
     def __init__(self):
         print('Initialize tab Stat', end='')
         self.size = (int(os.getenv('SCREEN_WIDTH')), int(int(os.getenv('SCREEN_HEIGHT'))*0.9))
-        self.margin = (self.size[0]*0.02, self.size[1]*0.02)
+        self.margin = (self.size[0]*0.02, self.size[1]*0.01)
         self.surface = pygame.Surface(self.size)
         self.sub_menu_position = (0, int(self.size[1]*0.1))
         self.menus = []
         self.selected_menu = None
         self.selected_menu_index = 0
         print('(done)')
+        self.on_init()
 
     def on_init(self):
         print('Adding SubMenu StatusSubMenu')
         status = StatusSubMenu()
         self.add_sub_menu(status)
+
+        status2 = StatusSubMenu()
+        self.add_sub_menu(status2)
         print('(done)')
 
     def prev_sub_menu(self):
@@ -85,7 +89,13 @@ class StatMenu(TabMenuInterface):
 
     def draw(self):
         self.draw_bottom()
-        for menu in (self.menus):
+        sub_menu_title_margin = 0
+        for idx, menu in enumerate(self.menus):
+            sub_menu_title_margin = self.draw_sub_menu_name(
+                    menu,
+                    sub_menu_title_margin,
+                    [(i - (i * (0.25 * idx))) for i in settings.DRAW_COLOR]
+                )
             pass
         if self.selected_menu:
             self.selected_menu.draw()

@@ -14,7 +14,7 @@ class Pipboy(MenuInterface):
         self.padding_menu = ((int(self.size[0]-(self.margin[1]*2))/self.max_menus), 0)
 
         self.surface = pygame.Surface(self.size)
-        self.menu_position = (0, int(self.size[1]*0.15))
+        self.menu_position = (0, int(self.size[1]*0.1))
         self.menus = []
         self.selected_menu = None
         self.selected_menu_index = 0
@@ -47,12 +47,10 @@ class Pipboy(MenuInterface):
 
     def event(self, event):
         if event.type== pygame.KEYDOWN:
-            print(self.selected_menu_index)
             if event.key == K_KP1:
                 self.prev_menu()
             elif event.key == K_KP3:
                 self.next_menu()
-            print(self.selected_menu_index)
         if (self.selected_menu):
             self.selected_menu.event(event)
         pass
@@ -62,13 +60,13 @@ class Pipboy(MenuInterface):
 
     def draw_lines(self):
         lines_start = [
-            [self.size[0] * 0.02, self.size[1]*0.12],
+            [self.size[0] * 0.02, self.size[1]*0.10],
             [self.size[0] * 0.02, self.size[1]*0.08]
         ] + self.lines_start
 
         lines_end = self.lines_end + [
             [self.size[0] - (self.size[0] * 0.02), self.size[1]*0.08],
-            [self.size[0] - (self.size[0] * 0.02), self.size[1]*0.12]
+            [self.size[0] - (self.size[0] * 0.02), self.size[1]*0.10]
         ]
         pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, lines_start, 1)
         pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, lines_end, 1)
