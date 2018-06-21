@@ -2,6 +2,7 @@ import os, abc, pygame, settings
 from pygame.locals import *
 from classes.interface.MenuInterface import MenuInterface
 from classes.utils.Effects import Effects
+from classes.utils.Sounds import Sounds
 
 class Pipboy(MenuInterface):
 
@@ -18,6 +19,9 @@ class Pipboy(MenuInterface):
         self.menus = []
         self.selected_menu = None
         self.selected_menu_index = 0
+        if settings.USE_SOUND:
+            Sounds.random_up_play()
+            Sounds.loop_play()
         print('(done)')
 
     def prev_menu(self):
