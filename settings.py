@@ -2,6 +2,8 @@ import os, pygame
 from dotenv import load_dotenv
 from pathlib import Path
 
+print('CARREGANDO SETTINGS')
+
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
