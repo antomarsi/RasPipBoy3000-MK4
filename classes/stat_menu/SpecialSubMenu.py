@@ -2,10 +2,12 @@ import os, pygame, settings, json
 from classes.utils.Effects import Effects
 from classes.interface.TabMenuInterface import TabMenuInterface
 
-class StatusSubMenu(TabMenuInterface):
+class SpecialSubMenu(TabMenuInterface):
 
     name = "Status"
     surface = None
+    selected = 0
+    special_info = []
 
     def __init__(self):
         print('Initialize StatusSubMenu')
@@ -22,26 +24,42 @@ class StatusSubMenu(TabMenuInterface):
 
     def load_data(self):
         print('Loading player\'s data...')
-        with open(os.getenv('PLAYER_DATA')) as f:
-            self.player = json.load(f)
+        with open(os.getenv('SPECIAL_INFO')) as f:
+            self.special_info = json.load(f)
 
     def event(self, event):
-        pass
+                 pass
 
     def process(self):
         pass
 
     def draw(self):
-        self.surface.fill(settings.BACK_COLOR)
-        text_render = settings.FONT_MD.render(self.player['name'], 1, settings.DRAW_COLOR)
-        self.surface.blit(text_render, (0, 0))
-        self.draw_body_conditions_bars()
+        self.draw_list(self.selected)
+        if (self.special_info.values()[self.selected]['description']):
+            self.draw_list(self.special_info.values()[self.selected]['description'])
         pass
 
-    def draw_body_conditions_bars(self):
-        Effects.draw_progressbar(self.surface, [100, 100, 100, 10], self.player['bodypartsCond']['H'], 100, settings.DRAW_COLOR)
-        Effects.draw_progressbar(self.surface, [110, 100, 100, 10], self.player['bodypartsCond']['LA'], 100, settings.DRAW_COLOR)
-        Effects.draw_progressbar(self.surface, [120, 100, 100, 10], self.player['bodypartsCond']['RA'], 100, settings.DRAW_COLOR)
-        Effects.draw_progressbar(self.surface, [130, 100, 100, 10], self.player['bodypartsCond']['LL'], 100, settings.DRAW_COLOR)
-        Effects.draw_progressbar(self.surface, [140, 100, 100, 10], self.player['bodypartsCond']['H'], 100, settings.DRAW_COLOR)
+    def draw_list(self, selected):
+        Effects.draw_list_selected(self.surface, self.special_info.keys(), (
+                settings.DRAW_COLOR,
+                settings.DRAW_COLOR,
+                settings.BACK_COLOR,
+                settings.MID_COLOR
+            ), pygame.Rect(
+                self.margin[0],
+                self.margin[1],
+                self.size[0]/2,
+                self.size[1]
+            ), settings.FONT_MD, selected)
+        pass
+
+    def draw_description(self, text):
+        rect = pygame.Rect(
+            self.size[0]/2,
+            self.size[1]/2,
+            self.size[0]/2 - self.margin[0],
+            self.size[1]/2 - self.margin[1]
+        )
+        pygame.draw.rect(self.surface, settings.BACK_COLOR, rect)
+        Effects.draw_text(self.surface, text, settings.DRAW_COLOR, settings.FONT_SM, True)
         pass

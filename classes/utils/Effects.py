@@ -11,7 +11,7 @@ class Effects(object):
 
     @staticmethod
     def draw_progressbar(surface, rect, value, max_value, color):
-        percentage = (value/max_value)
+        percentage = (value / max_value)
         if percentage != 1:
             pygame.draw.rect(surface, color, rect, 1)
             rect[2] *= percentage
@@ -72,12 +72,22 @@ class Effects(object):
             text = text[i:]
         return text
 
-    def draw_menu_selected(surface, texts, colors, rect, font)
+    def draw_list_selected(surface, texts, colors, rect, font, selected_index = 0):
         # texts is a array of texts
         # colors is a array of colors in the following order:
         # 0: text_color_selected
         # 1: text_color_not_selected
         # 2: color_background
         # 3: color_selection
+        pygame.draw.rect(surface, colors[2], rect)
+        for idx, text in enumerate(texts):
+            text = str(text)
+            if (idx == selected_index):
+                text = font.render(text, True, colors[0])
+                pygame.draw.rect(surface, colors[3], (rect.left, rect.top, rect.width, text.get_height()))
+            else:
+                text = font.render(text, True, colors[1])
+            surface.blit(text, (rect.left, rect.top + (text.get_height() * idx)))
+            del text
         pass
 

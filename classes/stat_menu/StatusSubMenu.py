@@ -32,6 +32,8 @@ class StatusSubMenu(TabMenuInterface):
         pass
 
     def draw(self):
+        if self.player == None:
+            pass
         self.surface.fill(settings.BACK_COLOR)
         text_render = settings.FONT_MD.render(self.player['name'], 1, settings.DRAW_COLOR)
         self.surface.blit(text_render, (0, 0))

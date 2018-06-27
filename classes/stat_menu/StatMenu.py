@@ -1,7 +1,9 @@
 import os, abc, pygame, settings
 from classes.interface.TabMenuInterface import TabMenuInterface
 from classes.stat_menu.StatusSubMenu import StatusSubMenu
+from classes.stat_menu.SpecialSubMenu import SpecialSubMenu
 from classes.utils.Effects import Effects
+from pygame.locals import *
 
 class StatMenu(TabMenuInterface):
 
@@ -24,8 +26,9 @@ class StatMenu(TabMenuInterface):
         status = StatusSubMenu()
         self.add_sub_menu(status)
 
-        status2 = StatusSubMenu()
-        self.add_sub_menu(status2)
+        print('Adding SubMenu StatusSubMenu')
+        special = SpecialSubMenu()
+        self.add_sub_menu(special)
         print('(done)')
 
     def prev_sub_menu(self):
@@ -35,7 +38,7 @@ class StatMenu(TabMenuInterface):
             self.selected_menu_index -= 1
             self.selected_menu = self.menus[self.selected_menu_index]
         else:
-            self.selected_menu_index = len(self.selected_menu)-1
+            self.selected_menu_index = len(self.menus)-1
             self.selected_menu = self.menus[self.selected_menu_index]
 
     def next_sub_menu(self):
@@ -54,6 +57,11 @@ class StatMenu(TabMenuInterface):
             self.selected_menu = self.menus[0]
 
     def event(self, event):
+        if event.type== pygame.KEYDOWN:
+            if event.key == K_KP4:
+                self.prev_sub_menu()
+            elif event.key == K_KP6:
+                self.next_sub_menu()
         if self.selected_menu:
             self.selected_menu.event(event)
         pass
