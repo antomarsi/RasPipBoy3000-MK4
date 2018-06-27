@@ -71,3 +71,13 @@ class Effects(object):
             # remove the text we just blitted
             text = text[i:]
         return text
+
+    def draw_menu_selected(surface, texts, colors, rect, font)
+        # texts is a array of texts
+        # colors is a array of colors in the following order:
+        # 0: text_color_selected
+        # 1: text_color_not_selected
+        # 2: color_background
+        # 3: color_selection
+        pass
+
