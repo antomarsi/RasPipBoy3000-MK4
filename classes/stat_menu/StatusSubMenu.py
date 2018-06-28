@@ -1,5 +1,6 @@
 import os, pygame, settings, json
 from classes.utils.Effects import Effects
+from classes.utils.Sounds import Sounds
 from classes.interface.TabMenuInterface import TabMenuInterface
 
 class StatusSubMenu(TabMenuInterface):

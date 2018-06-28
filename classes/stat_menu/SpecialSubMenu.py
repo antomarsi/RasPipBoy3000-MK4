@@ -1,6 +1,7 @@
 import os, pygame, settings, json
 from pygame.locals import *
 from classes.utils.Effects import Effects
+from classes.utils.Sounds import Sounds
 from classes.interface.TabMenuInterface import TabMenuInterface
 
 class SpecialSubMenu(TabMenuInterface):
@@ -43,8 +44,10 @@ class SpecialSubMenu(TabMenuInterface):
     def event(self, event):
         if event.type== pygame.KEYDOWN:
             if event.key == K_KP5:
+                Sounds.play_vertical()
                 self.prev_special()
             elif event.key == K_KP2:
+                Sounds.play_vertical()
                 self.next_special()
         pass
 

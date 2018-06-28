@@ -11,3 +11,9 @@ class Sounds(object):
         humSound = settings.SOUNDS["LOOP"]
         humSound.play(loops=-1)
 
+    @staticmethod
+    def play_vertical():
+        random.choice(settings.SOUNDS['ROTARY_VERTICAL']).play()
+
+    def play_horizontal():
+        random.choice(settings.SOUNDS['ROTARY_HORIZONTAL']).play()

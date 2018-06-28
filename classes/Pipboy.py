@@ -52,8 +52,10 @@ class Pipboy(MenuInterface):
     def event(self, event):
         if event.type== pygame.KEYDOWN:
             if event.key == K_KP1:
+                Sounds.play_horizontal()
                 self.prev_menu()
             elif event.key == K_KP3:
+                Sounds.play_horizontal()
                 self.next_menu()
         if (self.selected_menu):
             self.selected_menu.event(event)

@@ -3,6 +3,7 @@ from classes.interface.TabMenuInterface import TabMenuInterface
 from classes.stat_menu.StatusSubMenu import StatusSubMenu
 from classes.stat_menu.SpecialSubMenu import SpecialSubMenu
 from classes.utils.Effects import Effects
+from classes.utils.Sounds import Sounds
 from pygame.locals import *
 
 class StatMenu(TabMenuInterface):
@@ -59,8 +60,10 @@ class StatMenu(TabMenuInterface):
     def event(self, event):
         if event.type== pygame.KEYDOWN:
             if event.key == K_KP4:
+                Sounds.play_horizontal()
                 self.prev_sub_menu()
             elif event.key == K_KP6:
+                Sounds.play_horizontal()
                 self.next_sub_menu()
         if self.selected_menu:
             self.selected_menu.event(event)
