@@ -1,10 +1,11 @@
 import os, pygame, settings, json
+from pygame.locals import *
 from classes.utils.Effects import Effects
 from classes.interface.TabMenuInterface import TabMenuInterface
 
 class SpecialSubMenu(TabMenuInterface):
 
-    name = "Status"
+    name = "Special"
     surface = None
     selected = 0
     special_info = []
@@ -27,16 +28,33 @@ class SpecialSubMenu(TabMenuInterface):
         with open(os.getenv('SPECIAL_INFO')) as f:
             self.special_info = json.load(f)
 
+    def prev_special(self):
+        self.selected -= 1
+        if (self.selected < 0):
+            self.selected = len(self.special_info)-1
+        return
+
+    def next_special(self):
+        self.selected += 1
+        if (self.selected >= len(self.special_info)):
+            self.selected = 0
+        return
+
     def event(self, event):
-                 pass
+        if event.type== pygame.KEYDOWN:
+            if event.key == K_KP5:
+                self.prev_special()
+            elif event.key == K_KP2:
+                self.next_special()
+        pass
 
     def process(self):
         pass
 
     def draw(self):
         self.draw_list(self.selected)
-        if (self.special_info.values()[self.selected]['description']):
-            self.draw_list(self.special_info.values()[self.selected]['description'])
+        if (list(self.special_info.values())[self.selected]['description']):
+            self.draw_description(list(self.special_info.values())[self.selected]['description'])
         pass
 
     def draw_list(self, selected):
@@ -54,12 +72,12 @@ class SpecialSubMenu(TabMenuInterface):
         pass
 
     def draw_description(self, text):
-        rect = pygame.Rect(
+        rect = (
             self.size[0]/2,
             self.size[1]/2,
             self.size[0]/2 - self.margin[0],
             self.size[1]/2 - self.margin[1]
         )
-        pygame.draw.rect(self.surface, settings.BACK_COLOR, rect)
-        Effects.draw_text(self.surface, text, settings.DRAW_COLOR, settings.FONT_SM, True)
+        pygame.draw.rect(self.surface, settings.MID_COLOR, rect)
+        Effects.draw_text(self.surface, text, settings.DRAW_COLOR, rect, settings.FONT_SM, True)
         pass

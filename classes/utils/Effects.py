@@ -79,15 +79,18 @@ class Effects(object):
         # 1: text_color_not_selected
         # 2: color_background
         # 3: color_selection
+        text = font.render('X', True, colors[0])
+        text_width = text.get_width()
+        del text
         pygame.draw.rect(surface, colors[2], rect)
         for idx, text in enumerate(texts):
             text = str(text)
             if (idx == selected_index):
                 text = font.render(text, True, colors[0])
-                pygame.draw.rect(surface, colors[3], (rect.left, rect.top, rect.width, text.get_height()))
+                pygame.draw.rect(surface, colors[3], (rect.left, rect.top + (text.get_height() * idx), rect.width, text.get_height()))
             else:
                 text = font.render(text, True, colors[1])
-            surface.blit(text, (rect.left, rect.top + (text.get_height() * idx)))
+            surface.blit(text, (rect.left+(text_width/2), rect.top + (text.get_height() * idx)))
             del text
         pass
 
