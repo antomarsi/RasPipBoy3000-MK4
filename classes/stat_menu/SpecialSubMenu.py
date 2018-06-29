@@ -43,10 +43,10 @@ class SpecialSubMenu(TabMenuInterface):
 
     def event(self, event):
         if event.type== pygame.KEYDOWN:
-            if event.key == K_KP5:
+            if event.key == K_KP5 or event.key == K_i:
                 Sounds.play_vertical()
                 self.prev_special()
-            elif event.key == K_KP2:
+            elif event.key == K_KP2 or event.key == K_k:
                 Sounds.play_vertical()
                 self.next_special()
         pass

@@ -59,10 +59,10 @@ class StatMenu(TabMenuInterface):
 
     def event(self, event):
         if event.type== pygame.KEYDOWN:
-            if event.key == K_KP4:
+            if event.key == K_KP4 or event.key == K_u:
                 Sounds.play_horizontal()
                 self.prev_sub_menu()
-            elif event.key == K_KP6:
+            elif event.key == K_KP6 or event.key == K_o:
                 Sounds.play_horizontal()
                 self.next_sub_menu()
         if self.selected_menu:

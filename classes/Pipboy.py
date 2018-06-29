@@ -11,19 +11,30 @@ class Pipboy(MenuInterface):
         self.size = settings.SCREEN_SIZE
         self.max_menus = settings.MAX_MENUS
 
-        self.margin = (self.size[0]*0.1, self.size[1]*0.08)
-        self.padding_menu = ((int(self.size[0]-(self.margin[1]*2))/self.max_menus), 0)
+        # margin
+        # top, left, right, bottom
+        self.margin = (self.size[1]*0.038, self.size[0]*0.025, self.size[0]*0.025, self.size[1]*0.028)
 
+        # create the surface and paint it
         self.surface = pygame.Surface(self.size)
+        self.surface.fill(settings.BACK_COLOR)
+
+        # Initialize the Menus
         self.menu_position = (0, int(self.size[1]*0.1))
         self.menus = []
         self.selected_menu = None
         self.selected_menu_index = 0
+
+        self.lines_start = []
+        self.lines_end = []
+
+        #play sounds
         if settings.USE_SOUND:
             Sounds.random_up_play()
             Sounds.loop_play()
         print('(done)')
 
+    # Select the previous 
     def prev_menu(self):
         if len(self.menus) == 0:
             raise IndexError
@@ -51,10 +62,10 @@ class Pipboy(MenuInterface):
 
     def event(self, event):
         if event.type== pygame.KEYDOWN:
-            if event.key == K_KP1:
+            if event.key == K_KP1 or event.key == K_j:
                 Sounds.play_horizontal()
                 self.prev_menu()
-            elif event.key == K_KP3:
+            elif event.key == K_KP3 or event.key == K_l:
                 Sounds.play_horizontal()
                 self.next_menu()
         if (self.selected_menu):
@@ -65,52 +76,65 @@ class Pipboy(MenuInterface):
         pass
 
     def draw_lines(self):
-        lines_start = [
-            [self.size[0] * 0.02, self.size[1]*0.10],
-            [self.size[0] * 0.02, self.size[1]*0.08]
-        ] + self.lines_start
-
-        lines_end = self.lines_end + [
-            [self.size[0] - (self.size[0] * 0.02), self.size[1]*0.08],
-            [self.size[0] - (self.size[0] * 0.02), self.size[1]*0.10]
+        lines = [
+            [self.margin[1], self.margin[0] + settings.LG_HEIGHT + self.size[1]*0.02],
+            [self.margin[1], self.margin[0] + settings.LG_HEIGHT],
+            [self.size[0] - self.margin[2], self.margin[0] + settings.LG_HEIGHT],
+            [self.size[0] - self.margin[2], self.margin[0] + settings.LG_HEIGHT + self.size[1]*0.02],
         ]
-        pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, lines_start, 1)
-        pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, lines_end, 1)
+        pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, lines, 4)
         pass
 
     def draw_menu_title(self, text, order, selected=False):
         text_render = settings.FONT_LG.render(text, 1, settings.DRAW_COLOR)
         text_width = text_render.get_width()
-        text_height = text_render.get_height()
-        position = (
-            self.margin[0] + (self.padding_menu[0] * order),
-            self.margin[1] + (self.padding_menu[1] * order) - (text_height * 0.8)
-        )
-        pygame.draw.rect(self.surface, settings.BACK_COLOR, [
-            position[0] - settings.LG_WIDTH,
-            position[1],
-            text_width + settings.LG_WIDTH * 2, text_render.get_height()
-        ])
+        if order == 0:
+            position = (
+                self.size[0]*0.148,
+                self.margin[0]
+            )
+            self.padding_menu_left += position[0]
+        else:
+            self.padding_menu_left += settings.LG_WIDTH
+            position = (
+                self.padding_menu_left,
+                self.margin[0]
+            )
+        self.padding_menu_left += text_render.get_width() + settings.LG_WIDTH
+
         if selected:
-            self.lines_start = [
-                [position[0] - settings.LG_WIDTH, self.size[1] * 0.08],
-                [position[0] - settings.LG_WIDTH, self.size[1] * 0.06],
-                [position[0] - settings.LG_WIDTH / 4, self.size[1] * 0.06]
-            ]
-            self.lines_end = [
-                [position[0] + text_width + settings.LG_WIDTH / 4, self.size[1] * 0.06],
-                [position[0] + text_width + settings.LG_WIDTH, self.size[1] * 0.06],
-                [position[0] + text_width + settings.LG_WIDTH, self.size[1] * 0.08]
-            ]
+            pygame.draw.rect(self.surface, settings.BACK_COLOR, [
+                position[0]-(settings.LG_WIDTH/2) - 1,
+                position[1],
+                text_width + settings.LG_WIDTH + 3, text_render.get_height() + self.size[1]*0.02
+            ])
+            pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, [
+                [position[0] - (settings.LG_WIDTH), self.margin[0] + settings.LG_HEIGHT],
+                [position[0] - (settings.LG_WIDTH/2), self.margin[0] + settings.LG_HEIGHT],
+                [position[0] - (settings.LG_WIDTH/2), self.margin[0] + (settings.LG_HEIGHT/3) ],
+                [position[0] - (settings.LG_WIDTH/2) / 4, self.margin[0] + (settings.LG_HEIGHT/3)]
+            ], 4)
+
+            pygame.draw.lines(self.surface, settings.DRAW_COLOR, False, [
+                [position[0] + text_width + (settings.LG_WIDTH), self.margin[0] + settings.LG_HEIGHT],
+                [position[0] + text_width + (settings.LG_WIDTH/2), self.margin[0] + settings.LG_HEIGHT],
+                [position[0] + text_width + (settings.LG_WIDTH/2), self.margin[0] + (settings.LG_HEIGHT/3) ],
+                [position[0] + text_width + (settings.LG_WIDTH/2) / 4, self.margin[0] + (settings.LG_HEIGHT/3)]
+            ], 4)
         self.surface.blit(text_render, position)
 
     def draw(self):
         i = 0
-        pygame.draw.rect(self.surface, settings.BACK_COLOR, [0,0,self.size[0], self.size[1]*0.1])
+        pygame.draw.rect(self.surface, settings.BACK_COLOR, [
+            0, 0,
+            self.size[0],
+            self.margin[0] + settings.LG_HEIGHT + self.size[1]*0.02]
+        )
+        self.padding_menu_left = 0
+        self.draw_lines()
         for menu in (self.menus):
             self.draw_menu_title(menu.name, i, menu == self.selected_menu)
             i += 1
-        self.draw_lines()
         if self.selected_menu:
             self.selected_menu.draw()
-            self.surface.blit(self.selected_menu.surface, (self.menu_position))
+            self.surface.blit(self.selected_menu.surface, self.margin[1], self.margin[0] + settings.LG_HEIGHT + self.size[1]*0.02))
