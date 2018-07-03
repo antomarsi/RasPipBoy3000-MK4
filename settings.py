@@ -7,7 +7,8 @@ print('CARREGANDO SETTINGS')
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
-SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (int(os.getenv('SCREEN_WIDTH', 350)), int(os.getenv('SCREEN_HEIGHT', 428)))
+SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (350,428)
+FINAL_SCREEN_SIZE = FINAL_SCREEN_WIDTH, FINAL_SCREEN_HEIGHT = (int(os.getenv('SCREEN_WIDTH', 350)), int(os.getenv('SCREEN_HEIGHT', 428)))
 DRAW_COLOR = tuple(int(os.getenv('DRAW_COLOR', 'FFFFFF')[i:i+2], 16) for i in (0, 2 ,4))
 MID_COLOR = tuple(int(os.getenv('MID_COLOR', '505050')[i:i+2], 16) for i in (0, 2 ,4))
 BACK_COLOR = tuple(int(os.getenv('BACK_COLOR', '000000')[i:i+2], 16) for i in (0, 2 ,4))

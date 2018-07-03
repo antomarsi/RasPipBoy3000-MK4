@@ -3,11 +3,16 @@ from pygame.locals import *
 from classes.interface.MenuInterface import MenuInterface
 from classes.utils.Effects import Effects
 from classes.utils.Sounds import Sounds
+from classes.stat_menu.StatMenu import StatMenu
+from classes.inv_menu.InvMenu import InvMenu
+from classes.data_menu.DataMenu import DataMenu
+from classes.map_menu.MapMenu import MapMenu
+from classes.radio_menu.RadioMenu import RadioMenu
 
 class Pipboy(MenuInterface):
 
     def __init__(self):
-        print('Initialize class PipBoy', end='')
+        print('Initialize class PipBoy...')
         self.size = settings.SCREEN_SIZE
         self.max_menus = settings.MAX_MENUS
 
@@ -32,9 +37,37 @@ class Pipboy(MenuInterface):
         if settings.USE_SOUND:
             Sounds.random_up_play()
             Sounds.loop_play()
+
+        print('Adding Menu: Stat')
+        stat_menu = StatMenu()
+        self.add_menu(stat_menu)
         print('(done)')
 
-    # Select the previous 
+        print('Adding Menu: Inv')
+        inv_menu = InvMenu()
+        self.add_menu(inv_menu)
+        print('(done)')
+
+        print('Adding Menu: Data')
+        data_menu = DataMenu()
+        self.add_menu(data_menu)
+        print('(done)')
+
+        print('Adding Menu: Map')
+        map_menu = MapMenu()
+        self.add_menu(map_menu)
+        print('(done)')
+
+        print('Adding Menu: Radio')
+        radio_menu = RadioMenu()
+        self.add_menu(radio_menu)
+        print('(done)')
+
+        print('PipBoy init: (done)')
+
+
+
+    # Select the previous
     def prev_menu(self):
         if len(self.menus) == 0:
             raise IndexError
