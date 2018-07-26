@@ -170,4 +170,6 @@ class Pipboy(MenuInterface):
             i += 1
         if self.selected_menu:
             self.selected_menu.draw()
-            self.surface.blit(self.selected_menu.surface, self.margin[1], self.margin[0] + settings.LG_HEIGHT + self.size[1]*0.02))
+            self.surface.blit(self.selected_menu.surface,
+                (self.margin[1], self.margin[0] + settings.LG_HEIGHT + int(self.size[1]*0.02))
+            )

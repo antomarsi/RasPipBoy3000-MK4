@@ -1,7 +1,7 @@
 import os, abc, pygame, settings
 from classes.interface.TabMenuInterface import TabMenuInterface
 
-class DataMenu(TabMenuInterface):
+class RadioMenu(TabMenuInterface):
 
     name = 'Radio'
     surface = None

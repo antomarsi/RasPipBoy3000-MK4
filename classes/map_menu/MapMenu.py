@@ -1,7 +1,7 @@
 import os, abc, pygame, settings
 from classes.interface.TabMenuInterface import TabMenuInterface
 
-class DataMenu(TabMenuInterface):
+class MapMenu(TabMenuInterface):
 
     name = 'Map'
     surface = None
@@ -30,7 +30,7 @@ class DataMenu(TabMenuInterface):
     halfMarkerSizeBg = markerSizeBg/2
 
     #used to implement mouse-acceleration:
-    moveStartTick 0
+    moveStartTick = 0
     lastMoveTick = 0
 
     mapImageSize = (mapSize * mapScale)
@@ -76,6 +76,11 @@ class DataMenu(TabMenuInterface):
         ], lnSize)
         self.cursorBox = self.cursorBox.convert()
         self.resetCursorPos()
+
+    def resetCursorPos(self):
+        self.cursorPosX = (self.size[0] / 2)
+        self.cursorPosY = (self.size[1] / 2)
+        pass
 
     def event(self, event):
         pass
