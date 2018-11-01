@@ -20,7 +20,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 pygame.font.init()
 fontName = os.getenv('TEXT_FONT')
 
-FONT_SM = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (14.0 / 360)))
+FONT_SM = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (15.0 / 360)))
 FONT_MD = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (16.0 / 360.0)))
 FONT_LG = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (24.0 / 360.0)))
 

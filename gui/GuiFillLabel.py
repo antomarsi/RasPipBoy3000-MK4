@@ -45,7 +45,7 @@ class GuiFillLabel(GuiElement):
             text_spacing = self.rect.width - text_size[0]
             self.text_position = (self.text_position[0] + text_spacing, self.text_position[1])
             if self.margin is not None:
-                self.text_position = (self.text_position[0] - self.margin[0], self.text_position[1] - self.margin[1])
+                self.text_position = (self.text_position[0] - self.margin[0], self.text_position[1] + self.margin[1])
         elif self.margin is not None:
             self.text_position = (self.text_position[0] + self.margin[0], self.text_position[1] + self.margin[1])
         print(self.text_position)
