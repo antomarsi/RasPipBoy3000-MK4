@@ -4,31 +4,44 @@ from classes.Pipboy import Pipboy
 from PIL import Image, ImageFilter
 from dotenv import load_dotenv
 from pathlib import Path
+from scenes.StartScene import StartScene
 import settings
 
 class Engine():
-
     def __init__(self):
         print ('Initialize pygame')
         env_path = Path('.') / '.env'
         load_dotenv(dotenv_path=env_path)
-
         self._running = True
         self._display_surf = None
+        self._current_scene = None
+        self._background = None
+        self._transition = False
         self.size = self.width, self.height = (int(os.getenv('SCREEN_WIDTH')), int(os.getenv('SCREEN_HEIGHT')))
-
         print('(done)')
         print('Size: {0}x{1}'.format(self.size[0], self.size[1]))
+
+    def change_scene(self, classtype):
+        module = __import__('scenes.'+classtype, fromlist=[classtype])
+        new_scene = getattr(module, classtype)
+        self._current_scene = new_scene()
+
+        pass
+
+    def update_screen(self):
+        pass
 
     def on_init(self):
         print ('Start on_init()')
         pygame.init()
         self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self._background = pygame.Surface(self._display_surf.get_size())
+        self._background = self._background.convert()
+        self._background.fill(settings.BACK_COLOR)
         self._running = True
         self.clock = pygame.time.Clock()
-
-        print('Starting PipBoy Class:')
-        self.pipboy = Pipboy();
+        print('Starting Start Scene Class:')
+        self.change_scene('StartScene')
         print('(done)')
 
     def on_event(self, event):
@@ -39,19 +52,18 @@ class Engine():
                 self._running = False
             elif event.key == K_q:
                 self._running = False
+        if self._current_scene is not None:
+            self._current_scene.event(event)
 
     def on_loop(self):
-        pass
+        delta_time = self.clock.get_time()
+        if self._current_scene is not None:
+            self._current_scene.update(delta_time)
 
-    def draw_overlay(self):
-        self.background = self._display_surf.convert_alpha()
-        self.background.fill(settings.TINT_COLOR, None, pygame.BLEND_RGBA_MULT)
-        self._display_surf.blit(self.background, (0,0))
-
-    def on_render(self):
-        self.pipboy.draw()
-        self._display_surf.blit(self.pipboy.surface, (0, 0))
-        self.draw_overlay()
+    def on_draw(self):
+        self._display_surf.blit(self._background, (0, 0))
+        if self._current_scene is not None:
+            self._current_scene.draw(self._display_surf)
         pygame.display.flip()
 
     def on_cleanup(self):
@@ -64,11 +76,12 @@ class Engine():
             self._running = False
 
         while(self._running):
-            self.clock.tick(60)
+            self.clock.tick(15)
             for event in pygame.event.get():
                 self.on_event(event)
-            self.on_loop()
-            self.on_render()
+            if self._transition == False:
+                self.on_loop()
+                self.on_draw()
         self.on_cleanup()
 
     def run(self):

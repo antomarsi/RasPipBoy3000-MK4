@@ -8,5 +8,8 @@ clean-build:
 	rm --force --recursive dist/
 	rm --force --recursive *.egg-info
 
-run:
+pip:
+	pip install -r requirements.txt
+
+run: clean-build clean-pyc
 	python3 main.py

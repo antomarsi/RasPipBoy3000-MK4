@@ -3,7 +3,7 @@ import pygame, os, glob, json
 #    Neal D Corbett, 2013
 # Configuration data
 
-# Device options 
+# Device options
 #  (These will be automatically be set to 'False' if unavailable)
 USE_INTERNET = False        # Download map/place data via internet connection
 USE_GPS = False            # Use GPS module, accessed via GPSD daemon
@@ -23,7 +23,7 @@ USE_SCANLINE = True
 USE_BACKGROUND = False
 POST_PROCESSING = True
 BLINK = False
-# Address for map's default position: 
+# Address for map's default position:
 #    (used if GPS is inactive)
 defaultPlace = "Blumenau SC"
 
@@ -38,12 +38,12 @@ SPECIAL_INFO = "infos/special.json"
 FPS = 15
 
 # My Google-API key:
-# (this is limited to only 2000 location requests a day, 
+# (this is limited to only 2000 location requests a day,
 #    so please don't use this key if you're making your own project!)
 gKey = 'AIzaSyBE_AN9JYmRuBtb2qfwPBaT2dAumJmkm2I'
 
 
-# Teensy USB serial: symbolic link set up by creating: 
+# Teensy USB serial: symbolic link set up by creating:
 #   /etc/udev/rules.d/99-usb-serial.rules
 # With line:
 #   SUBSYSTEM=="tty", ATTRS{manufacturer}=="Teensyduino", SYMLINK+="teensy"

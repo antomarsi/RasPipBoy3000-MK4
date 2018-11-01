@@ -15,6 +15,7 @@ TINT_COLOR = tuple(int(os.getenv('TINT_COLOR', '00C800')[i:i+2], 16) for i in (0
 USE_SOUND = bool(os.getenv('USESOUND', '1'))
 MAX_MENUS = int(os.getenv('MAX_MENUS', 5))
 SOUND_DIR = os.getenv('SOUND_DIR', 'assets/sounds/new')
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 pygame.font.init()
 fontName = os.getenv('TEXT_FONT')
@@ -22,18 +23,6 @@ fontName = os.getenv('TEXT_FONT')
 FONT_SM = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (14.0 / 360)))
 FONT_MD = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (16.0 / 360.0)))
 FONT_LG = pygame.font.Font(fontName, int (SCREEN_HEIGHT * (24.0 / 360.0)))
-
-tempImg = FONT_SM.render("X", True, DRAW_COLOR, (0, 0, 0))
-SM_SIZE = SM_WIDTH, SM_HEIGHT = (tempImg.get_width(), tempImg.get_height())
-del tempImg
-
-tempImg = FONT_MD.render("X", True, DRAW_COLOR, (0, 0, 0))
-MD_SIZE = MD_WIDTH, MD_HEIGHT = (tempImg.get_width(), tempImg.get_height())
-del tempImg
-
-tempImg = FONT_LG.render("X", True, DRAW_COLOR, (0, 0, 0))
-LG_SIZE = LG_WIDTH, LG_HEIGHT = (tempImg.get_width(), tempImg.get_height())
-del tempImg
 
 MINHUMVOL = 0.7
 MAXHUMVOL = 1.0
