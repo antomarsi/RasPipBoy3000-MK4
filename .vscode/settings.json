@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\antom\\AppData\\Local\\Programs\\Python\\Python36-32\\python.exe",
+    "python.pythonPath": "/usr/bin/python3",
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,

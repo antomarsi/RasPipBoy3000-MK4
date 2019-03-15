@@ -1,79 +1,56 @@
-import pygame, os, time, math
-from pygame.locals import *
-from classes.Pipboy import Pipboy
-from PIL import Image, ImageFilter
-from dotenv import load_dotenv
-from pathlib import Path
-import settings
+import pyglet
+import config
+from system.component import Component
+from entities.cursor import Cursor
+from random import randint
 
-class Engine():
+window = pyglet.window.Window(height=config.window_height,
+                              width=config.window_width)
 
-    def __init__(self):
-        print ('Initialize pygame')
-        env_path = Path('.') / '.env'
-        load_dotenv(dotenv_path=env_path)
+scenes_objects = []
+selected_scene = []
 
-        self._running = True
-        self._display_surf = None
-        self.size = self.width, self.height = (int(os.getenv('SCREEN_WIDTH')), int(os.getenv('SCREEN_HEIGHT')))
 
-        print('(done)')
-        print('Size: {0}x{1}'.format(self.size[0], self.size[1]))
+def draw():
+    """
+    Clears screen and then renders our list of ball objects
+    :return:
+    """
+    window.clear()
+    if isinstance(selected_scene, Component):
+        selected_scene.draw_self()
 
-    def on_init(self):
-        print ('Start on_init()')
-        pygame.init()
-        self._display_surf = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self._running = True
-        self.clock = pygame.time.Clock()
 
-        print('Starting PipBoy Class:')
-        self.pipboy = Pipboy();
-        print('(done)')
+def update(time):
+    """
+    Updates our list of ball objects
+    :param time:
+    :return:
+    """
+    if isinstance(selected_scene, Component):
+        selected_scene.update_self()
 
-    def on_event(self, event):
-        if event.type == pygame.QUIT:
-            self._running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == K_ESCAPE:
-                self._running = False
-            elif event.key == K_q:
-                self._running = False
 
-    def on_loop(self):
-        pass
+@window.event
+def on_mouse_press(x, y, button, modifiers):
+    """
+    On each mouse click, we create a new ball object
+    print('x: {}, y: {}'.format(x, y))
+    ball_objects.append(Cursor(x=x, y=y, speed=randint(3, 12)))
+    """
+    return
 
-    def draw_overlay(self):
-        self.background = self._display_surf.convert_alpha()
-        self.background.fill(settings.TINT_COLOR, None, pygame.BLEND_RGBA_MULT)
-        self._display_surf.blit(self.background, (0,0))
 
-    def on_render(self):
-        self.pipboy.draw()
-        self._display_surf.blit(self.pipboy.surface, (0, 0))
-        self.draw_overlay()
-        pygame.display.flip()
+def main():
+    """
+    This is the main method. This contains an embedded method
+    :return:
+    """
+    @window.event
+    def on_draw():
+        draw()
+    pyglet.clock.schedule_interval(update, 1/15.0)
+    pyglet.app.run()
 
-    def on_cleanup(self):
-        print('Start cleanup', end='')
-        pygame.quit()
-        print('(done)')
 
-    def on_execute(self):
-        if self.on_init() == False:
-            self._running = False
-
-        while(self._running):
-            self.clock.tick(60)
-            for event in pygame.event.get():
-                self.on_event(event)
-            self.on_loop()
-            self.on_render()
-        self.on_cleanup()
-
-    def run(self):
-        self.on_execute()
-
-if __name__ == '__main__':
-    engine = Engine()
-    engine.run()
+main()

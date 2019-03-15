@@ -4,12 +4,12 @@ clean-pyc:
 	name '*~' -exec rm --force  {}
 
 clean-build:
-	rm --force --recursive build/
-	rm --force --recursive dist/
-	rm --force --recursive *.egg-info
+	rm -rf build/
+	rm -rf dist/
+	rm -rf *.egg-info
 
 pip:
 	pip install -r requirements.txt
 
-run: clean-build clean-pyc
+run:
 	python3 main.py
