@@ -1,4 +1,5 @@
 import pyglet
+from gui.text import Text
 from system.component import Component
 import config
 
@@ -8,36 +9,27 @@ class StatsScene(Component):
         """
         Creates a sprite using a ball image.
         """
-        super(Cursor, self).__init__(*args, **kwargs)
-        self.speed = kwargs.get('speed', 5)
-        self.ball_image = pyglet.image.load('assets/images/cursor.png')
-        self.width = self.ball_image.width
-        self.height = self.ball_image.height
-        self.ball_sprite = pyglet.sprite.Sprite(self.ball_image, self.x, self.y)
-        self.x_direction = 1
-        self.y_direction = 1
+        super(StatsScene, self).__init__(*args, **kwargs)
+        self.width = config.window_width
+        self.height = config.window_height
+        self.addText()
+        print('Scene Stats Created')
+
+    def addText(self):
+        self.children.append(Text("Hello World", font_name="Monofonto", x=200,y=200, color=(0,255,0,255), background=(0,255,0,122)))
  
-        print('Cursor Created')
- 
-    def update_self(self):
-        """
-        Increments x and y value and updates position.
-        Also ensures that the Cursor does not leave the screen area by changing its axis direction
-        :return:
-        """
-        self.x += (self.speed * self.x_direction)
-        self.y += (self.speed * self.y_direction)
-        self.ball_sprite.set_position(self.x, self.y)
- 
-        if self.x < 0 or (self.x + self.width) > config.window_width:
-            self.x_direction *= -1
- 
-        if self.y < 0 or (self.y + self.height) > config.window_height:
-            self.y_direction *= -1
+    def update_self(self, dt):
+        for child in self.children:
+            if isinstance(child, Component):
+                child.update_self(dt)
+        return
  
     def draw_self(self):
         """
         Draws our ball sprite to screen
         :return:
         """
-        self.ball_sprite.draw()
+        for child in self.children:
+            if isinstance(child, Component):
+                child.draw_self()
+        return

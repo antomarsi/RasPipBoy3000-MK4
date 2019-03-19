@@ -23,9 +23,10 @@ class Component(metaclass=abc.ABCMeta):
         self.y = kwargs.get('y', 0.0)
         self.width = kwargs.get('width', 0)
         self.height = kwargs.get('height', 0)
+        self.children = []
 
     @abc.abstractmethod
-    def update_self(self):
+    def update_self(self, dt):
         pass
 
     @abc.abstractmethod
