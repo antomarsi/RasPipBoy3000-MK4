@@ -2,15 +2,13 @@ import pyglet
 import config
 from system.component import Component
 from entities.cursor import Cursor
-from scenes.stats import StatsScene
+from scenes.main_scene import MainScene
 from random import randint
 
 window = pyglet.window.Window(height=config.window_height,
                               width=config.window_width)
 
-scenes_objects = []
-scenes_objects.append(StatsScene())
-selected_index = 0
+main_scene = MainScene()
 
 
 def draw():
@@ -19,8 +17,8 @@ def draw():
     :return:
     """
     window.clear()
-    if isinstance(scenes_objects[selected_index], Component):
-        scenes_objects[selected_index].draw_self()
+    if isinstance(main_scene, Component):
+        main_scene.draw_self()
 
 
 def update(dt):
@@ -29,8 +27,8 @@ def update(dt):
     :param time:
     :return:
     """
-    if isinstance(scenes_objects[selected_index], Component):
-            scenes_objects[selected_index].update_self(dt)
+    if isinstance(main_scene, Component):
+        main_scene.update_self(dt)
 
 
 @window.event
@@ -48,6 +46,8 @@ def main():
     This is the main method. This contains an embedded method
     :return:
     """
+    pyglet.resource.path = ['assets/']
+    pyglet.resource.reindex()
     pyglet.font.add_file('assets/fonts/monofonto-kerned.ttf')
     pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
     pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
