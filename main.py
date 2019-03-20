@@ -48,7 +48,8 @@ def main():
     """
     pyglet.resource.path = ['assets/']
     pyglet.resource.reindex()
-    pyglet.font.add_file('assets/fonts/monofonto-kerned.ttf')
+    monofonto = pyglet.font.add_file('assets/fonts/monofonto-kerned.ttf')
+    print(pyglet.font.have_font('Monofonto'))    # prints: True
     pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
     pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 

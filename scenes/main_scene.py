@@ -1,5 +1,6 @@
 import pyglet
 from gui.text import Text
+from scenes.stats import StatsScene
 from system.component import Component
 import config
 
@@ -13,13 +14,17 @@ class MainScene(Component):
         super(MainScene, self).__init__(*args, **kwargs)
         self.width = config.window_width
         self.height = config.window_height
-        self.addText()
+        self.scenes = []
+        self.scenes.append(StatsScene())
         self.debugImage()
+        for scene in self.scenes:
+            self.addText(scene.title)
+        self.addText('STATS', 'MonoFont', 100, 200);
         print('Main Scene Created')
 
-    def addText(self):
-        self.children.append(Text("Hello World", font_name="Monofonto", x=200, y=200, color=(
-            0, 255, 0, 255), background=(0, 255, 0, 122)))
+    def addText(self, text, font='Monofonto', x=200, y=200):
+        self.children.append(Text(text, font_name="Monofonto", font_size=18, x=x, y=y, color=(
+            0, 255, 0, 255), background=(0, 0, 0, 255)))
 
     def debugImage(self):
         bg_image = pyglet.image.load('assets/temp/menu1.png')
