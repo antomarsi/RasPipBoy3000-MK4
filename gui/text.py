@@ -20,10 +20,7 @@ class Text(Component):
             anchor_x='left', anchor_y='bottom')
         self.width = kwargs.get('width', self.text.content_width)
         self.height = kwargs.get('height', self.text.content_height)
-
         self.background = kwargs.get('background', None)
-
-        print('Cursor Created')
 
     def get_quads(self):
         return ('v2f', (
