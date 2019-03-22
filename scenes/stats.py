@@ -6,14 +6,11 @@ import config
 class StatsScene(Component):
 
     def __init__(self, *args, **kwargs):
-        """
-        Creates a sprite using a ball image.
-        """
         super(StatsScene, self).__init__(*args, **kwargs)
         self.title = "STATS"
         self.width = config.window_width
         self.height = config.window_height
-        self.addText()
+        #self.addText()
         print('Scene Stats Created')
 
     def addText(self):
@@ -25,10 +22,6 @@ class StatsScene(Component):
         return
 
     def draw_self(self):
-        """
-        Draws our ball sprite to screen
-        :return:
-        """
         for child in self.children:
             if isinstance(child, Component):
                 child.draw_self()
