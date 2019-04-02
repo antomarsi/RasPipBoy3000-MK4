@@ -3,11 +3,11 @@ from gui.text import Text
 from system.component import Component
 import config
 
-class MapScene(Component):
+class RadioScene(Component):
 
     def __init__(self, *args, **kwargs):
-        super(MapScene, self).__init__(*args, **kwargs)
-        self.title = "MAPS"
+        super(RadioScene, self).__init__(*args, **kwargs)
+        self.title = "RADIO"
         self.width = kwargs.get('width', config.window_width)
         self.height = kwargs.get('height', config.window_height)
         print('Scene Map Created')

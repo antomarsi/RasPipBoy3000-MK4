@@ -39,6 +39,9 @@ class Text(Component):
     def update_self(self, dt):
         return
 
+    def on_key_press(self, symbol, modifiers):
+        pass
+
     def draw_self(self):
         """
         Draws our ball sprite to screen

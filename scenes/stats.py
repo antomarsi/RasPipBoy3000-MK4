@@ -15,6 +15,10 @@ class StatsScene(Component):
 
     def addText(self):
         self.children.append(Text("Hello World", font_name="Monofonto", x=200,y=200, color=(0,255,0,255), background=(0,255,0,122)))
+
+    def on_key_press(self, symbol, modifiers):
+        pass
+
     def update_self(self, dt):
         for child in self.children:
             if isinstance(child, Component):

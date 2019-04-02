@@ -2,6 +2,7 @@ import pyglet
 from gui.text import Text
 from scenes.stats import StatsScene
 from scenes.maps import MapScene
+from scenes.radio import RadioScene
 from system.component import Component
 import config
 
@@ -12,7 +13,7 @@ class MainScene(Component):
         super(MainScene, self).__init__(*args, **kwargs)
         self.width = config.window_width
         self.height = config.window_height
-        self.selectedScene = 3
+        self.selectedScene = 4
         self.debugImage()
         self.addScenes()
         self.addMenuLabels()
@@ -25,13 +26,16 @@ class MainScene(Component):
         self.scenes.append(StatsScene(x=pos[0],y=pos[1],width=size[0],height=size[1]))
         self.scenes.append(StatsScene(x=pos[0],y=pos[1],width=size[0],height=size[1]))
         self.scenes.append(MapScene(x=pos[0],y=pos[1],width=size[0],height=size[1]))
+        self.scenes.append(RadioScene(x=pos[0],y=pos[1],width=size[0],height=size[1]))
 
     def addMenuLabels(self):
-        self.addText('STAT', 'MonoFont', config.window_width * 0.223, config.window_height * 0.92, 13);
-        self.addText('INV', 'MonoFont', config.window_width * 0.34, config.window_height * 0.92, 13);
-        self.addText('DATA', 'MonoFont', config.window_width * 0.445, config.window_height * 0.92, 13);
-        self.addText('MAP', 'MonoFont', config.window_width * 0.572, config.window_height * 0.92, 13);
-        self.addText('RADIO', 'MonoFont', config.window_width * 0.675, config.window_height * 0.92, 13);
+        sizes = [(config.window_width * 0.223, config.window_height * 0.92),
+               (config.window_width * 0.34, config.window_height * 0.92),
+               (config.window_width * 0.445, config.window_height * 0.92),
+               (config.window_width * 0.572, config.window_height * 0.92),
+               (config.window_width * 0.675, config.window_height * 0.92)]
+        for idx, scene in enumerate(self.scenes):
+            self.addText(scene.title, 'MonoFont', sizes[idx][0],sizes[idx][1], 13);
 
     def drawSelectionLines(self):
         color = ('c4B', (0, 255, 255, 255, 0, 255, 255, 255))
@@ -58,6 +62,9 @@ class MainScene(Component):
         self.image = pyglet.sprite.Sprite(img=bg_image, x=-50, y=-3)
         self.image.scale = 0.45
 
+    def on_key_press(self, symbol, modifiers):
+        pass
+
     def update_self(self, dt):
         self.scenes[self.selectedScene].update_self(dt)
         for child in self.children:
@@ -66,6 +73,7 @@ class MainScene(Component):
         return
 
     def draw_self(self):
+        print('teste')
         self.image.draw()
         self.scenes[self.selectedScene].draw_self()
         self.drawSelectionLines()

@@ -30,5 +30,9 @@ class Component(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
+    def on_key_press(self, symbol, modifiers):
+        pass
+
+    @abc.abstractmethod
     def draw_self(self):
         pass

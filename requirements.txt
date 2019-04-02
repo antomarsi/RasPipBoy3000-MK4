@@ -1,6 +1,7 @@
-pyglet
 numpy
 geocoder
 spotipy
 python-dotenv
-pillow
+pyglet
+pygame
+moderngl
