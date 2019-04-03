@@ -4,6 +4,7 @@ import moderngl
 from pygame.locals import *
 import config as cfg
 import os
+from scenes.intro import IntroScene
 
 
 class App(object):
@@ -76,7 +77,8 @@ class App(object):
 
         render_indices = [0, 1, 2,
                           1, 2, 3]
-        self.active_scene = None
+
+        self.active_scene = IntroScene()
 
         self.vbo = self.ctx.buffer(struct.pack('8f', *world_coordinates))
         self.uv = self.ctx.buffer(struct.pack('8f', *texture_coordinates))
@@ -118,14 +120,12 @@ class App(object):
 
     def render(self):
         """
-        Render all needed elements and update the display.
+        Render all needed elements and update the display.█
         """
-        self.screen.fill(cfg.FALLBACK_BACKGROUND_COLOR)
-
-        pg.draw.rect(self.screen, (0,255,0), [10, 10, 50, 20])
+        self.screen.fill(cfg.background_color)
 
         if self.active_scene != None:
-            self.active_scene.render(screen)
+            self.active_scene.render(self.screen)
 
         if self.show_fps:
             self.screen.blit(self.font.render(str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))

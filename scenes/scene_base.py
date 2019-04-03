@@ -2,7 +2,7 @@ class SceneBase:
     def __init__(self):
         self.next = self
 
-    def process_input(self, events):
+    def process_input(self, events, keys):
         print("["+self.__class__.__name__+"]Override this process event")
 
     def update(self, dt):

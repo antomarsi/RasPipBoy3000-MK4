@@ -1,16 +1,20 @@
+import os
 DEFAULT_CAPTION             = "RasPipBoy-3000 Mk IV"
 DEFAULT_WIDTH               = 480
 DEFAULT_HEIGHT              = 320
-DEFAULT_FRAMERATE           = 15
+DEFAULT_FRAMERATE           = 60
 DEFAULT_MAP_COORDS          = (-26.9065, -49.0819)
+DEFAULT_USE_SOUND           = True
+DEFAULT_USE_WIFI            = True
+DEFAULT_TINT_COLOR          = (0, 200, 0)
+DEFAULT_BACKGROUND_COLOR    = (0, 0, 0)
+DEFAULT_DATA_FOLDER         = os.path.abspath("./data/")
 
 width                       = DEFAULT_WIDTH
 height                      = DEFAULT_HEIGHT
 fullscreen                  = False
 use_blur                    = False
 use_scanline                = False
-
-# Defaults for asset fallbacks
-FALLBACK_BACKGROUND_COLOR   = (24,30,24,32)
-FALLBACK_FOREGROUND_COLOR   = (1,1,1)
-FALLBACK_ICON_COLOR = (1,1,1)
+background_color            = DEFAULT_BACKGROUND_COLOR
+tint_color                  = DEFAULT_TINT_COLOR
+data_folder                 = DEFAULT_DATA_FOLDER
