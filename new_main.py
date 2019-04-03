@@ -34,7 +34,7 @@ class App(object):
             #version 140
             uniform sampler2D t0;
 
-            uniform vec2 blur_size = vec2(.5, .5);
+            uniform vec2 blur_size = '''+ ("vec2(.5, .5)" if cfg.use_blur else  "vec2(0, 0)" )+''';
 
             out vec4 color;
             in vec2 v_text;
@@ -64,7 +64,7 @@ class App(object):
                     }
 
                 color = sum / 9.0;
-                color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 1.0/(1.0/320.0));
+                ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 1.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
             }
         ''',
     )
@@ -76,6 +76,7 @@ class App(object):
 
         render_indices = [0, 1, 2,
                           1, 2, 3]
+        self.active_scene = None
 
         self.vbo = self.ctx.buffer(struct.pack('8f', *world_coordinates))
         self.uv = self.ctx.buffer(struct.pack('8f', *texture_coordinates))
@@ -87,22 +88,32 @@ class App(object):
         ]
 
         self.vao = self.ctx.vertex_array(self.program, vao_content, self.ibo)
+        self.font = pg.font.Font(None, 30)
+        self.show_fps = False
 
     def event_loop(self):
-        """
-        Basic event loop.
-        """
+        pressed_keys = pg.key.get_pressed()
+        filtered_events = []
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.done = True
-            elif event.type in (pg.KEYDOWN, pg.KEYUP):
-                self.keys = pg.key.get_pressed()
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_F3:
+                    self.show_fps = self.show_fps == False
+            if self.done == True and self.active_scene != None:
+                self.active_scene.Terminate()
+            else:
+                filtered_events.append(event)
+
+        if self.active_scene != None:
+            self.active_scene.process_input(filtered_events, pressed_keys)
 
     def update(self, dt):
         """
         Update must acccept and pass dt to all elements that need to update.
         """
-        #self.player.update(self.keys, self.screen_rect, dt)
+        if self.active_scene != None:
+            self.active_scene.update(dt)
         pass
 
     def render(self):
@@ -110,12 +121,20 @@ class App(object):
         Render all needed elements and update the display.
         """
         self.screen.fill(cfg.FALLBACK_BACKGROUND_COLOR)
-        pg.draw.rect(self.screen, (0,255,0), [400, 300, 50, 20])
-        #self.player.draw(self.screen)
-        texture_data = self.screen.get_view('1')
+
+        pg.draw.rect(self.screen, (0,255,0), [10, 10, 50, 20])
+
+        if self.active_scene != None:
+            self.active_scene.render(screen)
+
+        if self.show_fps:
+            self.screen.blit(self.font.render(str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
+
+        texture_data = pg.transform.flip(self.screen, False, True).get_view('1')
         self.diffuse_texture.write(texture_data)
         self.ctx.clear(14/255,40/255,66/255)
         self.diffuse_texture.use()
+
         self.vao.render()
         pg.display.flip()
 
@@ -130,6 +149,10 @@ class App(object):
             self.event_loop()
             self.update(dt)
             self.render()
+
+            if self.active_scene != None:
+                self.active_scene = self.active_scene.next
+
             dt = self.clock.tick(self.fps)/1000.0
 
 def main():
@@ -138,7 +161,7 @@ def main():
     """
     mode_flags = DOUBLEBUF | OPENGL
     if cfg.fullscreen:
-        mode_flags |= pygame.FULLSCREEN
+        mode_flags |= pg.FULLSCREEN
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     framerate = cfg.DEFAULT_FRAMERATE
     pg.init()
