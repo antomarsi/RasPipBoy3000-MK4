@@ -35,7 +35,7 @@ class App(object):
             #version 140
             uniform sampler2D t0;
 
-            uniform vec2 blur_size = '''+ ("vec2(.5, .5)" if cfg.use_blur else  "vec2(0, 0)" )+''';
+            uniform vec2 blur_size = '''+ ("vec2(.2, .2)" if cfg.use_blur else  "vec2(0, 0)" )+''';
 
             out vec4 color;
             in vec2 v_text;
@@ -101,9 +101,9 @@ class App(object):
                 self.done = True
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_F3:
-                    self.show_fps = self.show_fps == False
+                    self.show_fps = not self.show_fps
             if self.done == True and self.active_scene != None:
-                self.active_scene.Terminate()
+                self.active_scene.terminate()
             else:
                 filtered_events.append(event)
 
