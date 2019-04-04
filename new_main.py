@@ -5,6 +5,7 @@ from pygame.locals import *
 import config as cfg
 import os
 from scenes.intro import IntroScene
+from scanline_gradient import ScanLineGradient
 
 
 class App(object):
@@ -35,7 +36,7 @@ class App(object):
             #version 140
             uniform sampler2D t0;
 
-            uniform vec2 blur_size = '''+ ("vec2(.2, .2)" if cfg.use_blur else  "vec2(0, 0)" )+''';
+            uniform vec2 blur_size = '''+ ("vec2(.1, .1)" if cfg.use_blur else  "vec2(0, 0)" )+''';
 
             out vec4 color;
             in vec2 v_text;
@@ -65,7 +66,7 @@ class App(object):
                     }
 
                 color = sum / 9.0;
-                ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 1.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
+                ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
             }
         ''',
     )
@@ -92,6 +93,7 @@ class App(object):
         self.vao = self.ctx.vertex_array(self.program, vao_content, self.ibo)
         self.font = pg.font.Font(None, 30)
         self.show_fps = False
+        self.sprite_list = pg.sprite.LayeredDirty((ScanLineGradient()))
 
     def event_loop(self):
         pressed_keys = pg.key.get_pressed()
@@ -116,16 +118,17 @@ class App(object):
         """
         if self.active_scene != None:
             self.active_scene.update(dt)
-        pass
+        self.sprite_list.update(dt)
 
     def render(self):
         """
-        Render all needed elements and update the display.█
+        Render all needed elements and update the display.
         """
         self.screen.fill(cfg.background_color)
 
         if self.active_scene != None:
             self.active_scene.render(self.screen)
+        self.sprite_list.draw(self.screen)
 
         if self.show_fps:
             self.screen.blit(self.font.render(str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
@@ -149,9 +152,9 @@ class App(object):
             self.event_loop()
             self.update(dt)
             self.render()
-
             if self.active_scene != None:
                 self.active_scene = self.active_scene.next
+
 
             dt = self.clock.tick(self.fps)/1000.0
 
