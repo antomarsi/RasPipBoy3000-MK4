@@ -31,8 +31,7 @@ class App(object):
                 gl_Position = vec4(vert, 0.0, 1.0);
                 v_text = in_text;
             }
-        ''',
-        fragment_shader='''
+        ''', fragment_shader='''
             #version 140
             uniform sampler2D t0;
 

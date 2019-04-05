@@ -22,7 +22,6 @@ class InitializingText(pg.sprite.DirtySprite):
         pg.sprite.DirtySprite.__init__(self)
         font = pg.font.Font(os.path.join(os.path.dirname(__file__), '..', 'assets', 'fonts', 'monofonto.ttf'), 12)
         self.image = font.render("INITIALIZING...", True, (255,255,255))
-        self.image = self.image.convert_alpha()
         self.opacity = 255
         self.rect = self.image.get_rect()
         self.fade = True
