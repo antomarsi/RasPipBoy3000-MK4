@@ -5,3 +5,5 @@ python-dotenv
 pyglet
 pygame
 moderngl
+pytube
+pydub

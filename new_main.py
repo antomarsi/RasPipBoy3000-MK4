@@ -98,11 +98,13 @@ class App(object):
         pressed_keys = pg.key.get_pressed()
         filtered_events = []
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if event.type == QUIT:
                 self.done = True
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_F3:
+            elif event.type == KEYDOWN:
+                if event.key == K_F3:
                     self.show_fps = not self.show_fps
+                elif event.key == K_ESCAPE:
+                    self.done = True
             if self.done == True and self.active_scene != None:
                 self.active_scene.terminate()
             else:

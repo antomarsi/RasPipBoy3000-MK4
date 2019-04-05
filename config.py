@@ -1,4 +1,4 @@
-import os
+import os, socket
 
 DEFAULT_CAPTION             = "RasPipBoy-3000 Mk IV"
 DEFAULT_WIDTH               = 480
@@ -10,7 +10,10 @@ DEFAULT_USE_WIFI            = True
 DEFAULT_TINT_COLOR          = (0, 200, 0)
 DEFAULT_BACKGROUND_COLOR    = (0, 0, 0)
 DEFAULT_ASSETS_FOLDER       = os.path.abspath("./assets")
+DEFAULT_DOWNLOAD_FOLDER     = os.path.abspath("./download")
 
+download_radio              = True
+download_folder             = DEFAULT_DOWNLOAD_FOLDER
 width                       = DEFAULT_WIDTH
 height                      = DEFAULT_HEIGHT
 fullscreen                  = False
@@ -19,3 +22,18 @@ use_scanline                = True
 background_color            = DEFAULT_BACKGROUND_COLOR
 tint_color                  = DEFAULT_TINT_COLOR
 assets_folder               = DEFAULT_ASSETS_FOLDER
+radios                      = {
+                "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
+                "Diamond City": "https://www.youtube.com/watch?v=v39mXFVfDP4",
+                "Classical": "https://www.youtube.com/watch?v=nr6Ma3H1NXo"
+                }
+
+def is_connected():
+    REMOTE_SERVER = "www.google.com"
+    try:
+        host = socket.gethostbyname(REMOTE_SERVER)
+        s = socket.create_connection((host, 80), 2)
+        return True
+    except:
+        pass
+    return False

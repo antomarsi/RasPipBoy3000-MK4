@@ -2,8 +2,12 @@ from .scene_base import SceneBase
 import pygame as pg
 import config as cfg
 from components.animated_sprite import AnimatedSprite
-import os, json
+from components.progress_bar import ProgressBar
+import os, json, time, threading, fonts
+from pytube import YouTube
+from pathlib import Path
 from resource import Resource
+from pydub import AudioSegment
 
 class VaultBoyThumbUp(AnimatedSprite):
     def __init__(self):
@@ -20,7 +24,7 @@ class VaultBoyThumbUp(AnimatedSprite):
 class InitializingText(pg.sprite.DirtySprite):
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
-        font = pg.font.Font(os.path.join(os.path.dirname(__file__), '..', 'assets', 'fonts', 'monofonto.ttf'), 12)
+        font = fonts.MONOFONTO_12
         self.image = font.render("INITIALIZING...", True, (255,255,255))
         self.opacity = 255
         self.rect = self.image.get_rect()
@@ -80,7 +84,7 @@ class IntroScene(SceneBase):
                 text.append(t)
         text[0] = "* " + text[0]
 
-        font = pg.font.Font(os.path.join(os.path.dirname(__file__), '..', 'assets', 'fonts', 'monofonto.ttf'), 12)
+        font = fonts.MONOFONTO_12
         font_size = font.size(' ')
         surf_size = (font_size[0] * 73, font_size[1] * 104)
         self.surface = pg.Surface(surf_size)
@@ -92,7 +96,7 @@ class IntroScene(SceneBase):
         self.velocity = surf_size[1] / 3
         self.text_y = cfg.height
 
-        self.fontX2 = pg.font.Font(os.path.join(os.path.dirname(__file__), '..', 'assets', 'fonts', 'monofonto.ttf'), 16)
+        self.fontX2 = fonts.MONOFONTO_16
         font_size = self.fontX2.size(' ')
         surf_size = (font_size[0] * 73, font_size[1] * 104)
         self.cursor_rect = pg.Rect((0,0), font_size);
@@ -104,7 +108,7 @@ class IntroScene(SceneBase):
         self.loader_text = "\n".join(self.loader_text)
 
         self.state = 1
-        Resource.getInstance().play_sound('sounds/new/boot/a.ogg')
+        Resource.getInstance().play_sound('sounds/boot/a.ogg')
         pg.time.delay(800)
         self.text_pos = [0, 0, 0]
         self.typing_time = 0.01
@@ -117,7 +121,7 @@ class IntroScene(SceneBase):
     def roll_text(self, dt):
         if self.text_y < ((self.surface.get_height())*-1):
             self.state = 1
-            Resource.getInstance().play_sound('sounds/new/boot/b.ogg')
+            Resource.getInstance().play_sound('sounds/boot/b.ogg')
             pg.time.delay(500)
         else:
             self.text_y -= self.velocity * dt
@@ -144,6 +148,54 @@ class IntroScene(SceneBase):
         if self.text_pos[2] >= len(self.loader_text):
             self.state = 2
 
+    def load_files(self):
+        Resource.getInstance().play_sound('sounds/boot/c.ogg')
+        files_images = list(Path(cfg.assets_folder).rglob("*.[pP][nN][gG]"))
+        files_sounds = list(Path(cfg.assets_folder).rglob("*.[oO][gG][gG]"))
+        value = 0
+        self.download_progress.set_value(0)
+        self.download_progress.set_max_value(len(files_images) + len(files_sounds))
+        for img in files_images:
+            img = str(img).replace(cfg.assets_folder+"/", '')
+            Resource.getInstance().get_image(img)
+            value += 1
+            self.download_progress.set_value(value)
+        print("All images loaded")
+        for img in files_sounds:
+            img = str(img).replace(cfg.assets_folder+"/", '')
+            Resource.getInstance().get_sound(img)
+            value += 1
+            self.download_progress.set_value(value)
+        Resource.getInstance().play_sound('sounds/UI_PipBoy_Map_Rollover_01.ogg')
+        print("All sounds loaded")
+
+        if cfg.is_connected() and cfg.download_radio:
+            print("downloading radios")
+            radio_dir = os.path.join(cfg.download_folder, 'music')
+            if not os.path.exists(radio_dir):
+                os.makedirs(radio_dir)
+            self.initialize.add(self.download_progress)
+            for name, url in cfg.radios.items():
+                self.music_name = os.path.join(radio_dir, name+".ogg")
+                if not os.path.isfile(self.music_name):
+                    yt = YouTube(url)
+                    yt.register_on_progress_callback(self.show_progress_bar)
+                    yt.register_on_complete_callback(self.convert_rename)
+                    stream = yt.streams.filter(file_extension="webm", only_audio=True).first()
+                    self.download_progress.set_max_value(stream.filesize)
+                    self.download_progress.set_value(0)
+                    stream.download(radio_dir)
+        self.vault_boy.play()
+        time.sleep(2)
+        pass
+    def convert_rename(self, stream, file_handle):
+        AudioSegment.from_file(file_handle.name).export(self.music_name, format="ogg")
+        Resource.getInstance().play_sound('sounds/UI_PipBoy_Map_Rollover_01.ogg')
+
+    def show_progress_bar(self, stream, chunk, file_handle, bytes_remaining):
+        self.download_progress.set_value(stream.filesize-bytes_remaining)
+        return
+
     def blink_cursor(self, dt):
         if self.cursor_cd >= 0.6:
             self.cursor_cd = 0
@@ -159,6 +211,8 @@ class IntroScene(SceneBase):
         elif self.state == 2:
             if self.state2_cd >= 1.5:
                 self.state = self.surface_loader.fill((0,0,0))
+                background = pg.Surface(self.surface_loader.get_size())
+                background.fill((0,0,0))
                 self.initialize = pg.sprite.LayeredDirty()
                 text = InitializingText()
                 self.initialize.add(text)
@@ -166,12 +220,18 @@ class IntroScene(SceneBase):
                 self.vault_boy.rect.x = self.surface_loader.get_width()/2 - self.vault_boy.rect.width/2
                 self.vault_boy.rect.y = self.surface_loader.get_height()/2 - self.vault_boy.rect.height/2
                 self.initialize.add(self.vault_boy)
+                self.download_progress = ProgressBar(pg.Rect(self.surface_loader.get_width()/4, 10, self.surface_loader.get_width()/2, 20))
+                self.initialize.add(self.download_progress)
+                self.initialize.clear(self.surface_loader, background)
                 self.state = 3
+                self.thread_load_files = threading.Thread(target=self.load_files)
+                self.thread_load_files.start()
             self.blink_cursor(dt)
             self.state2_cd += dt
         if self.state == 3:
             self.initialize.update(dt)
-            self.vault_boy.play()
+            if (not self.thread_load_files.isAlive() and self.vault_boy.finished):
+                self.state = 4
         pass
 
     def render(self, render):
@@ -184,7 +244,6 @@ class IntroScene(SceneBase):
                 self.cursor_rect.top = (cfg.height/2 - self.surface_loader.get_height() / 2) + self.loader_y + self.cursor_rect_extra[0]
                 pg.draw.rect(render, (255, 255, 255), self.cursor_rect)
         elif self.state == 3:
-            self.surface_loader.fill((0,0,0))
             self.initialize.draw(self.surface_loader)
             render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width()/2, (cfg.height/2 - self.surface_loader.get_height() / 2)) )
         pass

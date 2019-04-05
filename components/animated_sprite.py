@@ -10,6 +10,7 @@ class AnimatedSprite(pg.sprite.DirtySprite):
         self.images = []
         self.internal_cd = 0
         self.current_frame = start_frame
+        self.finished = False
 
     def play(self):
         self.is_playing = True
@@ -21,6 +22,7 @@ class AnimatedSprite(pg.sprite.DirtySprite):
                 if self.current_frame == len(self.images)-1:
                     if not self.loop:
                         self.is_playing = False
+                        self.finished = True
                     else:
                         self.current_frame = 0
                 elif self.current_frame < len(self.images)-1:
