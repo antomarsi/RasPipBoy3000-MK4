@@ -1,4 +1,5 @@
 from .scene_base import SceneBase
+from .stats import StatsScene
 import pygame as pg
 import config as cfg
 from components.animated_sprite import AnimatedSprite
@@ -108,12 +109,14 @@ class IntroScene(SceneBase):
         self.loader_text = "\n".join(self.loader_text)
 
         self.state = 1
-        Resource.getInstance().play_sound('sounds/boot/a.ogg')
-        pg.time.delay(800)
         self.text_pos = [0, 0, 0]
         self.typing_time = 0.01
         self.state2_cd = 0
         self.cursor_rect_extra = [0, 0]
+        self.text_download = None
+        pg.time.delay(1500)
+        Resource.getInstance().play_sound('sounds/boot/a.ogg')
+        pg.time.delay(800)
 
     def process_input(self, events, keys):
         pass
@@ -147,8 +150,12 @@ class IntroScene(SceneBase):
         self.typing_cd += dt
         if self.text_pos[2] >= len(self.loader_text):
             self.state = 2
+    def set_download_text(self, value):
+        self.text_download = fonts.MONOFONTO_12.render(value, True, (255,255,255))
+        self.text_download_pos = (self.download_progress.rect.centerx, self.download_progress.rect.centery + self.download_progress.rect.height)
 
     def load_files(self):
+        self.set_download_text("Loading Assets")
         Resource.getInstance().play_sound('sounds/boot/c.ogg')
         files_images = list(Path(cfg.assets_folder).rglob("*.[pP][nN][gG]"))
         files_sounds = list(Path(cfg.assets_folder).rglob("*.[oO][gG][gG]"))
@@ -168,6 +175,7 @@ class IntroScene(SceneBase):
             self.download_progress.set_value(value)
         Resource.getInstance().play_sound('sounds/UI_PipBoy_Map_Rollover_01.ogg')
         print("All sounds loaded")
+        self.set_download_text("Assets Loaded")
 
         if cfg.is_connected() and cfg.download_radio:
             print("downloading radios")
@@ -178,6 +186,7 @@ class IntroScene(SceneBase):
             for name, url in cfg.radios.items():
                 self.music_name = os.path.join(radio_dir, name+".ogg")
                 if not os.path.isfile(self.music_name):
+                    self.set_download_text("Downloading: " + name)
                     yt = YouTube(url)
                     yt.register_on_progress_callback(self.show_progress_bar)
                     yt.register_on_complete_callback(self.convert_rename)
@@ -186,7 +195,9 @@ class IntroScene(SceneBase):
                     self.download_progress.set_value(0)
                     stream.download(radio_dir)
         self.vault_boy.play()
-        time.sleep(2)
+        self.set_download_text("All songs downloaded")
+        pg.time.delay(2000)
+        self.switch_to_scene(StatsScene())
         pass
     def convert_rename(self, stream, file_handle):
         AudioSegment.from_file(file_handle.name).export(self.music_name, format="ogg")
@@ -210,7 +221,7 @@ class IntroScene(SceneBase):
             self.loader_sequence(dt)
         elif self.state == 2:
             if self.state2_cd >= 1.5:
-                self.state = self.surface_loader.fill((0,0,0))
+                self.surface_loader.fill((0,0,0))
                 background = pg.Surface(self.surface_loader.get_size())
                 background.fill((0,0,0))
                 self.initialize = pg.sprite.LayeredDirty()
@@ -220,9 +231,14 @@ class IntroScene(SceneBase):
                 self.vault_boy.rect.x = self.surface_loader.get_width()/2 - self.vault_boy.rect.width/2
                 self.vault_boy.rect.y = self.surface_loader.get_height()/2 - self.vault_boy.rect.height/2
                 self.initialize.add(self.vault_boy)
-                self.download_progress = ProgressBar(pg.Rect(self.surface_loader.get_width()/4, 10, self.surface_loader.get_width()/2, 20))
+                self.download_progress = ProgressBar(pg.Rect(
+                    self.surface_loader.get_width()/4,
+                    int(self.surface_loader.get_height()*0.9),
+                    self.surface_loader.get_width()/2,
+                    20))
                 self.initialize.add(self.download_progress)
                 self.initialize.clear(self.surface_loader, background)
+                self.text_download_pos = (self.download_progress.rect.centerx, self.download_progress.rect.centery + self.download_progress.rect.height)
                 self.state = 3
                 self.thread_load_files = threading.Thread(target=self.load_files)
                 self.thread_load_files.start()
@@ -246,4 +262,6 @@ class IntroScene(SceneBase):
         elif self.state == 3:
             self.initialize.draw(self.surface_loader)
             render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width()/2, (cfg.height/2 - self.surface_loader.get_height() / 2)) )
+            if self.text_download:
+                render.blit(self.text_download, self.text_download_pos)
         pass

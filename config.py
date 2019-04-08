@@ -22,10 +22,9 @@ use_scanline                = True
 background_color            = DEFAULT_BACKGROUND_COLOR
 tint_color                  = DEFAULT_TINT_COLOR
 assets_folder               = DEFAULT_ASSETS_FOLDER
+skip_intro                  = True
 radios                      = {
                 "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
-                "Diamond City": "https://www.youtube.com/watch?v=v39mXFVfDP4",
-                "Classical": "https://www.youtube.com/watch?v=nr6Ma3H1NXo"
                 }
 
 def is_connected():
