@@ -22,7 +22,7 @@ class App(object):
         self.diffuse_texture = self.ctx.texture(self.screen.get_size(), 3, pg.image.tostring(self.screen, "RGB", 1))
         self.program = self.ctx.program(
         vertex_shader='''
-            #version 300 es
+            #version 140
             in vec2 vert;
             in vec2 in_text;
             out vec2 v_text;
@@ -31,31 +31,43 @@ class App(object):
                 v_text = in_text;
             }
         ''', fragment_shader='''
-            #version 300 es
-            precision mediump float;
-            uniform sampler2D Texture;
+            #version 140
+            uniform sampler2D t0;
+
+            uniform vec2 blur_size = '''+ ("vec2(.1, .1)" if cfg.use_blur else  "vec2(0, 0)" )+''';
 
             out vec4 color;
             in vec2 v_text;
             void main() {
-              vec2 center = vec2(0.5, 0.5);
-              vec2 off_center = v_text - center;
-              vec2 off_center2 = off_center*off_center;
+                vec4 temp = vec4(texture(t0, v_text).rgb, 1.0);
 
-              vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.1);
+                ivec2 size = textureSize(t0, 0);
 
-              if (v_text2.x > 1.0 || v_text2.x < 0.0 ||
-                  v_text2.y > 1.0 || v_text2.y < 0.0){
-                 color=vec4(0.0, 0.0, 0.0, 1.0);
-              } else {
-                 color = vec4(texture(Texture, v_text2).rgb, 1.0);
-                 float fv = fract(v_text2.y * float(textureSize(Texture,0).y));
-                 fv=min(1.0, 1.5+min(fv, 1.0-fv));
-                 color.rgb*=fv;
-              }
-              ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
-            }''',
-        )
+                float uv_x = v_text.x * size.x;
+                float uv_y = v_text.y * size.y;
+
+                vec4 sum = vec4(0.0);
+
+                for (int n = 0; n < 9; ++n) {
+                        uv_y = (v_text.y * size.y) + (blur_size.y * float(n - 4.5));
+                        vec4 h_sum = vec4(0.0);
+                        h_sum += texelFetch(t0, ivec2(uv_x - (4.0 * blur_size.x), uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x - (3.0 * blur_size.x), uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x - (2.0 * blur_size.x), uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x - blur_size.x, uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x, uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x + blur_size.x, uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x + (2.0 * blur_size.x), uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x + (3.0 * blur_size.x), uv_y), 0);
+                        h_sum += texelFetch(t0, ivec2(uv_x + (4.0 * blur_size.x), uv_y), 0);
+                        sum += h_sum / 9.0;
+                    }
+
+                color = sum / 9.0;
+                ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
+            }
+        ''',
+    )
         texture_coordinates = [0, 0,  1, 0,
                                0, 1,  1, 1]
 
