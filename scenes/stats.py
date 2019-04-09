@@ -33,8 +33,7 @@ class StatsScene(SceneBase):
         debug_image.rect.center = self.surface.get_rect().center
         self.sprites.add(debug_image)
 
-
-        self.sprites.add(Header(pg.Rect(0,0, cfg.width, cfg.height*0.11)))
+        self.sprites.add(Header(rect=pg.Rect(0,0, cfg.width, cfg.height*0.11), selected_index=1))
         self.sprites.clear(self.surface, background)
         pg.time.delay(800)
 
