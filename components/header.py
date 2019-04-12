@@ -6,13 +6,20 @@ class Header(pg.sprite.DirtySprite):
         pg.sprite.DirtySprite.__init__(self)
         self.image = pg.Surface(rect.size, pg.SRCALPHA)
         self.rect = rect
-        self.texts = { "STAT": 110, "INV":168, "DATA":215, "MAP":276, "RADIO":325 }
+        self.texts = { "STAT": 51, "INV":107, "DATA":156, "MAP":217, "RADIO":267 }
         self.color = color
         self.selected_index = selected_index
         self.draw_header()
 
+    def get_selected_index_position(self):
+        return list(self.texts.values())[self.selected_index] + self.rect.x - 9
+
+    def get_start_line_x(self):
+        return self.rect.width
+
+
     def draw_header(self):
-        margin = 56
+        margin = 0
 
         lines_selection = []
         lines_selection.append((margin, self.rect.height))
@@ -33,10 +40,7 @@ class Header(pg.sprite.DirtySprite):
                 lines_selection.append((position + text_sur.get_width() + 2, self.rect.height-22))
                 lines_selection.append((position + text_sur.get_width() + 4, self.rect.height-22))
                 lines_selection.append((position + text_sur.get_width() + 4, self.rect.height-8))
-        lines_selection.append((self.rect.width - margin, self.rect.height-8))
-        lines_selection.append((self.rect.width - margin, self.rect.height))
+        lines_selection.append((self.rect.width-2, self.rect.height-8))
+        lines_selection.append((self.rect.width-2, self.rect.height))
         pg.draw.lines(self.image, self.color, False, lines_selection, 2)
-        self.dirty = 1
-
-    def update(self, dt):
         self.dirty = 1

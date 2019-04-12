@@ -40,9 +40,9 @@ class App(object):
             void main() {
               vec2 center = vec2(0.5, 0.5);
               vec2 off_center = v_text - center;
-              vec2 off_center2 = off_center*off_center;
+              vec2 off_center2 = pow(abs(off_center), vec2(3.5, 3.5));
 
-              vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.1);
+              vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.2);
 
               if (v_text2.x > 1.0 || v_text2.x < 0.0 ||
                   v_text2.y > 1.0 || v_text2.y < 0.0){
@@ -50,7 +50,7 @@ class App(object):
               } else {
                  color = vec4(texture(Texture, v_text2).rgb, 1.0);
                  float fv = fract(v_text2.y * float(textureSize(Texture,0).y));
-                 fv=min(1.0, 1.5+min(fv, 1.0-fv));
+                 fv=min(1.0, 0.8+0.5+min(fv, 1.0-fv));
                  color.rgb*=fv;
               }
               ''' + ("color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));" if cfg.use_scanline else "") + '''
