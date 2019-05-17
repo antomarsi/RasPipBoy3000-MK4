@@ -4,19 +4,26 @@ import pygame as pg
 import config as cfg
 from components.animated_sprite import AnimatedSprite
 from components.progress_bar import ProgressBar
-import os, json, time, threading, fonts
+import os
+import json
+import time
+import threading
+import fonts
 from pytube import YouTube
 from pathlib import Path
 from resource import Resource
 from pydub import AudioSegment
+
 
 class VaultBoyThumbUp(AnimatedSprite):
     def __init__(self):
         AnimatedSprite.__init__(self, duration_per_frame=0.1)
         self.images = []
         for i in range(1, 8):
-            image = Resource.getInstance().get_image(os.path.join("sprites", "boot", "vault_boy_"+str(i)+".png"))
-            image = pg.transform.smoothscale(image, (int(image.get_width()/2), int(image.get_height()/2)))
+            image = Resource.getInstance().get_image(
+                os.path.join("sprites", "boot", "vault_boy_"+str(i)+".png"))
+            image = pg.transform.smoothscale(
+                image, (int(image.get_width()/2), int(image.get_height()/2)))
             self.images.append(image)
         self.image = self.images[0]
         self.rect = self.image.get_rect()
@@ -26,7 +33,7 @@ class InitializingText(pg.sprite.DirtySprite):
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
         font = fonts.MONOFONTO_12
-        self.image = font.render("INITIALIZING...", True, (255,255,255))
+        self.image = font.render("INITIALIZING...", True, (255, 255, 255))
         self.opacity = 255
         self.rect = self.image.get_rect()
         self.fade = True
@@ -45,11 +52,12 @@ class InitializingText(pg.sprite.DirtySprite):
         self.image.set_alpha(self.opacity)
         self.dirty = 1
 
+
 class IntroScene(SceneBase):
 
     def __init__(self):
         super().__init__()
-        #o texto de código deve se repitir 8 vezes e deve passar na tela na duração de 4 segundos
+        # o texto de código deve se repitir 8 vezes e deve passar na tela na duração de 4 segundos
         text = []
         text_size = [0, 0]
         boot_text = [
@@ -91,7 +99,7 @@ class IntroScene(SceneBase):
         self.surface = pg.Surface(surf_size)
 
         for idx, t in enumerate(text):
-            text_s = font.render(t, True, (255,255,255))
+            text_s = font.render(t, True, (255, 255, 255))
             self.surface.blit(text_s, (0, int(idx * font_size[1])))
 
         self.velocity = surf_size[1] / 3
@@ -100,8 +108,9 @@ class IntroScene(SceneBase):
         self.fontX2 = fonts.MONOFONTO_16
         font_size = self.fontX2.size(' ')
         surf_size = (font_size[0] * 73, font_size[1] * 104)
-        self.cursor_rect = pg.Rect((0,0), font_size);
-        self.surface_loader = pg.Surface((font_size[0] * 49, font_size[1] * len(self.loader_text)))
+        self.cursor_rect = pg.Rect((0, 0), font_size)
+        self.surface_loader = pg.Surface(
+            (font_size[0] * 49, font_size[1] * len(self.loader_text)))
         self.cursor_show = True
         self.cursor_cd = 0
         self.loader_y = 0
@@ -131,7 +140,7 @@ class IntroScene(SceneBase):
         pass
 
     def loader_sequence(self, dt):
-        if self.typing_cd >= self.typing_time :
+        if self.typing_cd >= self.typing_time:
             c = self.loader_text[self.text_pos[2]]
             if c == "\n":
                 self.text_pos[1] += 1
@@ -140,8 +149,10 @@ class IntroScene(SceneBase):
             else:
                 text_s = self.fontX2.render(c, True, (255, 255, 255))
                 text_size = self.fontX2.size(' ')
-                self.surface_loader.blit(text_s, (text_size[0] * self.text_pos[0], text_size[1] * self.text_pos[1]))
-                self.cursor_rect_extra = (text_size[1] * self.text_pos[1], text_size[0] * (self.text_pos[0]+1))
+                self.surface_loader.blit(
+                    text_s, (text_size[0] * self.text_pos[0], text_size[1] * self.text_pos[1]))
+                self.cursor_rect_extra = (
+                    text_size[1] * self.text_pos[1], text_size[0] * (self.text_pos[0]+1))
                 self.text_pos[0] += 1
                 self.typing_time = 0.01
             self.text_pos[2] += 1
@@ -150,9 +161,12 @@ class IntroScene(SceneBase):
         self.typing_cd += dt
         if self.text_pos[2] >= len(self.loader_text):
             self.state = 2
+
     def set_download_text(self, value):
-        self.text_download = fonts.MONOFONTO_12.render(value, True, (255,255,255))
-        self.text_download_pos = (self.download_progress.rect.centerx, self.download_progress.rect.centery + self.download_progress.rect.height)
+        self.text_download = fonts.MONOFONTO_12.render(
+            value, True, (255, 255, 255))
+        self.text_download_pos = (self.download_progress.rect.centerx,
+                                  self.download_progress.rect.centery + self.download_progress.rect.height)
 
     def load_files(self):
         self.set_download_text("Loading Assets")
@@ -161,7 +175,8 @@ class IntroScene(SceneBase):
         files_sounds = list(Path(cfg.assets_folder).rglob("*.[oO][gG][gG]"))
         value = 0
         self.download_progress.set_value(0)
-        self.download_progress.set_max_value(len(files_images) + len(files_sounds))
+        self.download_progress.set_max_value(
+            len(files_images) + len(files_sounds))
         for img in files_images:
             img = str(img).replace(cfg.assets_folder+"/", '')
             Resource.getInstance().get_image(img)
@@ -190,7 +205,8 @@ class IntroScene(SceneBase):
                     yt = YouTube(url)
                     yt.register_on_progress_callback(self.show_progress_bar)
                     yt.register_on_complete_callback(self.convert_rename)
-                    stream = yt.streams.filter(file_extension="webm", only_audio=True).first()
+                    stream = yt.streams.filter(
+                        file_extension="webm", only_audio=True).first()
                     self.download_progress.set_max_value(stream.filesize)
                     self.download_progress.set_value(0)
                     stream.download(radio_dir)
@@ -199,8 +215,10 @@ class IntroScene(SceneBase):
         pg.time.delay(2000)
         self.switch_to_scene(StatsScene())
         pass
+
     def convert_rename(self, stream, file_handle):
-        AudioSegment.from_file(file_handle.name).export(self.music_name, format="ogg")
+        AudioSegment.from_file(file_handle.name).export(
+            self.music_name, format="ogg")
         Resource.getInstance().play_sound('sounds/UI_PipBoy_Map_Rollover_01.ogg')
 
     def show_progress_bar(self, stream, chunk, file_handle, bytes_remaining):
@@ -221,15 +239,17 @@ class IntroScene(SceneBase):
             self.loader_sequence(dt)
         elif self.state == 2:
             if self.state2_cd >= 1.5:
-                self.surface_loader.fill((0,0,0))
+                self.surface_loader.fill((0, 0, 0))
                 background = pg.Surface(self.surface_loader.get_size())
-                background.fill((0,0,0))
+                background.fill((0, 0, 0))
                 self.initialize = pg.sprite.LayeredDirty()
                 text = InitializingText()
                 self.initialize.add(text)
                 self.vault_boy = VaultBoyThumbUp()
-                self.vault_boy.rect.x = self.surface_loader.get_width()/2 - self.vault_boy.rect.width/2
-                self.vault_boy.rect.y = self.surface_loader.get_height()/2 - self.vault_boy.rect.height/2
+                self.vault_boy.rect.x = self.surface_loader.get_width()/2 - \
+                    self.vault_boy.rect.width/2
+                self.vault_boy.rect.y = self.surface_loader.get_height()/2 - \
+                    self.vault_boy.rect.height/2
                 self.initialize.add(self.vault_boy)
                 self.download_progress = ProgressBar(pg.Rect(
                     self.surface_loader.get_width()/4,
@@ -238,9 +258,11 @@ class IntroScene(SceneBase):
                     20))
                 self.initialize.add(self.download_progress)
                 self.initialize.clear(self.surface_loader, background)
-                self.text_download_pos = (self.download_progress.rect.centerx, self.download_progress.rect.centery + self.download_progress.rect.height)
+                self.text_download_pos = (self.download_progress.rect.centerx,
+                                          self.download_progress.rect.centery + self.download_progress.rect.height)
                 self.state = 3
-                self.thread_load_files = threading.Thread(target=self.load_files)
+                self.thread_load_files = threading.Thread(
+                    target=self.load_files)
                 self.thread_load_files.start()
             self.blink_cursor(dt)
             self.state2_cd += dt
@@ -252,16 +274,21 @@ class IntroScene(SceneBase):
 
     def render(self, render):
         if self.state == 0:
-            render.blit(self.surface, (cfg.width / 2 - self.surface.get_width()/2, self.text_y))
+            render.blit(self.surface, (cfg.width / 2 -
+                                       self.surface.get_width()/2, self.text_y))
         elif self.state == 1 or self.state == 2:
-            render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width()/2, (cfg.height/2 - self.surface_loader.get_height() / 2) + self.loader_y) )
+            render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width()/2,
+                                              (cfg.height/2 - self.surface_loader.get_height() / 2) + self.loader_y))
             if self.cursor_show:
-                self.cursor_rect.left = (cfg.width/2 - self.surface_loader.get_width()/2) + self.cursor_rect_extra[1]
-                self.cursor_rect.top = (cfg.height/2 - self.surface_loader.get_height() / 2) + self.loader_y + self.cursor_rect_extra[0]
+                self.cursor_rect.left = (
+                    cfg.width/2 - self.surface_loader.get_width()/2) + self.cursor_rect_extra[1]
+                self.cursor_rect.top = (
+                    cfg.height/2 - self.surface_loader.get_height() / 2) + self.loader_y + self.cursor_rect_extra[0]
                 pg.draw.rect(render, (255, 255, 255), self.cursor_rect)
         elif self.state == 3:
             self.initialize.draw(self.surface_loader)
-            render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width()/2, (cfg.height/2 - self.surface_loader.get_height() / 2)) )
+            render.blit(self.surface_loader, (cfg.width / 2 - self.surface_loader.get_width() /
+                                              2, (cfg.height/2 - self.surface_loader.get_height() / 2)))
             if self.text_download:
                 render.blit(self.text_download, self.text_download_pos)
         pass

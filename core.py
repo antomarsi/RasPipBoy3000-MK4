@@ -1,5 +1,6 @@
 import pyglet
 
+
 class SceneManager(object):
 
     def on_step(self, dt):
@@ -16,7 +17,8 @@ class SceneManager(object):
         self.window = pyglet.window.Window(x, y, title)
         pyglet.clock.schedule_interval(self.on_step, 1.0/fps)
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA,
+                              pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
         self.show_fps = show_fps
         pyglet.clock.set_fps_limit(fps)
         self.fps_display = pyglet.window.FPSDisplay(self.window)
@@ -120,6 +122,7 @@ class SceneManager(object):
             self.scenes[self.current].on_text_motion_select(self, motion)
 
         pyglet.app.run()
+
 
 class Scene(object):
     """Scene template."""

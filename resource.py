@@ -2,6 +2,7 @@ import pygame
 import os
 import config as cfg
 
+
 class Resource:
     __instance = None
 
@@ -25,7 +26,8 @@ class Resource:
         image = self._image_library.get(path)
         if image == None:
             abs_path = path.replace('/', os.sep).replace('\\', os.sep)
-            image = pygame.image.load(os.path.join(cfg.assets_folder, abs_path))
+            image = pygame.image.load(
+                os.path.join(cfg.assets_folder, abs_path))
             self._image_library[path] = image
         return image
 
@@ -33,7 +35,8 @@ class Resource:
         sound = self._sound_library.get(path)
         if sound == None:
             abs_path = path.replace('/', os.sep).replace('\\', os.sep)
-            sound = pygame.mixer.Sound(os.path.join(cfg.assets_folder, abs_path))
+            sound = pygame.mixer.Sound(
+                os.path.join(cfg.assets_folder, abs_path))
             self._sound_library[path] = sound
         return sound
 

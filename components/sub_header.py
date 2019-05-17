@@ -1,8 +1,9 @@
 import pygame as pg
 import fonts
 
+
 class SubHeader(pg.sprite.DirtySprite):
-    def __init__(self, x=0, y=0, color=(255,255,255), selected_index=0, texts=["TEXT1", "TEXT2"]):
+    def __init__(self, x=0, y=0, color=(255, 255, 255), selected_index=0, texts=["TEXT1", "TEXT2"]):
         pg.sprite.DirtySprite.__init__(self)
         self.texts = texts
         self.color = color
@@ -47,9 +48,10 @@ class SubHeader(pg.sprite.DirtySprite):
             if (division > 2):
                 division += 2
             if (division <= 5):
-                color = (self.color[0] / division, self.color[1]/division, self.color[2]/division)
+                color = (self.color[0] / division,
+                         self.color[1]/division, self.color[2]/division)
             else:
-                color = (0,0,0)
+                color = (0, 0, 0)
             self.texts_surfaces.append(self.font.render(text, True, color))
 
     def draw_list(self):
@@ -61,6 +63,6 @@ class SubHeader(pg.sprite.DirtySprite):
         self.image = pg.Surface((width, font_height), pg.SRCALPHA)
         margin = 0
         for surface in self.texts_surfaces:
-            self.image.blit(surface, (margin ,0))
+            self.image.blit(surface, (margin, 0))
             margin += surface.get_width() + font_width/2
         self.dirty = 1

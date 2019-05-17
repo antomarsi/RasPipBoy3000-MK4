@@ -1,12 +1,14 @@
 import pygame as pg
 import fonts
 
+
 class Header(pg.sprite.DirtySprite):
-    def __init__(self, rect, color=(255,255,255), selected_index=0):
+    def __init__(self, rect, color=(255, 255, 255), selected_index=0):
         pg.sprite.DirtySprite.__init__(self)
         self.image = pg.Surface(rect.size, pg.SRCALPHA)
         self.rect = rect
-        self.texts = { "STAT": 51, "INV":107, "DATA":156, "MAP":217, "RADIO":267 }
+        self.texts = {"STAT": 51, "INV": 107,
+                      "DATA": 156, "MAP": 217, "RADIO": 267}
         self.color = color
         self.selected_index = selected_index
         self.draw_header()
@@ -16,7 +18,6 @@ class Header(pg.sprite.DirtySprite):
 
     def get_start_line_x(self):
         return self.rect.width
-
 
     def draw_header(self):
         margin = 0
@@ -35,11 +36,15 @@ class Header(pg.sprite.DirtySprite):
                 lines_selection.append((position - 4, self.rect.height-8))
                 lines_selection.append((position - 4, self.rect.height-22))
                 lines_selection.append((position - 2, self.rect.height-22))
-                pg.draw.lines(self.image, self.color, False, lines_selection, 2)
+                pg.draw.lines(self.image, self.color,
+                              False, lines_selection, 2)
                 lines_selection.clear()
-                lines_selection.append((position + text_sur.get_width() + 2, self.rect.height-22))
-                lines_selection.append((position + text_sur.get_width() + 4, self.rect.height-22))
-                lines_selection.append((position + text_sur.get_width() + 4, self.rect.height-8))
+                lines_selection.append(
+                    (position + text_sur.get_width() + 2, self.rect.height-22))
+                lines_selection.append(
+                    (position + text_sur.get_width() + 4, self.rect.height-22))
+                lines_selection.append(
+                    (position + text_sur.get_width() + 4, self.rect.height-8))
         lines_selection.append((self.rect.width-2, self.rect.height-8))
         lines_selection.append((self.rect.width-2, self.rect.height))
         pg.draw.lines(self.image, self.color, False, lines_selection, 2)

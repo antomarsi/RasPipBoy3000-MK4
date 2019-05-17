@@ -1,4 +1,7 @@
-import os, sys, struct, moderngl
+import os
+import sys
+import struct
+import moderngl
 import pygame as pg
 from pygame.locals import *
 import config as cfg
@@ -11,17 +14,20 @@ class App(object):
     """
     Class responsible for program control flow.
     """
+
     def __init__(self, fps):
-        self.screen = pg.Surface(pg.display.get_surface().get_size()).convert((16711680, 65280, 255, 0), 0)
+        self.screen = pg.Surface(pg.display.get_surface().get_size()).convert(
+            (16711680, 65280, 255, 0), 0)
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
         self.fps = fps
         self.done = False
         self.keys = pg.key.get_pressed()
         self.ctx = moderngl.create_context()
-        self.diffuse_texture = self.ctx.texture(self.screen.get_size(), 3, pg.image.tostring(self.screen, "RGB", 1))
+        self.diffuse_texture = self.ctx.texture(
+            self.screen.get_size(), 3, pg.image.tostring(self.screen, "RGB", 1))
         self.program = self.ctx.program(
-        vertex_shader='''
+            vertex_shader='''
             #version 300 es
             in vec2 vert;
             in vec2 in_text;
@@ -71,7 +77,7 @@ class App(object):
 
         self.vbo = self.ctx.buffer(struct.pack('8f', *world_coordinates))
         self.uv = self.ctx.buffer(struct.pack('8f', *texture_coordinates))
-        self.ibo=self.ctx.buffer(struct.pack('6I', *render_indices))
+        self.ibo = self.ctx.buffer(struct.pack('6I', *render_indices))
 
         vao_content = [
             (self.vbo, '2f', 'vert'),
@@ -121,11 +127,13 @@ class App(object):
         self.sprite_list.draw(self.screen)
 
         if self.show_fps:
-            self.screen.blit(self.font.render(str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
+            self.screen.blit(self.font.render(
+                str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
 
-        texture_data = pg.transform.flip(self.screen, False, True).get_view('1')
+        texture_data = pg.transform.flip(
+            self.screen, False, True).get_view('1')
         self.diffuse_texture.write(texture_data)
-        self.ctx.clear(14/255,40/255,66/255)
+        self.ctx.clear(14/255, 40/255, 66/255)
         self.diffuse_texture.use()
 
         self.vao.render()
@@ -145,8 +153,8 @@ class App(object):
             if self.active_scene != None:
                 self.active_scene = self.active_scene.next
 
-
             dt = self.clock.tick(self.fps)/1000.0
+
 
 def main():
     """
@@ -163,6 +171,7 @@ def main():
     App(framerate).main_loop()
     pg.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()

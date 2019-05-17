@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 class AnimatedSprite(pg.sprite.DirtySprite):
     def __init__(self, autoplay=False, loop=False, duration_per_frame=0.2, start_frame=0):
         pg.sprite.DirtySprite.__init__(self)
