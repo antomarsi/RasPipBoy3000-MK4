@@ -75,6 +75,71 @@ class BottomBar(pg.sprite.DirtySprite):
         pg.draw.rect(self.image, self.color, bar_rect)
 
 
+class StatusMenu(pg.sprite.DirtySprite):
+    def __init__(self, rect, color=(255, 255, 255)):
+        super().__init__()
+        self.image = pg.Surface(rect.size, pg.SRCALPHA)
+        self.rect = rect
+        self.color = color
+        self.background = (color[0], color[1], color[2], 255/2)
+        self.dark_color = (color[0]/4, color[1]/4, color[2]/4, 255/8)
+        self.font = fonts.MONOFONTO_12
+        self.stimpaks = 0
+        self.radaway = 0
+        self.font.set_bold(True)
+        self.draw_buttons()
+        self.health_parts = {
+            "head": 1,
+            "larm": 1,
+            "rarm": 1,
+            "lleg": 1,
+            "rleg": 1,
+            "health": 1
+        }
+        self.draw_health_parts()
+        self.dirty = 1
+
+    def draw_buttons(self):
+        text_sur = self.font.render("STIMPAK(%d)" % (
+            self.stimpaks), True, self.dark_color).convert_alpha()
+        text_sur.set_alpha(0.1)
+        start_pos = pg.Rect(2, self.rect.height - text_sur.get_height() - 8,
+                            text_sur.get_width() + 4, text_sur.get_height() + 4)
+        pg.draw.rect(self.image, self.background, start_pos)
+        self.image.blit(
+            text_sur, (start_pos.x + 2, start_pos.y+2))
+
+        text_sur = self.font.render("RADAWAY(%d)" % (
+            self.radaway), True, self.dark_color).convert_alpha()
+        start_pos = pg.Rect(start_pos.x + start_pos.width + 5, self.rect.height - text_sur.get_height() - 8,
+                            text_sur.get_width() + 4, text_sur.get_height() + 4)
+        pg.draw.rect(self.image, self.background, start_pos)
+        self.image.blit(
+            text_sur, (start_pos.x + 2, start_pos.y+2))
+
+    def draw_health_parts(self):
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.512, self.rect.height*0.135, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("head"), True)
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.325, self.rect.height*0.338, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("rarm"), True)
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.68, self.rect.height*0.338, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("larm"), True)
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.325, self.rect.height*0.59, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("rleg"), True)
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.68, self.rect.height*0.59, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("lleg"), True)
+        self.draw_progress_bar(pg.Rect(
+            self.rect.width*0.512, self.rect.height*0.695, self.rect.width*0.06, self.rect.height*0.024), self.color, self.health_parts.get("health"), True)
+
+    def draw_progress_bar(self, rect, color, percentage=1, center=False):
+        if center:
+            rect.x = rect.x - (rect.width/2)
+            rect.y = rect.y - (rect.height/2)
+        pg.draw.rect(self.image, color, rect, 1)
+        rect.width = rect.width * percentage
+        pg.draw.rect(self.image, color, rect)
+
+
 class StatsScene(SceneBase):
 
     def __init__(self):
@@ -95,6 +160,8 @@ class StatsScene(SceneBase):
         self.sub_menu = SubHeader(self.header.get_selected_index_position(
         ), self.header.rect.height-5, texts=['STATUS', 'SPECIAL', 'PERKS'])
         self.sprites.add(self.sub_menu)
+        self.sprites.add(StatusMenu(pg.Rect(
+            0, cfg.height*0.11, self.surface.get_width(), self.surface.get_height()-(cfg.height*0.11)-28)))
         self.sprites.add(BottomBar(rect=pg.Rect(
             0, self.surface.get_height()-28, self.surface.get_width(), 18)))
 
