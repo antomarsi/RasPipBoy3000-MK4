@@ -1,8 +1,6 @@
 numpy
 geocoder
-spotipy
 python-dotenv
-pyglet
 pygame
 moderngl
 pytube

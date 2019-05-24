@@ -96,8 +96,72 @@ class StatusMenu(pg.sprite.DirtySprite):
             "rleg": 1,
             "health": 1
         }
+        self.low_bar = {
+            "aim": 79,
+            "shield": 10,
+            "lightning": 20,
+            "radiation": 10
+        }
+        self.draw_low_bar_stats()
         self.draw_health_parts()
         self.dirty = 1
+
+    def draw_low_bar_stats(self):
+        # Weapon
+        rect = pg.Rect(self.rect.width*0.284, self.rect.height *
+                       0.745, self.rect.width*0.090, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        # Aim
+        rect = pg.Rect(self.rect.width*0.384, self.rect.height *
+                       0.745, self.rect.width*0.05, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        text_sur = self.font.render(
+            str(self.low_bar["aim"]), True, self.color).convert_alpha()
+
+        self.image.blit(
+            text_sur, (rect.centerx - text_sur.get_width()/2 + self.rect.width*0.004, rect.centery))
+
+        # Armor
+        rect = pg.Rect(self.rect.width*0.464, self.rect.height *
+                       0.745, self.rect.width*0.092, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        # Shield
+        rect = pg.Rect(self.rect.width*0.564, self.rect.height *
+                       0.745, self.rect.width*0.05, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        text_sur = self.font.render(
+            str(self.low_bar["shield"]), True, self.color).convert_alpha()
+
+        self.image.blit(
+            text_sur, (rect.centerx - text_sur.get_width()/2 + self.rect.width*0.004, rect.centery))
+
+        # Lightning
+        rect = pg.Rect(self.rect.width*0.624, self.rect.height *
+                       0.745, self.rect.width*0.05, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        text_sur = self.font.render(
+            str(self.low_bar["lightning"]), True, self.color).convert_alpha()
+
+        self.image.blit(
+            text_sur, (rect.centerx - text_sur.get_width()/2 + self.rect.width*0.004, rect.centery))
+
+        # Radiation
+        rect = pg.Rect(self.rect.width*0.684, self.rect.height *
+                       0.745, self.rect.width*0.05, self.rect.height*0.125)
+        pg.draw.rect(self.image, self.background, rect)
+
+        text_sur = self.font.render(
+            str(self.low_bar["radiation"]), True, self.color).convert_alpha()
+
+        self.image.blit(
+            text_sur, (rect.centerx - text_sur.get_width()/2 + self.rect.width*0.004, rect.centery))
+
+        pass
 
     def draw_buttons(self):
         text_sur = self.font.render("STIMPAK(%d)" % (

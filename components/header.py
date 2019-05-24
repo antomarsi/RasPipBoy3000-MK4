@@ -7,14 +7,19 @@ class Header(pg.sprite.DirtySprite):
         pg.sprite.DirtySprite.__init__(self)
         self.image = pg.Surface(rect.size, pg.SRCALPHA)
         self.rect = rect
-        self.texts = {"STAT": 51, "INV": 107,
-                      "DATA": 156, "MAP": 217, "RADIO": 267}
+        self.texts = [
+            {"title": "STAT", "pos": 51},
+            {"title": "INV", "pos": 107},
+            {"title": "DATA", "pos": 156},
+            {"title": "MAP", "pos": 217},
+            {"title": "RADIO", "pos": 267}
+        ]
         self.color = color
         self.selected_index = selected_index
         self.draw_header()
 
     def get_selected_index_position(self):
-        return list(self.texts.values())[self.selected_index] + self.rect.x - 9
+        return self.texts[self.selected_index]["pos"] + self.rect.x - 9
 
     def get_start_line_x(self):
         return self.rect.width
@@ -26,10 +31,12 @@ class Header(pg.sprite.DirtySprite):
         lines_selection.append((margin, self.rect.height))
         lines_selection.append((margin, self.rect.height-8))
 
-        selected_item = list(self.texts)[self.selected_index]
+        selected_item = self.texts[self.selected_index]["title"]
         font = fonts.MONOFONTO_16
         font.set_bold(True)
-        for name, position in self.texts.items():
+        for text in self.texts:
+            name = text['title']
+            position = text['pos']
             text_sur = font.render(name, True, self.color)
             self.image.blit(text_sur, (position, 7))
             if selected_item == name:
