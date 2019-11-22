@@ -6,7 +6,7 @@ import pygame as pg
 from pygame.locals import *
 import config as cfg
 from scenes.intro import IntroScene
-from scenes.stats import StatsScene
+from scenes.main_scene import MainScene
 from scanline_gradient import ScanLineGradient
 
 
@@ -70,10 +70,7 @@ class App(object):
 
         render_indices = [0, 1, 2,
                           1, 2, 3]
-        if cfg.skip_intro:
-            self.active_scene = StatsScene()
-        else:
-            self.active_scene = IntroScene()
+        self.active_scene = IntroScene(skip_intro=cfg.skip_intro)
 
         self.vbo = self.ctx.buffer(struct.pack('8f', *world_coordinates))
         self.uv = self.ctx.buffer(struct.pack('8f', *texture_coordinates))

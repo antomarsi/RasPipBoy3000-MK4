@@ -2,7 +2,6 @@ import pygame
 import os
 import config as cfg
 
-
 class Resource:
     __instance = None
 
@@ -42,3 +41,9 @@ class Resource:
 
     def play_sound(self, path):
         self.get_sound(path).play()
+
+    def play_music(self, path, loops=-1):
+        path = os.path.join(cfg.assets_folder, path.replace(
+            '/', os.sep).replace('\\', os.sep))
+        pygame.mixer.music.load(path)
+        pygame.mixer.music.play(loops)

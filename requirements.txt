@@ -5,3 +5,4 @@ pygame
 moderngl
 pytube
 pydub
+spotipy

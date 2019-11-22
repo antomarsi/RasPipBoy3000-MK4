@@ -11,6 +11,7 @@ import time
 import threading
 import fonts
 from resource import Resource
+from components.sound_click import SoundClick
 
 
 class DebugImage(pg.sprite.DirtySprite):
@@ -232,19 +233,28 @@ class StatsScene(SceneBase):
         self.sprites.clear(self.surface, background)
         pg.time.delay(800)
 
+    def move_sub_menu(self, next=True):
+        current_index = self.sub_menu.selected_index
+        if next == True:
+            self.sub_menu.next_index()
+        else:
+            self.sub_menu.prev_index()
+
+        is_same_index = current_index == self.sub_menu.selected_index
+        if not is_same_index:
+            SoundClick.play_horizontal()
+        self.sub_menu.rect.x = self.header.get_selected_index_position() - \
+            self.sub_menu.get_index_pos()
+
     def process_input(self, events, keys):
         for event in events:
             if event.type == KEYDOWN:
                 if event.key == K_F4:
                     self.debug_image.visible = not self.debug_image.visible
                 elif event.key == K_d:
-                    self.sub_menu.next_index()
-                    self.sub_menu.rect.x = self.header.get_selected_index_position() - \
-                        self.sub_menu.get_index_pos()
+                    self.move_sub_menu()
                 elif event.key == K_a:
-                    self.sub_menu.prev_index()
-                    self.sub_menu.rect.x = self.header.get_selected_index_position() - \
-                        self.sub_menu.get_index_pos()
+                    self.move_sub_menu(False)
 
     def update(self, dt):
         self.sprites.update(dt)

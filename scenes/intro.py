@@ -55,7 +55,7 @@ class InitializingText(pg.sprite.DirtySprite):
 
 class IntroScene(SceneBase):
 
-    def __init__(self):
+    def __init__(self, skip_intro=False):
         super().__init__()
         # o texto de código deve se repitir 8 vezes e deve passar na tela na duração de 4 segundos
         text = []
@@ -118,6 +118,8 @@ class IntroScene(SceneBase):
         self.loader_text = "\n".join(self.loader_text)
 
         self.state = 1
+        if skip_intro == True:
+            self.state = 2
         self.text_pos = [0, 0, 0]
         self.typing_time = 0.01
         self.state2_cd = 0
@@ -269,6 +271,7 @@ class IntroScene(SceneBase):
         if self.state == 3:
             self.initialize.update(dt)
             if (not self.thread_load_files.isAlive() and self.vault_boy.finished):
+                Resource.getInstance().play_music('sounds/UI_PipBoy_Hum_LP.wav')
                 self.state = 4
         pass
 
