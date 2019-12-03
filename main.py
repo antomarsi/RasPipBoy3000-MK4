@@ -6,7 +6,6 @@ import pygame as pg
 from pygame.locals import *
 import config as cfg
 from scenes.intro import IntroScene
-from scenes.main_scene import MainScene
 from scanline_gradient import ScanLineGradient
 
 

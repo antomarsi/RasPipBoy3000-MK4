@@ -23,7 +23,7 @@ use_scanline = True
 background_color = DEFAULT_BACKGROUND_COLOR
 tint_color = DEFAULT_TINT_COLOR
 assets_folder = DEFAULT_ASSETS_FOLDER
-skip_intro = True
+skip_intro = False
 radios = {
     "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
 }
