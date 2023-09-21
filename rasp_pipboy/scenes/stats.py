@@ -1,24 +1,24 @@
 from .scene_base import SceneBase
 import pygame as pg
 from pygame.locals import *
-import config as cfg
-from components.animated_sprite import AnimatedSprite
-from components.header import Header
-from components.sub_header import SubHeader
+import rasp_pipboy.utils.config as cfg
+from rasp_pipboy.components.animated_sprite import AnimatedSprite
+from rasp_pipboy.components.header import Header
+from rasp_pipboy.components.sub_header import SubHeader
 import os
 import json
 import time
 import threading
-import fonts
-from resource import Resource
-from components.sound_click import SoundClick
+import rasp_pipboy.graphics.fonts as fonts
+from rasp_pipboy.core.resource_loader import ResourceLoader
+from rasp_pipboy.components.sound_click import SoundClick
 
 
 class DebugImage(pg.sprite.DirtySprite):
     def __init__(self):
         super().__init__()
 
-        self.image = Resource.getInstance().get_image('temp/menu1.png')
+        self.image = ResourceLoader.getInstance().get_image('temp/menu1.png')
         self.image = pg.transform.smoothscale(self.image, (int(
             self.image.get_width()*0.45), int(self.image.get_height()*0.45))).convert()
         self.rect = self.image.get_rect()

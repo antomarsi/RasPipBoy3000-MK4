@@ -1,4 +1,4 @@
-from resource import Resource
+from rasp_pipboy.core.resource_loader import ResourceLoader
 import random
 
 
@@ -14,8 +14,8 @@ class SoundClick(object):
 
     @staticmethod
     def play_horizontal():
-        Resource.getInstance().get_sound(random.choice(SoundClick.rotaryHorizontal)).play()
+        ResourceLoader.getInstance().get_sound(random.choice(SoundClick.rotaryHorizontal)).play()
 
     @staticmethod
     def play_vertical():
-        Resource.getInstance().get_sound(random.choice(SoundClick.rotaryVertical)).play()
+        ResourceLoader.getInstance().get_sound(random.choice(SoundClick.rotaryVertical)).play()

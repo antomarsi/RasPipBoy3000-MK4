@@ -1,5 +1,5 @@
 import pygame as pg
-import fonts
+import rasp_pipboy.graphics.fonts as fonts
 
 
 class ProgressBar(pg.sprite.DirtySprite):

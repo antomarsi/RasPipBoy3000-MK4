@@ -1,10 +1,11 @@
 import pygame as pg
-import config as cfg
+from rasp_pipboy.utils.config import ConfigSettings
 
 
 class ScanLineGradient(pg.sprite.DirtySprite):
     def __init__(self):
         pg.sprite.DirtySprite.__init__(self)
+        cfg = ConfigSettings()
         self.image = pg.Surface((cfg.width, cfg.height*4), pg.SRCALPHA)
         self.rect = self.image.get_rect()
         self.image.fill((80, 80, 80, 255))

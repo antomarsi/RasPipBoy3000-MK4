@@ -2,7 +2,7 @@ import pygame as pg
 
 
 class AnimatedSprite(pg.sprite.DirtySprite):
-    def __init__(self, autoplay=False, loop=False, duration_per_frame=0.2, start_frame=0):
+    def __init__(self, autoplay=False, loop=False, duration_per_frame=0.2, start_frame=0, images = []):
         pg.sprite.DirtySprite.__init__(self)
         self.autoplay = autoplay
         self.loop = loop
@@ -12,6 +12,10 @@ class AnimatedSprite(pg.sprite.DirtySprite):
         self.internal_cd = 0
         self.current_frame = start_frame
         self.finished = False
+        self.images = images
+
+    def set_images(self, images):
+        self.images = images
 
     def play(self):
         self.is_playing = True

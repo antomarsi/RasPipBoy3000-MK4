@@ -1,17 +1,15 @@
 from .scene_base import SceneBase
 from .stats import StatsScene
 import pygame as pg
-import config as cfg
-from components.animated_sprite import AnimatedSprite
-from components.progress_bar import ProgressBar
+import rasp_pipboy.utils.config as cfg
+from rasp_pipboy.components.animated_sprite import AnimatedSprite
+from rasp_pipboy.components.progress_bar import ProgressBar
 import os
-import json
-import time
 import threading
-import fonts
+import rasp_pipboy.graphics.fonts as fonts
 from pytube import YouTube
 from pathlib import Path
-from resource import Resource
+from rasp_pipboy.core.resource_loader import ResourceLoader
 from pydub import AudioSegment
 
 
@@ -20,7 +18,7 @@ class VaultBoyThumbUp(AnimatedSprite):
         AnimatedSprite.__init__(self, duration_per_frame=0.1)
         self.images = []
         for i in range(1, 8):
-            image = Resource.getInstance().get_image(
+            image = ResourceLoader.getInstance().get_image(
                 os.path.join("sprites", "boot", "vault_boy_"+str(i)+".png"))
             image = pg.transform.smoothscale(
                 image, (int(image.get_width()/2), int(image.get_height()/2)))
