@@ -1,4 +1,4 @@
-from .scene_base import SceneBase
+from ..core.scene_base import SceneBase
 import pygame as pg
 from pygame.locals import *
 import rasp_pipboy.utils.config as cfg

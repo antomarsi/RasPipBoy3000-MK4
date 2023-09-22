@@ -3,6 +3,7 @@ from typing import Tuple, Any, Type
 from pydantic import Field
 from pydantic.fields import FieldInfo
 from .colors import hex_to_rgb
+import pygame as pg
 
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, EnvSettingsSource
 

@@ -1,4 +1,4 @@
-from .scene_base import SceneBase
+from ..core.scene_base import SceneBase
 from .stats import StatsScene
 import pygame as pg
 import rasp_pipboy.utils.config as cfg
@@ -57,21 +57,7 @@ class IntroScene(SceneBase):
         super().__init__()
         # o texto de código deve se repitir 8 vezes e deve passar na tela na duração de 4 segundos
         text = []
-        text_size = [0, 0]
-        boot_text = [
-            "1 0 0x000A4 0x00000000000000000 start memoty discovery 0 0x0000A4",
-            "0x00000000000000000 1 0 0x000014 0 0x00000000000000000 CPUO starting cell",
-            "relocation0 0x0000A4 0x00000000000000000 1 0 0x000009",
-            "0x00000000000000000 CPUD launch EFI0 0x0000A4 0x00000000000000000 1 0",
-            "0x000009 0x000000000000E003D CPUO starting EFI0 0x0000A4",
-            "0x00000000000000000 1 0 0x0000A4 0x00000000000000000 start memory",
-            "discovery0 0x0000A4 0x00000000000000000 1 0 0x0000A4 0x00000000000000000",
-            "start memory discovery 0 0x0000A4 0x00000000000000000 1 0 0x000014",
-            "0x00000000000000000 CPUO stating cell relocation0 0x0000A4",
-            "0x00000000000000000 1 0 0x000009 0x00000000000000000 CPUO launch EFI0",
-            "0x0000A4 0x00000000000000000 1 0 0x000009 0x000000000000E003D CPUO",
-            "stating EFI0 0x0000A4 0x00000000000000000 1 0 0x0000A4",
-            "0x00000000000000000 start memory discovery 0 0x0000A4 0x00000000000000000"]
+        
 
         self.loader_text = [
             "*************** PIP-OS(R) V7.1.08 ***************",

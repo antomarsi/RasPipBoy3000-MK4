@@ -7,8 +7,10 @@ class Shader:
     def __init__(self, target_surface, use_scanline = True):
         self.ctx = moderngl.create_context()
 
+        self.target_surface = target_surface
+
         self.diffuse_texture = self.ctx.texture(
-            self.screen.get_size(), 3, pg.image.tostring(self.screen, "RGB", 1)
+            self.target_surface.get_size(), 3, pg.image.tostring(self.target_surface, "RGB", 1)
         )
 
         self.program = self.ctx.program(
@@ -32,9 +34,9 @@ class Shader:
             void main() {
               vec2 center = vec2(0.5, 0.5);
               vec2 off_center = v_text - center;
-              vec2 off_center2 = pow(abs(off_center), vec2(3.5, 3.5));
+              vec2 off_center2 = pow(abs(off_center), vec2(2.5, 3.5));
 
-              vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.2);
+              vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.1);
 
               if (v_text2.x > 1.0 || v_text2.x < 0.0 ||
                   v_text2.y > 1.0 || v_text2.y < 0.0){

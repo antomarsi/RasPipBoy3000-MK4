@@ -21,6 +21,7 @@ class AnimatedSprite(pg.sprite.DirtySprite):
         self.is_playing = True
 
     def update(self, dt):
+        new_frame = self.current_frame
         if self.is_playing:
             if self.internal_cd >= self.duration_per_frame:
                 self.internal_cd = 0
@@ -34,4 +35,5 @@ class AnimatedSprite(pg.sprite.DirtySprite):
                     self.current_frame += 1
                 self.image = self.images[self.current_frame]
             self.internal_cd += dt
-        self.dirty = 1
+        if new_frame is not self.current_frame:
+            self.dirty = 1
