@@ -9,7 +9,10 @@ from rasp_pipboy.core.resource_loader import ResourceLoader
 class Engine():
 
     def __init__(self, fps_limit):
-        self.screen = pg.Surface(pg.display.get_surface().get_size()).convert(
+        print("Starting engine")
+        self.screen = pg.Surface(ConfigSettings().size).convert(
+            (16711680, 65280, 255, 0), 0)
+        self.display_screen = pg.Surface(ConfigSettings().display_size).convert(
             (16711680, 65280, 255, 0), 0)
         self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
@@ -21,10 +24,11 @@ class Engine():
 
         self.main_scene = MainScene()
 
-        self.shader = Shader(self.screen)
+        self.shader = Shader(self.display_screen)
         self.font = pg.font.Font(None, 30)
         self.show_fps = False
         self.sprite_list = pg.sprite.LayeredDirty((ScanLineGradient()))
+        print("Engine Done")
 
     def event_loop(self):
         pressed_keys = pg.key.get_pressed()
@@ -66,8 +70,9 @@ class Engine():
         if self.show_fps:
             self.screen.blit(self.font.render(
                 str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
-
-        self.shader.render(self.screen)
+        scaled_screen = pg.transform.smoothscale(self.screen, self.display_screen.get_size())
+        self.display_screen.blit(scaled_screen, (0, 0))
+        self.shader.render(self.display_screen)
         pg.display.flip()
 
     def main_loop(self):

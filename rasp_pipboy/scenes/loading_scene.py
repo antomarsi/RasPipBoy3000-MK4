@@ -2,12 +2,17 @@ import pygame as pg
 from rasp_pipboy.core.scene_base import SceneBase
 from rasp_pipboy.core.resource_loader import ResourceLoader
 from rasp_pipboy.utils.config import ConfigSettings
-from rasp_pipboy.core.events import CURSOR_COOLDOWN
+from rasp_pipboy.core.events import CURSOR_COOLDOWN, TYPING_COOLDOWN, INTRO_FINISHED
+from rasp_pipboy.components.fading_text import FadingText
+from rasp_pipboy.components.animated_sprite import AnimatedSprite
+from rasp_pipboy.components.progress_bar import ProgressBar
+from rasp_pipboy.utils.calc import calculate_center
+import os
 
 
 class IntroAnimation(SceneBase):
     def __init__(self):
-        super().__init__("Loading")
+        super().__init__()
         ResourceLoader.getInstance().add_sound("boot_a", 'sounds/boot/a.ogg')
         ResourceLoader.getInstance().add_sound("boot_b", 'sounds/boot/b.ogg')
 
@@ -48,34 +53,68 @@ class IntroAnimation(SceneBase):
         boot_text = "\n".join(boot_text)
         font = ResourceLoader.getInstance().get_font("MONOFONTO", 12)
         font_size = font.size(' ')
-        surf_size = (font_size[0] * 73, font_size[1] * 104)
-        
+        self.surf_size = (font_size[0] * 73, font_size[1] * 104)
+
         self.GAME_STATE = 0
-        self.boot_text_surface = font.render(boot_text, True, pg.Color("white"))
-        self.velocity = surf_size[1] / 3
+        self.boot_text_surface = font.render(
+            boot_text, True, pg.Color("white"))
+        self.velocity = self.surf_size[1] / 3
         self.position_y = ConfigSettings().height
+        self.text_pos = [0, 0, 0]
 
         font = ResourceLoader.getInstance().get_font("MONOFONTO", 16)
-        self.cursor_size = font.size(' ')
+        cursor_size = font.size(' ')
+        self.cursor = pg.Rect(0, 0, cursor_size[0], cursor_size[1])
 
-        #pg.time.delay(1500)
+        self.boot2_text_surface = pg.Surface(
+            (cursor_size[0] * 49, cursor_size[1] * 11), pg.SRCALPHA)
+        self.boot3_text_surface = self.boot2_text_surface.copy()
+
         ResourceLoader.getInstance().play_sound('boot_a')
-        print(f"event: {CURSOR_COOLDOWN}")
         self.show_cursor = False
-        self.cursor_counter = 4
-        #ResourceLoader.getInstance().play_sound('boot_b')
+        self.cursor_counter = 8
+        self.boot_3_pos_y = 0
+        self.timer_up = 6
 
     def process_input(self, events, keys):
         for event in events:
             if CURSOR_COOLDOWN == event.type:
-                self.show_cursor = not self.show_cursor
+                if self.GAME_STATE <= 3:
+                    self.show_cursor = not self.show_cursor
+                else:
+                    self.show_cursor = False
+                    pg.time.set_timer(CURSOR_COOLDOWN, 0)
                 self.cursor_counter -= 1
+                if self.GAME_STATE == 3:
+                    if self.timer_up <= 0:
+                        self.GAME_STATE = 4
+                    else:
+                        self.timer_up -= 1
 
-    def draw_cursor(self, position: int):
+            elif TYPING_COOLDOWN == event.type:
+                if self.GAME_STATE == 2:
+                    if (self.text_pos[2] < len(self.loader_text)):
+                        c = self.loader_text[self.text_pos[2]]
+                        if c == "\n":
+                            self.text_pos[0] = 0
+                            self.text_pos[1] += 1
+                        else:
+                            self.text_pos[0] += 1
+                        self.draw_boot_text()
+                        self.text_pos[2] += 1
+                    else:
+                        self.GAME_STATE = 3
+                        pg.time.set_timer(TYPING_COOLDOWN, 0)
+
+    def draw_cursor(self, position):
         if not self.show_cursor:
             return
-        
-    
+        self.cursor.left = position[0] * self.cursor.width
+        self.cursor.top = position[1] * self.cursor.height
+        if self.GAME_STATE >= 2 or self.GAME_STATE <= 4:
+            self.cursor.left += self.cursor.width
+        pg.draw.rect(self.boot2_text_surface, (255, 255, 255), self.cursor)
+
     def update(self, dt):
         super().update(dt)
         if self.GAME_STATE == 0:
@@ -88,29 +127,116 @@ class IntroAnimation(SceneBase):
         elif self.GAME_STATE == 1:
             if self.cursor_counter <= 0:
                 self.GAME_STATE = 2
-        elif self.GAME_STATE == 2:
-            pass
-            
-    
+                pg.time.set_timer(TYPING_COOLDOWN, 20)
+                ResourceLoader.getInstance().play_sound('boot_b')
+        elif self.GAME_STATE == 4 and self.timer_up <= 0:
+            self.boot_3_pos_y -= (self.cursor.height * 22) * dt
+            if self.boot_3_pos_y <= -self.boot2_text_surface.get_height():
+                self.GAME_STATE = 5
+                pg.time.delay(200)
+                event = pg.event.Event(INTRO_FINISHED)
+                pg.event.post(event)
+
+    def draw_boot_text(self):
+        c = self.loader_text[self.text_pos[2]]
+        font = ResourceLoader.getInstance().get_font("MONOFONTO", 16)
+        text_surface = font.render(c, True, (255, 255, 255))
+        self.boot3_text_surface.blit(
+            text_surface, (self.text_pos[0]*text_surface.get_width(), self.text_pos[1] * text_surface.get_height()))
+
     def render(self, render):
         super().render(render)
         if self.GAME_STATE == 0:
-            render.blit(self.boot_text_surface, (ConfigSettings().width / 2 - self.boot_text_surface.get_width() / 2, self.position_y))
-        elif self.GAME_STATE == 1 or self.GAME_STATE == 2:
+            render.blit(self.boot_text_surface, (ConfigSettings(
+            ).width / 2 - self.boot_text_surface.get_width() / 2, self.position_y))
+        elif self.GAME_STATE >= 1 and self.GAME_STATE <= 4:
+            self.boot2_text_surface.fill((255, 255, 255, 0))
+            self.boot2_text_surface.blit(
+                self.boot3_text_surface, (0, self.boot_3_pos_y))
             if self.show_cursor:
-                self.cursor_rect.left = (
-                    ConfigSettings().width/2 - self.surface_loader.get_width()/2) + self.cursor_rect_extra[1]
-                self.cursor_rect.top = (
-                    ConfigSettings().height/2 - self.surface_loader.get_height() / 2) + self.loader_y + self.cursor_rect_extra[0]
-                pg.draw.rect(render, (255, 255, 255), self.cursor_rect)
-            
+                self.draw_cursor(self.text_pos)
+            render.blit(self.boot2_text_surface, (ConfigSettings(
+            ).width / 2 - self.boot2_text_surface.get_width() / 2, 0))
+
+    def terminate(self):
+        ResourceLoader.getInstance().remove_sound("boot_a")
+        ResourceLoader.getInstance().remove_sound("boot_b")
+
+
+class InitializeAnimation(SceneBase):
+
+    def __init__(self):
+        super().__init__()
+        ResourceLoader.getInstance().add_sound("boot_c", 'sounds/boot/c.ogg')
+        ResourceLoader.getInstance().add_sound("boot_d", 'sounds/boot/d.ogg')
+        font = ResourceLoader.getInstance().get_font("MONOFONTO", 12)
+        self.fading_text = FadingText("INITIALIZING...", font)
+        self.vault_boy = AnimatedSprite(False, False, 0.1)
+
+        images = []
+        for i in range(1, 8):
+            path = os.path.join(ConfigSettings().assets_folder,
+                                "sprites", "boot", "vault_boy_"+str(i)+".png")
+            image = pg.image.load(path).convert_alpha()
+            image = pg.transform.smoothscale(
+                image, (int(image.get_width()/2), int(image.get_height()/2)))
+            images.append(image)
+        self.vault_boy.set_images(images)
+
+        self.GAME_STATE = 0
+        self.pos = calculate_center(
+            ConfigSettings().size, self.vault_boy.rect.size)
+        self.surface = pg.Surface(ConfigSettings().size, pg.SRCALPHA)
+        self.initialize = pg.sprite.LayeredDirty()
+        self.initialize.add(self.fading_text)
+        self.initialize.add(self.vault_boy)
+        self.vault_boy.rect.x = self.pos[0]
+        self.vault_boy.rect.y = self.pos[1]
+        self.fading_text.rect.x = ConfigSettings().width/2 - self.fading_text.rect.width/2
+        pos = self.pos[1] + self.vault_boy.rect.height + 20
+        self.fading_text.rect.y = pos
+        self.progress_bar = ProgressBar(pg.Rect(
+            ConfigSettings().width/4,
+            pos + 20,
+            ConfigSettings().width/2,
+            20),
+            font
+        )
+        self.initialize.add(self.progress_bar)
+
+    def load_files(self):
+        pass
+
+    def on_show(self):
+        ResourceLoader.getInstance().play_sound("boot_c")
+
+    def update(self, dt: float):
+        self.initialize.update(dt)
+
+    def render(self, render: pg.Surface):
+        self.surface.fill((255, 255, 255, 0))
+        self.initialize.draw(self.surface)
+        render.blit(self.surface, (0, 0))
 
 
 class LoadingScene(SceneBase):
 
     def __init__(self):
-        super().__init__("Loading")
-        self.add_entity("intro_text", IntroAnimation())     
+        super().__init__()
+        # self.add_entity("intro_anim", IntroAnimation())
+        self.add_entity("init", InitializeAnimation())
+        self.get_entity("init").on_show()
 
     def initialize(self):
         pass
+
+    def update(self, dt: float):
+        super().update(dt)
+
+    def process_input(self, events, keys):
+        super().process_input(events, keys)
+
+        for event in events:
+            if event.type == INTRO_FINISHED:
+                self.remove_entity("intro_anim")
+                self.show_entity("init")

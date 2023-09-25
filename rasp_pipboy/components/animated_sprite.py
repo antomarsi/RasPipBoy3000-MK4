@@ -8,14 +8,18 @@ class AnimatedSprite(pg.sprite.DirtySprite):
         self.loop = loop
         self.is_playing = self.autoplay
         self.duration_per_frame = duration_per_frame
-        self.images = []
         self.internal_cd = 0
         self.current_frame = start_frame
         self.finished = False
         self.images = images
+        if len(self.images):
+            self.image = self.images[0]
+            self.rect = self.image.get_rect()
 
     def set_images(self, images):
         self.images = images
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
 
     def play(self):
         self.is_playing = True
@@ -35,5 +39,4 @@ class AnimatedSprite(pg.sprite.DirtySprite):
                     self.current_frame += 1
                 self.image = self.images[self.current_frame]
             self.internal_cd += dt
-        if new_frame is not self.current_frame:
-            self.dirty = 1
+        self.dirty = 1

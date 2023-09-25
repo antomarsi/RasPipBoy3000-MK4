@@ -35,6 +35,17 @@ class ResourceLoader:
 
     def add_image(self, key, path):
         self._image_library[key] = pg.image.load(os.path.join(self.assets_folder, path)).convert_alpha()
+    
+    def add_images(self, key, paths):
+        images = []
+        for path in paths:
+            images.append[pg.image.load(os.path.join(self.assets_folder, path)).convert_alpha()]
+        self._image_library[key] = images
+
+    def remove_sound(self, key):
+        if key not in self._image_library.keys():
+            return
+        self._sound_library.pop(key)
 
     def get_image(self, key):
         if key not in self._image_library.keys():

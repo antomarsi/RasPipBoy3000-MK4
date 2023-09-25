@@ -1,9 +1,9 @@
+from typing import Any
 import pygame as pg
-import rasp_pipboy.graphics.fonts as fonts
 
 
 class ProgressBar(pg.sprite.DirtySprite):
-    def __init__(self, rect, color=(255, 255, 255), background_color=(0, 0, 0), value=0, max_value=1, border_width=2, text_format="{0}"):
+    def __init__(self, rect, font, color=(255, 255, 255), background_color=(0, 0, 0), value=0, max_value=1, border_width=2, text_format="{0}"):
         pg.sprite.DirtySprite.__init__(self)
         self.image = pg.Surface(rect.size)
         self.rect = rect
@@ -12,7 +12,7 @@ class ProgressBar(pg.sprite.DirtySprite):
         self.border_width = border_width
         self.color = color
         self.background_color = background_color
-        self.font = fonts.MONOFONTO_12
+        self.font = font
         self.text_format = text_format
 
         self.redraw()
@@ -61,4 +61,7 @@ class ProgressBar(pg.sprite.DirtySprite):
         text_sur.blit(text_s, (self.image.get_width()/2 - text_s.get_width()/2,
                                (self.image.get_height()/2 - text_s.get_height()/2) + self.border_width))
 
+        self.dirty = 1
+
+    def update(self, dt):
         self.dirty = 1

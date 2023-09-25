@@ -1,8 +1,8 @@
 import os
 from typing import Tuple, Any, Type
-from pydantic import Field
+from pydantic import Field, computed_field
 from pydantic.fields import FieldInfo
-from .colors import hex_to_rgb
+from .calc import hex_to_rgb
 import pygame as pg
 
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, EnvSettingsSource
@@ -22,6 +22,8 @@ class ConfigSettings(BaseSettings):
     caption : str = "RasPipBoy-3000 Mk IV"
     width : int = 480
     height: int = 320
+    display_width: int = 960
+    display_height: int = 640
     framerate : int = 60
 
     use_sound : bool = Field(default=True, validation_alias="USE_SOUND")
@@ -41,6 +43,16 @@ class ConfigSettings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
         return (MyCustomSource(settings_cls),)
+    
+    @computed_field
+    @property
+    def size(self) -> [int, int]:
+        return [self.width, self.height]
+
+    @computed_field
+    @property
+    def display_size(self) -> [int, int]:
+        return [self.display_width, self.display_height]
 
     assets_folder :str = os.path.abspath("./assets")
     download_folder :str = os.path.abspath("./download")
