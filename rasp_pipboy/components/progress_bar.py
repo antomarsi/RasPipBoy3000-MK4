@@ -25,6 +25,10 @@ class ProgressBar(pg.sprite.DirtySprite):
         self.__value = value
         self.redraw()
 
+    def add_value(self, value = 1):
+        self.__value += value
+        self.redraw()
+
     def redraw(self):
         self.image.fill(self.color)
         self.unfill_rect = self.rect.copy()

@@ -9,7 +9,6 @@ class FadingText(pg.sprite.DirtySprite):
         self.fade = True
 
     def update(self, dt):
-        print(f"fading {self.opacity}")
         if self.fade:
             self.opacity -= 100 * dt
             self.opacity = max(self.opacity, 0)

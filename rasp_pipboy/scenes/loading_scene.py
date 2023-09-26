@@ -1,13 +1,19 @@
 import pygame as pg
+import os
 from rasp_pipboy.core.scene_base import SceneBase
 from rasp_pipboy.core.resource_loader import ResourceLoader
 from rasp_pipboy.utils.config import ConfigSettings
-from rasp_pipboy.core.events import CURSOR_COOLDOWN, TYPING_COOLDOWN, INTRO_FINISHED
+from rasp_pipboy.core.events import CURSOR_COOLDOWN, TYPING_COOLDOWN, INTRO_FINISHED, LOADING_CONTENT
 from rasp_pipboy.components.fading_text import FadingText
 from rasp_pipboy.components.animated_sprite import AnimatedSprite
 from rasp_pipboy.components.progress_bar import ProgressBar
 from rasp_pipboy.utils.calc import calculate_center
-import os
+from rasp_pipboy.scenes.stats_scene import StatsScene
+from rasp_pipboy.scenes.inventory_scene import InventoryScene
+from rasp_pipboy.scenes.data_scene import DataScene
+from rasp_pipboy.scenes.map_scene import MapScene
+from rasp_pipboy.scenes.radio_scene import RadioScene
+import threading
 
 
 class IntroAnimation(SceneBase):
@@ -169,6 +175,7 @@ class InitializeAnimation(SceneBase):
         super().__init__()
         ResourceLoader.getInstance().add_sound("boot_c", 'sounds/boot/c.ogg')
         ResourceLoader.getInstance().add_sound("boot_d", 'sounds/boot/d.ogg')
+        ResourceLoader.getInstance().add_music('humming' , os.path.join('sounds', 'UI_PipBoy_Hum_LP.wav'))
         font = ResourceLoader.getInstance().get_font("MONOFONTO", 12)
         self.fading_text = FadingText("INITIALIZING...", font)
         self.vault_boy = AnimatedSprite(False, False, 0.1)
@@ -176,7 +183,7 @@ class InitializeAnimation(SceneBase):
         images = []
         for i in range(1, 8):
             path = os.path.join(ConfigSettings().assets_folder,
-                                "sprites", "boot", "vault_boy_"+str(i)+".png")
+                                "img", "boot", "vault_boy_"+str(i)+".png")
             image = pg.image.load(path).convert_alpha()
             image = pg.transform.smoothscale(
                 image, (int(image.get_width()/2), int(image.get_height()/2)))
@@ -187,10 +194,13 @@ class InitializeAnimation(SceneBase):
         self.pos = calculate_center(
             ConfigSettings().size, self.vault_boy.rect.size)
         self.surface = pg.Surface(ConfigSettings().size, pg.SRCALPHA)
+        bg_surface = self.surface.copy()
+        bg_surface.fill((0,0,0))
         self.initialize = pg.sprite.LayeredDirty()
         self.initialize.add(self.fading_text)
         self.initialize.add(self.vault_boy)
-        self.vault_boy.rect.x = self.pos[0]
+        self.initialize.clear(self.surface, bg_surface)
+        self.vault_boy.rect.x = self.pos[0] - 20
         self.vault_boy.rect.y = self.pos[1]
         self.fading_text.rect.x = ConfigSettings().width/2 - self.fading_text.rect.width/2
         pos = self.pos[1] + self.vault_boy.rect.height + 20
@@ -203,20 +213,48 @@ class InitializeAnimation(SceneBase):
             font
         )
         self.initialize.add(self.progress_bar)
+        ResourceLoader.getInstance().play_music('humming')
+        
 
     def load_files(self):
-        pass
+        self.progress_bar.set_max_value(5)
+        self.parent.parent.add_entity("stats_screen", StatsScene(), False)
+        self.progress_bar.add_value()
+        self.parent.parent.add_entity("inv_screen", InventoryScene(), False)
+        self.progress_bar.add_value()
+        self.parent.parent.add_entity("data_screen", DataScene(), False)
+        self.progress_bar.add_value()
+        self.parent.parent.add_entity("map_screen", MapScene(), False)
+        self.progress_bar.add_value()
+        self.parent.parent.add_entity("radio_scene", RadioScene(), False)
+        self.progress_bar.add_value()
+        self.GAME_STATE = 1
+
+    def process_input(self, events, keys):
+        super().process_input(events, keys)
+        for event in events:
+            if event.type == LOADING_CONTENT:
+                pg.time.set_timer(LOADING_CONTENT, 0)
+                self.thread_load_files = threading.Thread(
+                    target=self.load_files)
+                self.thread_load_files.start()
 
     def on_show(self):
         ResourceLoader.getInstance().play_sound("boot_c")
+        pg.time.set_timer(LOADING_CONTENT, 200)
 
     def update(self, dt: float):
         self.initialize.update(dt)
+        if self.GAME_STATE == 1:
+            self.GAME_STATE = 2
+            self.vault_boy.play()
+        if self.GAME_STATE == 2 and self.vault_boy.finished:
+            self.GAME_STATE = 3
+            ResourceLoader.getInstance().play_sound("boot_d")
 
     def render(self, render: pg.Surface):
-        self.surface.fill((255, 255, 255, 0))
         self.initialize.draw(self.surface)
-        render.blit(self.surface, (0, 0))
+        render.blit(self.surface, (0, -30))
 
 
 class LoadingScene(SceneBase):

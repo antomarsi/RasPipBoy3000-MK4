@@ -37,6 +37,8 @@ class AnimatedSprite(pg.sprite.DirtySprite):
                         self.current_frame = 0
                 elif self.current_frame < len(self.images)-1:
                     self.current_frame += 1
+                
                 self.image = self.images[self.current_frame]
             self.internal_cd += dt
-        self.dirty = 1
+        if new_frame is not self.current_frame:
+            self.dirty = 1

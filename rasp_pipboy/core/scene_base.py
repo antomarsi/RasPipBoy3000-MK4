@@ -1,4 +1,5 @@
 import pygame as pg
+from typing import Self
 
 class SceneBase:
 
@@ -7,7 +8,7 @@ class SceneBase:
         self.entities = {}
         self.parent = None
     
-    def set_parent(self, parent):
+    def set_parent(self, parent: Self):
         self.parent = parent
     
     def  on_hide(self):

@@ -78,6 +78,10 @@ class ResourceLoader:
         if key not in self._font_library.keys():
             return None
         return self._font_library[key]
+    
+    def add_music(self, key, path):
+        if key not in self._font_library.keys():
+            self.music[key] = os.path.join(ConfigSettings().assets_folder, path)
 
     def play_music(self, music_name, loop=True):
 

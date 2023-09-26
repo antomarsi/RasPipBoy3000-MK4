@@ -3,7 +3,7 @@ from pygame.locals import *
 from rasp_pipboy.utils.config import ConfigSettings
 from rasp_pipboy.utils.shaders import Shader
 from rasp_pipboy.scenes.main_scene import MainScene
-from scanline_gradient import ScanLineGradient
+from rasp_pipboy.utils.scanline_gradient import ScanLineGradient
 from rasp_pipboy.core.resource_loader import ResourceLoader
 
 class Engine():
@@ -23,8 +23,7 @@ class Engine():
             ResourceLoader.getInstance().add_font("MONOFONTO", "monofonto.ttf", size)
 
         self.main_scene = MainScene()
-
-        self.shader = Shader(self.display_screen)
+        self.shader = Shader(self.display_screen, ConfigSettings().use_scanline, ConfigSettings().tint_color)
         self.font = pg.font.Font(None, 30)
         self.show_fps = False
         self.sprite_list = pg.sprite.LayeredDirty((ScanLineGradient()))

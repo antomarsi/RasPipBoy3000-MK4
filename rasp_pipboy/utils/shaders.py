@@ -4,7 +4,7 @@ import struct
 
 
 class Shader:
-    def __init__(self, target_surface, use_scanline = True):
+    def __init__(self, target_surface, use_scanline=True, tint_color=None):
         self.ctx = moderngl.create_context()
 
         self.target_surface = target_surface
@@ -12,9 +12,7 @@ class Shader:
         self.diffuse_texture = self.ctx.texture(
             self.target_surface.get_size(), 3, pg.image.tostring(self.target_surface, "RGB", 1)
         )
-
-        self.program = self.ctx.program(
-            vertex_shader="""
+        vertex_shader = """
             #version 300 es
             in vec2 vert;
             in vec2 in_text;
@@ -23,15 +21,19 @@ class Shader:
                 gl_Position = vec4(vert, 0.0, 1.0);
                 v_text = in_text;
             }
-        """,
-            fragment_shader="""
+        """
+        fragment_shader = """
             #version 300 es
             precision mediump float;
             uniform sampler2D Texture;
 
             out vec4 color;
             in vec2 v_text;
-            void main() {
+            vec4 colorize(in vec4 grayscale, in vec4 color)
+            {{
+                return (grayscale * color);
+            }}
+            void main() {{
               vec2 center = vec2(0.5, 0.5);
               vec2 off_center = v_text - center;
               vec2 off_center2 = pow(abs(off_center), vec2(3.5, 3.5));
@@ -39,22 +41,23 @@ class Shader:
               vec2 v_text2 = center+off_center*(1.0+off_center2.yx*0.2);
 
               if (v_text2.x > 1.0 || v_text2.x < 0.0 ||
-                  v_text2.y > 1.0 || v_text2.y < 0.0){
+                  v_text2.y > 1.0 || v_text2.y < 0.0){{
                  color=vec4(0.0, 0.0, 0.0, 1.0);
-              } else {
+              }} else {{
                  color = vec4(texture(Texture, v_text2).rgb, 1.0);
                  float fv = fract(v_text2.y * float(textureSize(Texture,0).y));
                  fv=min(1.0, 0.8+0.5+min(fv, 1.0-fv));
                  color.rgb*=fv;
-              }
-              """
-            + (
-                "color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));"
-                if use_scanline
-                else ""
-            )
-            + """
-            }""",
+              }}
+              {scanline}
+              {tint_color}
+            }}""".format(
+            scanline="color = color * (mod(v_text.y, (1.0/320.0)*2.0) * 2.0/(1.0/320.0));" if use_scanline else "",
+            tint_color="color = colorize(color, vec4({0},{1},{2}, 1.0));".format(*tint_color) if tint_color is not None else "")
+
+        self.program = self.ctx.program(
+            vertex_shader=vertex_shader,
+            fragment_shader=fragment_shader,
         )
 
         texture_coordinates = [0, 0, 1, 0, 0, 1, 1, 1]

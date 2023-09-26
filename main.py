@@ -10,7 +10,7 @@ def main():
     Initialize; create an App; and start the main loop.
     """
     print("initializing app")
-    mode_flags = pg.DOUBLEBUF | pg.OPENGL | pg.SCALED
+    mode_flags = pg.DOUBLEBUF | pg.OPENGL
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     framerate = ConfigSettings().framerate
     print("Pygame Display init")

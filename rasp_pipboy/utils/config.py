@@ -11,8 +11,10 @@ class MyCustomSource(EnvSettingsSource):
     def prepare_field_value(
         self, field_name: str, field: FieldInfo, value: Any, value_is_complex: bool
     ) -> Any:
-        if field_name in ['tint_color', 'bg_color'] and value is not None:
+        if field_name in ['bg_color'] and value is not None:
             return hex_to_rgb(value)
+        elif field_name in ['tint_color'] and value is not None:
+            return hex_to_rgb(value, True)
         return value
 
 
@@ -22,12 +24,12 @@ class ConfigSettings(BaseSettings):
     caption : str = "RasPipBoy-3000 Mk IV"
     width : int = 480
     height: int = 320
-    display_width: int = 960
-    display_height: int = 640
+    display_width: int = 480
+    display_height: int = 320
     framerate : int = 60
 
     use_sound : bool = Field(default=True, validation_alias="USE_SOUND")
-    tint_color : Tuple[int, int, int]= Field(default=(0, 200, 0), validation_alias="TINT_COLOR")
+    tint_color : Tuple[float, float, float]= Field(default=(0.0, 1.0, 0.0), validation_alias="TINT_COLOR")
     bg_color : Tuple[int, int, int]= Field(default=(0, 0, 0), validation_alias="BG_COLOR")
 
     assets_folder : str ()
