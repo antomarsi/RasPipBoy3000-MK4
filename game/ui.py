@@ -12,7 +12,7 @@ class Header(Entity):
         self.bg_color = bg_color
         self.selected_index = selected_index
         self._active_index = -1
-        self.font = ResourceLoader.getInstance().get_font("ROBOTO_B", 41)
+        self.font = ResourceLoader.get_font("ROBOTO_B", 41)
         self.dirty = 1
 
         self.options = [str(x) for x in options]
@@ -96,7 +96,7 @@ class SubMenu(Entity):
         self.rect[1] = 78
         self.rect[0] = 93
 
-        self.font = ResourceLoader.getInstance().get_font("ROBOTO_B", 41)
+        self.font = ResourceLoader.get_font("ROBOTO_B", 41)
         self.visible = visible
         self.selected_index = selected_index
         self._active_index = -1
@@ -155,7 +155,7 @@ class Scanlines(Entity):
     def __init__(self, size=(config.WIDTH, 129), height=config.HEIGHT):
         super().__init__(size)
         self.height = height
-        self.image = ResourceLoader.getInstance().get_image("scanline")
+        self.image = ResourceLoader.add_image("scanline", "images/scanline.png")
         self.rectimage = self.image.get_rect()
         self.rect[1] = 0
         self.top = -130
@@ -177,4 +177,4 @@ class Scanlines(Entity):
 class Overlay(Entity):
     def __init__(self):
         super().__init__()
-        self.image = ResourceLoader.getInstance().get_image("overlay")
+        self.image = ResourceLoader.add_image("overlay", "images/overlay.png")

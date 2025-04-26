@@ -14,8 +14,8 @@ class SoundClick(object):
 
     @staticmethod
     def play_horizontal():
-        ResourceLoader.getInstance().get_sound(random.choice(SoundClick.rotaryHorizontal)).play()
+        ResourceLoader.get_sound(random.choice(SoundClick.rotaryHorizontal)).play()
 
     @staticmethod
     def play_vertical():
-        ResourceLoader.getInstance().get_sound(random.choice(SoundClick.rotaryVertical)).play()
+        ResourceLoader.get_sound(random.choice(SoundClick.rotaryVertical)).play()

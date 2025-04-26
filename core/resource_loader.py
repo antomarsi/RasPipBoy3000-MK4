@@ -1,127 +1,69 @@
 import pygame as pg
-import os
-from utils.config import config as pipconfig, ConfigSettings
+from os.path import join
+from utils.config import config as pipconfig
+
 
 class ResourceLoader:
-    __instance = None
+    _asset_folder = pipconfig.ASSETS_FOLDER
+
+    """ Resource library """
+    _image_library: dict[str, pg.Surface] = {}
+    _sound_library: dict[str, pg.mixer.Sound] = {}
+    _font_library: dict[str, pg.font.Font] = {}
+
+    def __new__(cls):
+        raise NotImplementedError("This class cannot be instantiated.")
 
     @staticmethod
-    def getInstance():
-        """ Static access method. """
-        if ResourceLoader.__instance == None:
-            ResourceLoader()
-        return ResourceLoader.__instance
+    def add_image(key: str, path: str) -> pg.Surface:
+        if key not in ResourceLoader._image_library.keys():
+            filepath = join(ResourceLoader._asset_folder, path)
+            ResourceLoader._image_library[key] = pg.image.load(
+                filepath)
+        return ResourceLoader._image_library[key]
 
-    def __init__(self, config: ConfigSettings = pipconfig):
-        self.config = config
-        """ Virtually private constructor. """
-        self._image_library = {}
-        self._sound_library = {}
-        self._font_library = {}
-        self.assets_folder = self.config.ASSETS_FOLDER
-        self.sound_volume = 1.0
+    @staticmethod
+    def get_image(key: str) -> pg.Surface:
+        if key not in ResourceLoader._image_library.keys():
+            raise Exception(
+                f"Image \"{key}\" not loaded.")
+        return ResourceLoader._image_library[key]
 
-        self.music = {}
-        self.target_music_volume = 1.0
-        self.volume_increment = 0.01
+    @staticmethod
+    def remove_image(key: str):
+        if key in ResourceLoader._image_library.keys():
+            ResourceLoader._image_library.pop(key)
 
-        self.music_volume = 1.0
-        self.next_music = None
-        self.current_music = None
+    @staticmethod
+    def add_sound(key: str, path: str) -> pg.mixer.Sound:
+        if key not in ResourceLoader._sound_library.keys():
+            filepath = join(ResourceLoader._asset_folder, path)
+            ResourceLoader._sound_library[key] = pg.mixer.Sound(filepath)
+        return ResourceLoader._sound_library[key]
 
-        if ResourceLoader.__instance != None:
-            raise Exception("This class is a singleton!")
-        else:
-            ResourceLoader.__instance = self
+    @staticmethod
+    def get_sound(key: str) -> pg.mixer.Sound:
+        if key not in ResourceLoader._sound_library.keys():
+            raise Exception(
+                f"Sound \"{key}\" not loaded.")
+        return ResourceLoader._sound_library[key]
 
-    def add_image(self, key, path):
-        self._image_library[key] = pg.image.load(os.path.join(self.assets_folder, path)).convert_alpha()
+    @staticmethod
+    def remove_sound(key: str):
+        if key in ResourceLoader._sound_library.keys():
+            ResourceLoader._sound_library.pop(key)
 
-    def add_images(self, key, paths):
-        images = []
-        for path in paths:
-            images.append[pg.image.load(os.path.join(self.assets_folder, path)).convert_alpha()]
-        self._image_library[key] = images
+    @staticmethod
+    def add_font(key: str, path: str, size: int):
+        key_size = f"{key}_{size}"
+        if key_size not in ResourceLoader._font_library.keys():
+            filename = join(ResourceLoader._asset_folder, path)
+            ResourceLoader._font_library[key_size] = pg.font.Font(filename, size)
+        return ResourceLoader._font_library[key_size]
 
-    def remove_sound(self, key):
-        if key not in self._image_library.keys():
-            return
-        self._sound_library.pop(key)
-
-    def get_image(self, key):
-        if key not in self._image_library.keys():
-            return None
-        return self._image_library[key].copy()
-
-    def add_sound(self, key, path):
-        if key not in self._sound_library.keys():
-            sound = pg.mixer.Sound(
-                os.path.join(self.assets_folder, path))
-            self._sound_library[key] = sound
-
-    def play_sound(self, key):
-        self.get_sound(key).play()
-
-    def get_sound(self, key):
-        if key not in self._sound_library.keys():
-            return None
-        return self._sound_library[key]
-
-
-    def add_font(self, key, path, size = 12):
-        key = f"{key}_{size}"
-        if key not in self._font_library.keys():
-            font = pg.font.Font(os.path.join(self.config.ASSETS_FOLDER, 'fonts', path), size)
-            self._font_library[key] = font
-
-    def get_font(self, key, size) -> pg.font.Font:
-        key = f"{key}_{size}"
-        if key not in self._font_library.keys():
-            return None
-        return self._font_library[key]
-
-    def add_music(self, key, path):
-        if key not in self._font_library.keys():
-            self.music[key] = os.path.join(self.config.ASSETS_FOLDER, path)
-
-    def play_music(self, music_name, loop=True):
-
-        if music_name is self.current_music:
-            return
-        pg.mixer.music.load(self.music[music_name])
-        self.current_music = music_name
-
-        if loop:
-            pg.mixer.music.play(-1)
-        else:
-            pg.mixer.music.play(0)
-
-    def play_music_fade(self, music_name, duration):
-        if music_name is self.current_music:
-            return
-        self.next_music = music_name
-        self.fadeOut(duration)
-
-    def set_music_volume(self, volume, duration=1):
-        self.volume_increment = 1/duration
-        self.target_music_volume = volume
-
-    def fadeOut(self, duration=1000):
-        pg.mixer.music.fadeout(duration)
-        self.current_music = None
-
-    def update(self):
-        if self.music_volume < self.target_music_volume:
-            self.music_volume = min(self.music_volume + self.volume_increment, self.target_music_volume)
-            pg.mixer.music.set_volume(self.music_volume)
-        if self.music_volume > self.target_music_volume:
-            self.music_volume = min(self.music_volume + self.volume_increment, self.target_music_volume)
-            pg.mixer.music.set_volume(self.music_volume)
-
-        if self.next_music is not None:
-            if not pg.mixer.music.get_busy():
-                self.current_music = None
-                self.music_volume = 0
-                pg.mixer.music.set_volume(self.music_volume)
-                self.play_music(self.next_music)
-                self.next_music = None
+    @staticmethod
+    def get_font(key, size) -> pg.font.Font:
+        key_size = f"{key}_{size}"
+        if key_size not in ResourceLoader._font_library.keys():
+            raise Exception(f"Font {key} of size {size} not loaded.")
+        return ResourceLoader._font_library[key_size]

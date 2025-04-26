@@ -32,16 +32,14 @@ class PipBoy(Engine):
     def init_fonts(self):
         pg.font.init()
         for size in [41]:
-            ResourceLoader.getInstance().add_font("ROBOTO_B", "RobotoCondensed-Bold.ttf", size)
-            ResourceLoader.getInstance().add_font("ROBOTO", "RobotoCondensed-Regular.ttf", size)
-            ResourceLoader.getInstance().add_font("TECHMONO", "TechMono.ttf", size)
+            ResourceLoader.add_font("ROBOTO_B", "fonts/RobotoCondensed-Bold.ttf", size)
+            ResourceLoader.add_font("ROBOTO", "fonts/RobotoCondensed-Regular.ttf", size)
+            ResourceLoader.add_font("TECHMONO", "fonts/TechMono.ttf", size)
 
 
     def init_children(self):
-        ResourceLoader.getInstance().add_image("overlay", "images/overlay.png")
         overlay = Overlay()
         self.root_children.add(overlay)
-        ResourceLoader.getInstance().add_image("scanline", "images/scanline.png")
         scanlines = Scanlines()
         self.root_children.add(scanlines)
 

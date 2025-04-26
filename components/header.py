@@ -32,7 +32,7 @@ class Header(pg.sprite.DirtySprite):
         lines_selection.append((margin, self.rect.height-8))
 
         selected_item = self.texts[self.selected_index]["title"]
-        font = ResourceLoader.getInstance().get_font("MONOFONTO", 16)
+        font = ResourceLoader.get_font("MONOFONTO", 16)
         font.set_bold(True)
         for text in self.texts:
             name = text['title']
