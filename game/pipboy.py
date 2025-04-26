@@ -1,10 +1,8 @@
 import pygame as pg
 from pygame.locals import *
-from game.modules.stats import StatsModule
+from game.modules import stats, inv
 from game.ui import Header, Overlay, Scanlines
-from utils.shaders import Shader
 from utils.config import config
-from utils.scanline_gradient import ScanLineGradient
 from core.resource_loader import ResourceLoader
 from core.engine import Engine
 from utils.logger import logger
@@ -14,15 +12,11 @@ if config.GPIO_AVALIABLE:
 
 
 class PipBoy(Engine):
+    current_submodule = 0
 
     def __init__(self, framerate=60, *args, **kwargs):
         logger.debug("Initializing PipBoy Engine")
         super().__init__(*args, **kwargs)
-        # self.screen = pg.Surface(self.config.SIZE).convert(
-        #     (16711680, 65280, 255, 0), 0)
-        # self.display_screen = pg.Surface(self.config.DISPLAY_SIZE).convert(
-        #     (16711680, 65280, 255, 0), 0)
-        # self.screen_rect = self.screen.get_rect()
         self.clock = pg.time.Clock()
         self.framerate = framerate
         self.active = None
@@ -35,13 +29,6 @@ class PipBoy(Engine):
         if config.GPIO_AVALIABLE:
             self.init_gpio_controls()
 
-
-        # self.shader = Shader(self.display_screen,
-        #                      self.config.USE_SCANLINE, self.config.TINT_COLOR)
-        # self.font = pg.font.Font(None, 30)
-        # self.show_fps = False
-        # self.sprite_list = pg.sprite.LayeredDirty((ScanLineGradient()))
-
     def init_fonts(self):
         pg.font.init()
         for size in [41]:
@@ -51,33 +38,36 @@ class PipBoy(Engine):
 
 
     def init_children(self):
-        ResourceLoader.getInstance().add_image("scanline", "images/overlay.png")
+        ResourceLoader.getInstance().add_image("overlay", "images/overlay.png")
         overlay = Overlay()
-        # self.root_children.add(overlay)
+        self.root_children.add(overlay)
         ResourceLoader.getInstance().add_image("scanline", "images/scanline.png")
         scanlines = Scanlines()
-        # self.root_children.add(scanlines)
+        self.root_children.add(scanlines)
 
 
     def init_modules(self):
-        self.modules = [
-            StatsModule(self)
-        ]
-        self.header = Header(options=self.modules)
-        self.root_children.add(self.header)
-        self.active = self.modules[0]
-        self.add(self.active)
+        self.modules = {
+            "stats": stats.Module(self),
+            "inv": inv.Module(self)
+        }
+        self.header = Header(options=self.modules.values())
 
-    def switch_module(self, module_index):
-        if module_index < len(self.modules):
+        self.root_children.add(self.header)
+
+        self.switch_module("stats")
+
+    def switch_module(self, module):
+        if module in self.modules:
             if self.active:
-                self.active.handle_pause()
+                self.active.handle_action("pause")
                 self.remove(self.active)
-            self.active = self.modules[module_index]
-            self.add(self.active)
+            self.active = self.modules[module]
+            self.active.parent = self
             self.active.handle_resume()
+            self.add(self.active)
         else:
-            raise Exception(f"Module {module_index} not implemented")
+            raise Exception(f"Module {module} not implemented")
 
 
     def init_gpio_controls(self):
@@ -93,8 +83,10 @@ class PipBoy(Engine):
                 self.handle_action(self.gpio_actions[pin])
 
     def handle_action(self, action):
-        if action.startswitch('module_'):
-            self.switch_module(action[7:])
+        if action.startswith('module_'):
+            for idx, name in enumerate(self.modules):
+                if str(name).lower() == action[7:]:
+                    self.switch_module(idx)
         else:
             if self.active:
                 self.active.handle_action(action)
@@ -112,15 +104,15 @@ class PipBoy(Engine):
             if self.active:
                 self.active.handle_event(event)
 
-    def update(self):
+    def update(self, deltatime=0):
         if self.active:
             self.active.update()
-        super().update()
+        super().update(deltatime)
 
-    def render(self, deltatime):
-        super().render(deltatime)
+    def render(self):
+        super().render()
         if self.active:
-            self.active.render(deltatime)
+            self.active.render()
 
         # """
         # Render all needed elements and update the display.
@@ -146,8 +138,8 @@ class PipBoy(Engine):
             deltatime = self.clock.tick(10) / 1000 * self.framerate
             for event in pg.event.get():
                 self.handle_event(event)
-            self.update()
-            self.render(deltatime)
+            self.update(deltatime)
+            self.render()
             self.check_gpio_input()
         try:
             pg.mixer.quit()

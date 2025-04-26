@@ -3,7 +3,7 @@ from typing import Tuple, Any
 from functools import cached_property
 from pydantic import Field, computed_field
 from pydantic.fields import FieldInfo
-from .calc import hex_to_rgb
+from utils.color import hex_to_rgb
 from utils.logger import logger
 import pygame as pg
 
@@ -22,8 +22,13 @@ class MyCustomSource(EnvSettingsSource):
 class ConfigSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file='.env', env_file_encoding='utf-8')
-    WIDTH: int = 848
-    HEIGHT: int = 720
+    WIDTH: int = 480
+    HEIGHT: int = 320
+
+    RESCALE_WIDTH: int = 720
+    RESCALE_HEIGHT: int = 540
+    RESCALE: bool = False
+
     FRAMERATE: int = 60
 
     USE_SOUND: bool = Field(default=True, validation_alias="USE_SOUND")
@@ -39,9 +44,11 @@ class ConfigSettings(BaseSettings):
     SOUND_ENABLED: bool = False
 
     GPIO_ACTIONS: dict = {
-        4: "module_stats",  # GPIO 4
-        14: "module_items",  # GPIO 14
+        4: "module_stat",  # GPIO 4
+        14: "module_inv",  # GPIO 14
         15: "module_data",  # GPIO 15
+        16: "module_map",  # GPIO ?
+        19: "module_radio",  # GPIO ?
         17:	"knob_1",  # GPIO 17
         18: "knob_2",  # GPIO 18
         7: "knob_3",  # GPIO 7
@@ -52,9 +59,11 @@ class ConfigSettings(BaseSettings):
     }
 
     ACTIONS: dict = {
-        pg.K_F1: "module_stats",
-        pg.K_F2: "module_items",
+        pg.K_F1: "module_stat",
+        pg.K_F2: "module_inv",
         pg.K_F3: "module_data",
+        pg.K_F4: "module_map",
+        pg.K_F5: "module_radio",
         pg.K_1:	"knob_1",
         pg.K_2: "knob_2",
         pg.K_3: "knob_3",

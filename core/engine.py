@@ -1,40 +1,43 @@
 from xmlrpc.client import Boolean
 import pygame as pg
-import pygame
 from utils.config import config
 import time
 
 class Engine(object):
 
-    EVENTS_UPDATE = pygame.USEREVENT + 1
-    EVENTS_RENDER = pygame.USEREVENT + 2
+    EVENTS_UPDATE = pg.USEREVENT + 1
+    EVENTS_RENDER = pg.USEREVENT + 2
 
     def __init__(self, title, width, height, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.window = pygame.display.set_mode((width, height))
-        self.screen = pygame.display.get_surface()
-        pygame.display.set_caption(title)
-        pygame.mouse.set_visible(True)
+
+        pg.init()
+
+        self.window = pg.display.set_mode((width, height))
+        self.screen = pg.display.get_surface()
+
+        pg.display.set_caption(title)
+        pg.mouse.set_visible(False)
 
         self.groups = []
         self.root_children = EntityGroup()
-        self.background = pygame.surface.Surface(
+        self.background = pg.surface.Surface(
             self.screen.get_size()).convert()
         self.background.fill(config.BG_COLOR)
 
         self.rescale = False
 
-    def render(self, deltatime):
+    def render(self):
         self.root_children.clear(self.screen, self.background)
-        self.root_children.render(deltatime)
+        self.root_children.render()
         self.root_children.draw(self.screen)
         for group in self.groups:
-            group.render(deltatime)
+            group.render()
             group.draw(self.screen)
-        pygame.display.flip()
+        pg.display.flip()
 
-    def update(self):
-        self.root_children.update()
+    def update(self, deltatime):
+        self.root_children.update(deltatime)
         for group in self.groups:
             group.update()
 
@@ -47,32 +50,37 @@ class Engine(object):
             self.groups.remove(group)
 
 
-class EntityGroup(pygame.sprite.LayeredDirty):
-    def render(self, deltatime):
+class EntityGroup(pg.sprite.LayeredDirty):
+    def render(self):
         for entity in self:
-            entity.render(deltatime)
+            entity.render()
 
     def move(self, x, y):
         for child in self:
             child.rect.move(x, y)
 
 
-class Entity(pygame.sprite.DirtySprite):
+class Entity(pg.sprite.DirtySprite):
     def __init__(self, dimensions=(0, 0), layer=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.image = pygame.surface.Surface(dimensions)
+        self.image = pg.surface.Surface(dimensions)
         self.rect = self.image.get_rect()
         self.image = self.image.convert()
-        self.groups = pygame.sprite.LayeredDirty()
+        self.groups = pg.sprite.LayeredDirty()
         self.layer = layer
         self.dirty = 2
-        self.blendmode = pygame.BLEND_RGBA_ADD
+        self.blendmode = pg.BLEND_RGBA_ADD
 
-    def render(self, deltatime=0, *args, **kwargs):
+    def render(self, *args, **kwargs):
         pass
 
-    def update(self, *args, **kwargs):
+    def update(self, deltatime=0, *args, **kwargs):
         pass
+
+    def __le__(self, other):
+        if type(self) == type(other):
+            return self.label <= other.label
+        return 0
 
 
 class AnimatedSprite(pg.sprite.DirtySprite):

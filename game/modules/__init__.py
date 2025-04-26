@@ -1,6 +1,6 @@
 from core.engine import EntityGroup
 from game.ui import SubMenu
-from utils import logger
+from utils.logger import logger
 import pygame as pg
 
 
@@ -14,16 +14,18 @@ class BaseModule(EntityGroup):
         self.pipboy = pipboy
         self.position = (0, 50)
 
-        self.submenu = SubMenu()
-
-        self.add(self.submenu)
-
         self.action_handlers = {
             "pause": self.handle_pause,
             "resume": self.handle_resume
         }
 
+
+        self.submenu = SubMenu()
+        self.add(self.submenu)
+        if (self.submodules):
+            self.submenu.set_options(self.submodules)
         self.switch_submodule(0)
+
 
     @property
     def active_submodule(self):
@@ -37,7 +39,6 @@ class BaseModule(EntityGroup):
             self._active_submodule = value
             self.active = self.submodules[self._active_submodule]
 
-
     def switch_submodule(self, module):
         if not len(self.submodules):
             logger.debug(
@@ -50,7 +51,7 @@ class BaseModule(EntityGroup):
             self.active_submodule = module
             self.active.parent = self
             self.active.handle_action("resume")
-            self.submenu.set_active(module)
+            self.submenu.set_active_index(module)
             self.add(self.active)
         else:
             logger.debug(

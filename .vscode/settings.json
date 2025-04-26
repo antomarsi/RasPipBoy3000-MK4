@@ -8,5 +8,6 @@
         "**/.DS_Store": true,
         "**/.pyc": true
     },
-    "python.linting.enabled": false
+    "python.linting.enabled": false,
+    "makefile.configureOnOpen": false
 }
