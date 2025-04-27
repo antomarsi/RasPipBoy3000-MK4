@@ -9,8 +9,13 @@ class BaseModule(EntityGroup):
     _active_submodule = None
     active = None
 
-    def __init__(self, pipboy, *sprites, **kwargs):
-        super().__init__(*sprites, **kwargs)
+    def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        logger.debug(f"Initialized {cls}")
+        return instance
+
+    def __init__(self, pipboy, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.pipboy = pipboy
         self.position = (0, 50)
 
@@ -25,6 +30,8 @@ class BaseModule(EntityGroup):
         if (self.submodules):
             self.submenu.set_options(self.submodules)
         self.switch_submodule(0)
+        logger.debug(f"Module {str(self)} initialized")
+
 
 
     @property
@@ -82,6 +89,11 @@ class BaseModule(EntityGroup):
 class SubModule(EntityGroup):
     parent = None
 
+    def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        logger.debug(f"Initialized {cls}")
+        return instance
+
     def __init__(self, parent, *sprites, **kwargs):
         super().__init__(*sprites, **kwargs)
         self.parent = parent
@@ -91,6 +103,7 @@ class SubModule(EntityGroup):
             "pause": self.handle_pause,
             "resume": self.handle_resume
         }
+        logger.debug(f"Sub-Module {str(self)} initialized")
 
     def handle_action(self, action, value=0):
         if action.startswith("dial_"):

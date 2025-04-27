@@ -1,20 +1,24 @@
-from xmlrpc.client import Boolean
 import pygame as pg
 from utils.config import config
-import time
 
-class Engine(object):
+class Engine():
 
     EVENTS_UPDATE = pg.USEREVENT + 1
     EVENTS_RENDER = pg.USEREVENT + 2
+    rescale = False
 
-    def __init__(self, title, width, height, *args, **kwargs):
+    def __init__(self, title, size, output_size = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         pg.init()
 
-        self.window = pg.display.set_mode((width, height))
-        self.screen = pg.display.get_surface()
+        if output_size:
+            self.window = pg.display.set_mode(output_size)
+            self.screen = pg.Surface(size)
+            self.rescale = True
+        else:
+            self.window = pg.display.set_mode(size)
+            self.screen = pg.display.get_surface()
 
         pg.display.set_caption(title)
         pg.mouse.set_visible(False)
@@ -25,7 +29,8 @@ class Engine(object):
             self.screen.get_size()).convert()
         self.background.fill(config.BG_COLOR)
 
-        self.rescale = False
+    def handle_event(self, event):
+        pass
 
     def render(self):
         self.root_children.clear(self.screen, self.background)
@@ -34,6 +39,9 @@ class Engine(object):
         for group in self.groups:
             group.render()
             group.draw(self.screen)
+        if self.rescale:
+            frame = pg.transform.scale(self.screen, self.window.get_size())
+            self.window.blit(frame, (0,0))
         pg.display.flip()
 
     def update(self, deltatime):

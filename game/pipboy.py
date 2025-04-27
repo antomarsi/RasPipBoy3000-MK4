@@ -30,21 +30,26 @@ class PipBoy(Engine):
             self.init_gpio_controls()
 
     def init_fonts(self):
+        logger.debug("Initializing fonts")
         pg.font.init()
         for size in [41]:
             ResourceLoader.add_font("ROBOTO_B", "fonts/RobotoCondensed-Bold.ttf", size)
             ResourceLoader.add_font("ROBOTO", "fonts/RobotoCondensed-Regular.ttf", size)
             ResourceLoader.add_font("TECHMONO", "fonts/TechMono.ttf", size)
+        logger.debug("Fonts initialized")
 
 
     def init_children(self):
+        logger.debug("Initializing childs")
         overlay = Overlay()
         self.root_children.add(overlay)
         scanlines = Scanlines()
         self.root_children.add(scanlines)
+        logger.debug("Childs initialized")
 
 
     def init_modules(self):
+        logger.debug("Initializing Modules")
         self.modules = {
             "stats": stats.Module(self),
             "inv": inv.Module(self)
@@ -54,6 +59,7 @@ class PipBoy(Engine):
         self.root_children.add(self.header)
 
         self.switch_module("stats")
+        logger.debug("Modules initialized")
 
     def switch_module(self, module):
         if module in self.modules:
@@ -90,6 +96,7 @@ class PipBoy(Engine):
                 self.active.handle_action(action)
 
     def handle_event(self, event):
+        super().handle_event(event)
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 self.running = False
@@ -111,24 +118,6 @@ class PipBoy(Engine):
         super().render()
         if self.active:
             self.active.render()
-
-        # """
-        # Render all needed elements and update the display.
-        # """
-        # self.screen.fill(self.config.BG_COLOR)
-
-        # if self.main_scene != None:
-        #     self.main_scene.render(self.screen)
-        # self.sprite_list.draw(self.screen)
-
-        # if self.show_fps:
-        #     self.screen.blit(self.font.render(
-        #         str(int(self.clock.get_fps())), True, pg.Color('white')), (10, 10))
-        # scaled_screen = pg.transform.smoothscale(
-        #     self.screen, self.display_screen.get_size())
-        # self.display_screen.blit(scaled_screen, (0, 0))
-        # self.shader.render(self.display_screen)
-        # pg.display.flip()
 
     def run(self):
         self.running = True

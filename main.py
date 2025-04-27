@@ -27,7 +27,7 @@ def main():
         pass
 
     pipboy = PipBoy(title="RasPipBoy-3000 Mk IV",
-                    width=config.WIDTH, height=config.HEIGHT)
+                    size=config.SIZE, output_size=config.OUTPUT_SIZE)
     logger.info("Running...")
     pipboy.run()
 

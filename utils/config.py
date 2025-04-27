@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, Any
+from typing import Tuple, Any, Optional
 from functools import cached_property
 from pydantic import Field, computed_field
 from pydantic.fields import FieldInfo
@@ -22,11 +22,11 @@ class MyCustomSource(EnvSettingsSource):
 class ConfigSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file='.env', env_file_encoding='utf-8')
-    WIDTH: int = 480
-    HEIGHT: int = 320
+    WIDTH: int = 720
+    HEIGHT: int = 540
 
-    RESCALE_WIDTH: int = 720
-    RESCALE_HEIGHT: int = 540
+    OUTPUT_WIDTH: Optional[int] = 720
+    OUTPUT_HEIGHT: Optional[int] = 540
     RESCALE: bool = False
 
     FRAMERATE: int = 60
@@ -97,9 +97,16 @@ class ConfigSettings(BaseSettings):
         return False
 
     @computed_field
-    @property
+    @cached_property
     def SIZE(self) -> Tuple[int, int]:
-        return [self.WIDTH, self.HEIGHT]
+        return (self.WIDTH, self.HEIGHT)
+
+    @computed_field
+    @cached_property
+    def OUTPUT_SIZE(self) -> Optional[Tuple[int, int]]:
+        if not self.RESCALE or not self.OUTPUT_WIDTH or not self.OUTPUT_HEIGHT:
+            return None
+        return (self.OUTPUT_WIDTH, self.OUTPUT_HEIGHT)
 
     ASSETS_FOLDER: str = os.path.abspath("./assets")
     DOWNLOAD_FOLDER: str = os.path.abspath("./download")

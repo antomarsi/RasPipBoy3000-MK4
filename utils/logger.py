@@ -1,5 +1,4 @@
 import logging
 
-logging.basicConfig()
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
