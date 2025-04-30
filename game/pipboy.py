@@ -1,7 +1,7 @@
 import pygame as pg
 from pygame.locals import *
-from game.modules import stats, inv
-from game.ui import Header, Overlay, Scanlines
+from game.modules import stat, inv, data, radio, map as pipmap, boot
+from game.ui import Overlay, Scanlines
 from utils.config import config
 from core.resource_loader import ResourceLoader
 from core.engine import Engine
@@ -13,8 +13,9 @@ if config.GPIO_AVALIABLE:
 
 class PipBoy(Engine):
     current_submodule = 0
+    modules = {}
 
-    def __init__(self, framerate=60, *args, **kwargs):
+    def __init__(self, framerate=30, *args, **kwargs):
         logger.debug("Initializing PipBoy Engine")
         super().__init__(*args, **kwargs)
         self.clock = pg.time.Clock()
@@ -32,12 +33,15 @@ class PipBoy(Engine):
     def init_fonts(self):
         logger.debug("Initializing fonts")
         pg.font.init()
-        for size in [41]:
-            ResourceLoader.add_font("ROBOTO_B", "fonts/RobotoCondensed-Bold.ttf", size)
-            ResourceLoader.add_font("ROBOTO", "fonts/RobotoCondensed-Regular.ttf", size)
+        for size in [12, 24, 41]:
+            ResourceLoader.add_font(
+                "MONOFONTO", "fonts/monofonto.ttf", size)
+            ResourceLoader.add_font(
+                "ROBOTO_B", "fonts/RobotoCondensed-Bold.ttf", size)
+            ResourceLoader.add_font(
+                "ROBOTO", "fonts/RobotoCondensed-Regular.ttf", size)
             ResourceLoader.add_font("TECHMONO", "fonts/TechMono.ttf", size)
         logger.debug("Fonts initialized")
-
 
     def init_children(self):
         logger.debug("Initializing childs")
@@ -47,19 +51,21 @@ class PipBoy(Engine):
         self.root_children.add(scanlines)
         logger.debug("Childs initialized")
 
+    def init_full_modules(self):
+        self.modules["inv"] = inv.Module(self)
+        self.modules["stat"] = stat.Module(self)
+        self.modules["map"] = pipmap.Module(self)
+        self.modules["radio"] = radio.Module(self)
+        self.modules["data"] = data.Module(self)
 
     def init_modules(self):
         logger.debug("Initializing Modules")
         self.modules = {
-            "stats": stats.Module(self),
-            "inv": inv.Module(self)
+            "boot": boot.Module(self)
         }
-        self.header = Header(options=self.modules.values())
+        self.init_full_modules()
 
-        self.root_children.add(self.header)
-
-        self.switch_module("stats")
-        logger.debug("Modules initialized")
+        self.switch_module("boot")
 
     def switch_module(self, module):
         if module in self.modules:
@@ -72,7 +78,6 @@ class PipBoy(Engine):
             self.add(self.active)
         else:
             raise Exception(f"Module {module} not implemented")
-
 
     def init_gpio_controls(self):
         for pin in config.GPIO_ACTIONS.keys():
@@ -88,9 +93,7 @@ class PipBoy(Engine):
 
     def handle_action(self, action):
         if action.startswith('module_'):
-            for idx, name in enumerate(self.modules):
-                if str(name).lower() == action[7:]:
-                    self.switch_module(idx)
+            self.switch_module(action[7:])
         else:
             if self.active:
                 self.active.handle_action(action)
@@ -111,7 +114,7 @@ class PipBoy(Engine):
 
     def update(self, deltatime=0):
         if self.active:
-            self.active.update()
+            self.active.update(deltatime)
         super().update(deltatime)
 
     def render(self):
@@ -122,7 +125,7 @@ class PipBoy(Engine):
     def run(self):
         self.running = True
         while self.running:
-            deltatime = self.clock.tick(10) / 1000 * self.framerate
+            deltatime = self.clock.tick(self.framerate) / 1000
             for event in pg.event.get():
                 self.handle_event(event)
             self.update(deltatime)

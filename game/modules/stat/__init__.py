@@ -1,0 +1,22 @@
+
+from game.modules import BaseModule
+from game.modules.stat import perks, special, status
+from game.ui import Header
+from utils.config import config
+
+
+class Module(BaseModule):
+
+    def __init__(self, pipboy, *sprites, **kwargs):
+        self.submodules = [
+            status.Module(self),
+            special.Module(self),
+            perks.Module(self)
+        ]
+        super().__init__(pipboy, *sprites, **kwargs)
+        self.header = Header(label=str(self), options=config.MODULE_TEXTS)
+        self.add(self.header)
+
+
+    def __str__(self):
+        return 'STAT'

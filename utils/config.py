@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, Any, Optional
+from typing import Tuple, Any, Optional, Union
 from functools import cached_property
 from pydantic import Field, computed_field
 from pydantic.fields import FieldInfo
@@ -118,6 +118,10 @@ class ConfigSettings(BaseSettings):
     RADIOS: dict = {
         "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
     }
+
+    MODULE_TEXTS: list[str] = ["STAT", "INV", "DATA", "MAP", "RADIO"]
+
+    hide_top_menu: Union[bool, int] = False
 
 
 config = ConfigSettings()

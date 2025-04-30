@@ -11,51 +11,34 @@ class BaseModule(EntityGroup):
 
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
-        logger.debug(f"Initialized {cls}")
         return instance
 
     def __init__(self, pipboy, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pipboy = pipboy
-        self.position = (0, 50)
 
         self.action_handlers = {
             "pause": self.handle_pause,
             "resume": self.handle_resume
         }
 
-
-        self.submenu = SubMenu()
+        self.submenu = SubMenu(self.submodules)
         self.add(self.submenu)
-        if (self.submodules):
-            self.submenu.set_options(self.submodules)
-        self.switch_submodule(0)
-        logger.debug(f"Module {str(self)} initialized")
 
-
-
-    @property
-    def active_submodule(self):
-        return self._active_submodule
-
-    @active_submodule.setter
-    def active_submodule(self, value):
-        if not len(self.submodules):
-            raise Exception("No submodule found")
-        if value < len(self.submodules):
-            self._active_submodule = value
-            self.active = self.submodules[self._active_submodule]
 
     def switch_submodule(self, module):
         if not len(self.submodules):
             logger.debug(
                 f"No Submodule registered on [{self.__class__.__name__}]")
             return
-        if module < len(self.submodules):
+        if module < len(self.submodules) and self._active_submodule != module:
+            logger.debug(f"[{self.__class__}] Switching to submodule {module}")
             if self.active:
                 self.active.handle_action("pause")
-                self.remove(self.action)
-            self.active_submodule = module
+                self.remove(self.active)
+
+            self._active_submodule = module
+            self.active = self.submodules[self._active_submodule]
             self.active.parent = self
             self.active.handle_action("resume")
             self.submenu.set_active_index(module)
@@ -63,6 +46,11 @@ class BaseModule(EntityGroup):
         else:
             logger.debug(
                 f"No Submodule ({module}) on [{self.__class__.__name__}]")
+
+    def update(self, *args, **kwargs):
+        if self.active:
+            self.active.update(*args, **kwargs)
+        return super().update(*args, **kwargs)
 
     def handle_action(self, action, value=0):
         if action.startswith("knob_"):
@@ -85,13 +73,16 @@ class BaseModule(EntityGroup):
     def handle_resume(self):
         self.paused = False
 
+    @staticmethod
+    def initialize():
+        pass
+
 
 class SubModule(EntityGroup):
     parent = None
 
     def __new__(cls, *args, **kwargs):
         instance = super().__new__(cls)
-        logger.debug(f"Initialized {cls}")
         return instance
 
     def __init__(self, parent, *sprites, **kwargs):
@@ -103,7 +94,6 @@ class SubModule(EntityGroup):
             "pause": self.handle_pause,
             "resume": self.handle_resume
         }
-        logger.debug(f"Sub-Module {str(self)} initialized")
 
     def handle_action(self, action, value=0):
         if action.startswith("dial_"):
@@ -122,3 +112,7 @@ class SubModule(EntityGroup):
     def handle_resume(self):
         if self.paused == True:
             self.paused = False
+
+    @staticmethod
+    def initialize():
+        pass

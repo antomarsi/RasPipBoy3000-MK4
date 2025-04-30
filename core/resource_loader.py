@@ -19,7 +19,7 @@ class ResourceLoader:
         if key not in ResourceLoader._image_library.keys():
             filepath = join(ResourceLoader._asset_folder, path)
             ResourceLoader._image_library[key] = pg.image.load(
-                filepath)
+                filepath).convert_alpha()
         return ResourceLoader._image_library[key]
 
     @staticmethod

@@ -47,7 +47,7 @@ class Engine():
     def update(self, deltatime):
         self.root_children.update(deltatime)
         for group in self.groups:
-            group.update()
+            group.update(deltatime)
 
     def add(self, group):
         if group not in self.groups:
