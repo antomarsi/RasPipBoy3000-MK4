@@ -229,7 +229,6 @@ class InitializeAnimation(SceneBase):
         self.parent.parent.add_entity("radio_scene", RadioScene(), False)
         self.progress_bar.add_value()
         self.GAME_STATE = 1
-        print("teste")
 
     def process_input(self, events, keys):
         super().process_input(events, keys)

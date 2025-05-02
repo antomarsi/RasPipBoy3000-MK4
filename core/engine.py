@@ -22,9 +22,7 @@ class Engine():
 
         pg.display.set_caption(title)
         pg.mouse.set_visible(False)
-
-        self.groups = []
-        self.root_children = EntityGroup()
+        self.groups = EntityGroup()
         self.background = pg.surface.Surface(
             self.screen.get_size()).convert()
         self.background.fill(config.BG_COLOR)
@@ -33,35 +31,32 @@ class Engine():
         pass
 
     def render(self):
-        self.root_children.clear(self.screen, self.background)
-        self.root_children.render()
-        self.root_children.draw(self.screen)
-        for group in self.groups:
-            group.render()
-            group.draw(self.screen)
+        self.groups.clear(self.screen, self.background)
+        self.groups.draw(self.screen)
+
         if self.rescale:
             frame = pg.transform.scale(self.screen, self.window.get_size())
             self.window.blit(frame, (0,0))
         pg.display.flip()
 
     def update(self, deltatime):
-        self.root_children.update(deltatime)
-        for group in self.groups:
-            group.update(deltatime)
+        self.groups.update(deltatime)
 
-    def add(self, group):
-        if group not in self.groups:
-            self.groups.append(group)
+    def add(self, group, *args, **kwargs):
+        if not self.groups.has(group):
+            self.groups.add(group, *args, **kwargs)
 
     def remove(self, group):
-        if group in self.groups:
+        if self.groups.has(group):
             self.groups.remove(group)
 
 
 class EntityGroup(pg.sprite.LayeredDirty):
-    def render(self):
-        for entity in self:
-            entity.render()
+
+    def update(self, *args, **kwargs):
+        for sprite in self.sprites():
+            if sprite.active:
+                sprite.update(*args, **kwargs)
 
     def move(self, x, y):
         for child in self:
@@ -69,21 +64,17 @@ class EntityGroup(pg.sprite.LayeredDirty):
 
 
 class Entity(pg.sprite.DirtySprite):
+    active = True
+
     def __init__(self, dimensions=(0, 0), layer=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.image = pg.surface.Surface(dimensions)
         self.rect = self.image.get_rect()
         self.image = self.image.convert()
-        self.groups = pg.sprite.LayeredDirty()
         self.layer = layer
         self.dirty = 2
         self.blendmode = pg.BLEND_RGBA_ADD
 
-    def render(self, *args, **kwargs):
-        pass
-
-    def update(self, deltatime=0, *args, **kwargs):
-        pass
 
     def __le__(self, other):
         if type(self) == type(other):

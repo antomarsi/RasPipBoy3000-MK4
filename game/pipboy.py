@@ -4,7 +4,7 @@ from game.modules import stat, inv, data, radio, map as pipmap, boot
 from game.ui import Overlay, Scanlines
 from utils.config import config
 from core.resource_loader import ResourceLoader
-from core.engine import Engine
+from core.engine import Engine, EntityGroup
 from utils.logger import logger
 
 if config.GPIO_AVALIABLE:
@@ -45,10 +45,12 @@ class PipBoy(Engine):
 
     def init_children(self):
         logger.debug("Initializing childs")
-        overlay = Overlay()
-        self.root_children.add(overlay)
-        scanlines = Scanlines()
-        self.root_children.add(scanlines)
+
+        self.foregroundGroup = EntityGroup()
+        self.scanlines = Scanlines()
+        self.overlay = Overlay()
+        self.add(self.overlay)
+        self.add(self.scanlines)
         logger.debug("Childs initialized")
 
     def init_full_modules(self):
@@ -65,7 +67,7 @@ class PipBoy(Engine):
         }
         self.init_full_modules()
 
-        self.switch_module("boot")
+        self.switch_module("stat")
 
     def switch_module(self, module):
         if module in self.modules:
@@ -103,6 +105,8 @@ class PipBoy(Engine):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 self.running = False
+            elif event.key == pg.K_h:
+                self.modules["stat"].visible = not self.modules["stat"].visible
             elif event.key in config.ACTIONS:
                 self.handle_action(config.ACTIONS[event.key])
         elif event.type == pg.QUIT:
@@ -111,16 +115,6 @@ class PipBoy(Engine):
         else:
             if self.active:
                 self.active.handle_event(event)
-
-    def update(self, deltatime=0):
-        if self.active:
-            self.active.update(deltatime)
-        super().update(deltatime)
-
-    def render(self):
-        super().render()
-        if self.active:
-            self.active.render()
 
     def run(self):
         self.running = True

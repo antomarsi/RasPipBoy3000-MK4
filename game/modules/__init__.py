@@ -1,8 +1,6 @@
 from core.engine import EntityGroup
 from game.ui import SubMenu
 from utils.logger import logger
-import pygame as pg
-
 
 class BaseModule(EntityGroup):
     submodules = []
@@ -31,18 +29,19 @@ class BaseModule(EntityGroup):
             logger.debug(
                 f"No Submodule registered on [{self.__class__.__name__}]")
             return
-        if module < len(self.submodules) and self._active_submodule != module:
-            logger.debug(f"[{self.__class__}] Switching to submodule {module}")
-            if self.active:
-                self.active.handle_action("pause")
-                self.remove(self.active)
+        if module < len(self.submodules):
+            if self._active_submodule != module:
+                logger.debug(f"[{self.__class__}] Switching to submodule {module}")
+                if self.active:
+                    self.active.handle_action("pause")
+                    self.remove(self.active)
 
-            self._active_submodule = module
-            self.active = self.submodules[self._active_submodule]
-            self.active.parent = self
-            self.active.handle_action("resume")
-            self.submenu.set_active_index(module)
-            self.add(self.active)
+                self._active_submodule = module
+                self.active = self.submodules[self._active_submodule]
+                self.active.parent = self
+                self.active.handle_action("resume")
+                self.submenu.active_index = module
+                self.add(self.active)
         else:
             logger.debug(
                 f"No Submodule ({module}) on [{self.__class__.__name__}]")

@@ -17,6 +17,9 @@ class Module(BaseModule):
         self.header = Header(label=str(self), options=config.MODULE_TEXTS)
         self.add(self.header)
 
+    def handle_resume(self):
+        self.switch_submodule(0)
+        return super().handle_resume()
 
     def __str__(self):
         return 'STAT'

@@ -33,7 +33,7 @@ class ConfigSettings(BaseSettings):
 
     USE_SOUND: bool = Field(default=True, validation_alias="USE_SOUND")
     DRAW_COLOR: Tuple[float, float, float] = Field(
-        default=(0.0, 0.0, 0.0), validation_alias="DRAW_COLOR")
+        default=(0.0, 255.0, 0.0), validation_alias="DRAW_COLOR")
     TINT_COLOR: Tuple[float, float, float] = Field(
         default=(0.0, 0.0, 0.0), validation_alias="TINT_COLOR")
     BG_COLOR: Tuple[int, int, int] = Field(

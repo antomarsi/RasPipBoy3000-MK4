@@ -25,10 +25,9 @@ def main():
         config.SOUND_ENABLED = True
     except:
         pass
-
+    logger.info("Running...")
     pipboy = PipBoy(title="RasPipBoy-3000 Mk IV",
                     size=config.SIZE, output_size=config.OUTPUT_SIZE)
-    logger.info("Running...")
     pipboy.run()
 
 

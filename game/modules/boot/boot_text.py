@@ -2,6 +2,9 @@ from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from game.modules import SubModule
 from utils.config import config
+import pygame as pg
+
+from utils.events import BOOT_EVENT
 
 
 class Module(SubModule):
@@ -9,23 +12,17 @@ class Module(SubModule):
     def __init__(self, parent, *sprites, **kwargs):
         super().__init__(parent, *sprites, **kwargs)
         self.boot_text = BootText()
-        self.add(self.boot_text)
-        self.velocity = 10
         self.sound = ResourceLoader.add_sound("boot_a", 'sounds/boot/a.ogg')
 
     def handle_resume(self):
+        self.add(self.boot_text)
         self.sound.play()
         return super().handle_resume()
 
     def handle_pause(self):
+        self.boot_text.kill()
         self.sound.stop()
         return super().handle_pause()
-
-    def update(self, *args, **kwargs):
-        if self.boot_text.finished:
-            print("switching to submodule 1")
-            self.parent.switch_submodule(1)
-        return super().update(*args, **kwargs)
 
 
 class BootText(Entity):
@@ -56,19 +53,14 @@ class BootText(Entity):
         boot_text[0] = f"* {boot_text[0]}"
         boot_text = "\n".join(boot_text)
         font = ResourceLoader.get_font("MONOFONTO", 12)
-        self.text_texture = font.render(boot_text, True, color)
-        self.position = [self.rect.centerx -
-                         self.text_texture.get_width()/2, self.rect.bottom]
-        self.velocity = 120
-        self.finished = False
+        self.image = font.render(boot_text, True, color, self.bg_color).convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.centerx = config.WIDTH/2
+        self.rect.top = config.HEIGHT
+        self.velocity = 500
 
     def update(self, deltatime, *args, **kwargs):
-        if not self.finished:
-            self.position[1] -= self.velocity * deltatime
-            if self.position[1] <= -(self.text_texture.get_height() * 1.2):
-                self.finished = True
+        self.rect.top -= self.velocity * deltatime
+        if self.rect.top <= -(self.rect.height * 1.3):
+            pg.event.post(pg.event.Event(BOOT_EVENT, {"scene": 1}))
         return super().update(deltatime, *args, **kwargs)
-
-    def render(self, *args, **kwargs):
-        self.image.fill(self.bg_color)
-        self.image.blit(self.text_texture, self.position)

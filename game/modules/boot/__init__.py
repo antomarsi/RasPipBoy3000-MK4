@@ -1,6 +1,7 @@
 
 from game.modules import BaseModule
 from game.modules.boot import boot_text, pip_os, thumbs_up
+from utils.events import BOOT_EVENT
 
 
 class Module(BaseModule):
@@ -12,8 +13,18 @@ class Module(BaseModule):
             thumbs_up.Module(self)
         ]
         super().__init__(pipboy, *sprites, **kwargs)
-        self.switch_submodule(0)
+        self.submenu.visible = False
+        self.submenu.active = False
+
+
+    def handle_event(self, event):
+        if event.type == BOOT_EVENT:
+            self.switch_submodule(event.scene)
+        return super().handle_event(event)
 
     def handle_resume(self):
-        self.submenu.visible = False
+        if not self.active:
+            self.switch_submodule(0)
         self.active.handle_action("resume")
+        return super().handle_resume()
+
