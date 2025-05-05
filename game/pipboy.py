@@ -1,7 +1,8 @@
 import pygame as pg
 from pygame.locals import *
+from game.data.player import PlayerStatus
 from game.modules import stat, inv, data, radio, map as pipmap, boot
-from game.ui import Overlay, Scanlines
+from game.ui import Overlay, ReferenceImage, Scanlines
 from utils.config import config
 from core.resource_loader import ResourceLoader
 from core.engine import Engine, EntityGroup
@@ -33,7 +34,7 @@ class PipBoy(Engine):
     def init_fonts(self):
         logger.debug("Initializing fonts")
         pg.font.init()
-        for size in [12, 24, 41]:
+        for size in [12, 24, 30, 41]:
             ResourceLoader.add_font(
                 "MONOFONTO", "fonts/monofonto.ttf", size)
             ResourceLoader.add_font(
@@ -49,8 +50,11 @@ class PipBoy(Engine):
         self.foregroundGroup = EntityGroup()
         self.scanlines = Scanlines()
         self.overlay = Overlay()
+        self.debug_image = ReferenceImage(self.screen)
+        self.debug_image.visible = False
         self.add(self.overlay)
         self.add(self.scanlines)
+        self.add(self.debug_image)
         logger.debug("Childs initialized")
 
     def init_full_modules(self):
@@ -61,10 +65,12 @@ class PipBoy(Engine):
         self.modules["data"] = data.Module(self)
 
     def init_modules(self):
+        global playerStatus
         logger.debug("Initializing Modules")
         self.modules = {
             "boot": boot.Module(self)
         }
+        playerStatus = PlayerStatus()
         self.init_full_modules()
 
         self.switch_module("stat")
@@ -106,7 +112,7 @@ class PipBoy(Engine):
             if event.key == pg.K_ESCAPE:
                 self.running = False
             elif event.key == pg.K_h:
-                self.modules["stat"].visible = not self.modules["stat"].visible
+                self.debug_image.visible = not self.debug_image.visible
             elif event.key in config.ACTIONS:
                 self.handle_action(config.ACTIONS[event.key])
         elif event.type == pg.QUIT:

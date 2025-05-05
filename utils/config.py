@@ -54,7 +54,7 @@ class ConfigSettings(BaseSettings):
         7: "knob_3",  # GPIO 7
         22: "knob_4",  # GPIO 22
         23: "knob_5",  # GPIO 27
-        # 31: "dial_up", #GPIO 23
+        31: "dial_up", #GPIO 23
         27: "dial_down"  # GPIO 7
     }
 

@@ -199,7 +199,6 @@ class StatusMenu(pg.sprite.DirtySprite):
         rect.width = rect.width * percentage
         pg.draw.rect(self.image, color, rect)
 
-
 class StatsScene(SceneBase):
 
     def __init__(self):

@@ -12,14 +12,14 @@ UI_MARGIN = 14
 class Header(Entity):
 
     def __init__(self, label=None, options=[], color=config.DRAW_COLOR, bg_color=config.BG_COLOR):
-        super().__init__((config.WIDTH-(UI_MARGIN*2), 75))
+        super().__init__((config.WIDTH-(UI_MARGIN*2), 60))
         self.rect[0] = UI_MARGIN
         self._label = label
         self.options = [str(x) for x in options]
         self.current_label = None
         self.color = color
         self.bg_color = bg_color
-        self.font = ResourceLoader.get_font("MONOFONTO", 41)
+        self.font = ResourceLoader.get_font("MONOFONTO", 30)
         self.update_label(self._label)
 
     @property
@@ -63,10 +63,10 @@ class Header(Entity):
                 selected_text = text_surface
                 next_position += tab_spacing + text_surface.get_width()
                 continue
-            self.image.blit(text_surface, (next_position, 22))
+            self.image.blit(text_surface, (next_position, 14))
             next_position += tab_spacing + text_surface.get_width()
 
-        selected_margin = 38
+        selected_margin = 28
         selected_line_margin = 14
         lines_selection.append(
             (selected_position-selected_line_margin-1, self.rect.height-short_line_margin))
@@ -85,22 +85,22 @@ class Header(Entity):
                       lines_selection, LINE_WIDTH)
 
         pg.draw.rect(self.image, self.bg_color, (selected_position -
-                     6, 32, selected_text.get_width() + 12, 12))
-        self.image.blit(selected_text, (selected_position, 22))
+                     6, 26, selected_text.get_width() + 12, 12))
+        self.image.blit(selected_text, (selected_position, 14))
 
 
 class SubMenu(Entity):
     options = []
 
     def __init__(self, options=[], color=config.DRAW_COLOR, bg_color=config.BG_COLOR, active_index=0):
-        super().__init__((config.WIDTH, 43))
+        super().__init__((config.WIDTH - 80, 32))
         self.color = color
         self.bg_color = bg_color
 
-        self.rect[1] = 70
+        self.rect[1] = 54
         self.rect[0] = 80
 
-        self.font = ResourceLoader.get_font("MONOFONTO", 41)
+        self.font = ResourceLoader.get_font("MONOFONTO", 30)
         self._active_index = active_index
         self.options = [str(x) for x in options]
         self.update_label(self._active_index)
@@ -180,20 +180,19 @@ class Footer(Entity):
     def _parse_sections(self):
         sections = []
         for value in self.sections:
-                section = value
-                size = 1
-                if isinstance(value, Union[tuple, list]):
-                    section = value[0]
-                    indexes = range(len(value))
-                    if 1 in indexes:
-                        size = value[1]
-                sections.append((section, size))
+            section = value
+            size = 1
+            if isinstance(value, Union[tuple, list]):
+                section = value[0]
+                indexes = range(len(value))
+                if 1 in indexes:
+                    size = value[1]
+            sections.append((section, size))
         return sections
 
     def render(self):
         if self.sections:
             sections = self._parse_sections()
-
 
             total_size = sum(x for (_, x) in sections)
             rect_size = (self.rect.width - (self.padding *
@@ -209,8 +208,8 @@ class Footer(Entity):
 
                 pg.draw.rect(self.image, box_color, rect)
 
-                rect.left =- self.padding
-                rect.right =- self.padding
+                rect.left = - self.padding
+                rect.right = - self.padding
 
                 surface = self.get_surface_section(section, rect)
 
@@ -227,16 +226,18 @@ class Footer(Entity):
                 return scale_surface_keep_aspect(value, min(value.get_width(), available_size.width))
             return value
         if isinstance(value, list):
-            value = [self.font.render(v, True, self.color) if isinstance(v, str) else v for v in value]
-            return layout_flex_row(value, available_size, self.padding)
+            value = [self.font.render(v, True, self.color) if isinstance(
+                v, str) else v.image for v in value]
+            return layout_flex_row(value, available_size, self.padding*2)
         raise Exception("Failed to parse surface section")
 
 
 class ProgressBar(Entity):
     _value = 0
 
-    def __init__(self, dimensions, font=None, color=config.DRAW_COLOR, bg_color=(0, 0, 0, 0), value=0, max_value=1, border_width=1, text_format="{0}"):
-        super().__init__(dimensions, flags=pg.SRCALPHA)
+    def __init__(self, dimensions, font=None, color=config.DRAW_COLOR, bg_color=(0, 0, 0, 0), value=0, max_value=1, border_width=1, text_format="{0}", margin=(0, 0, 0, 0)):
+        super().__init__(dimensions)
+        self.image = self.image.convert_alpha()
         self._value = value
         self.color = color
         self.bg_color = bg_color
@@ -244,6 +245,16 @@ class ProgressBar(Entity):
         self.text_format = text_format
         self.font = font
         self._max_value = max_value
+        self.margin = margin
+        self.update_draw()
+
+    def set_rect(self, size):
+        self.image = pg.Surface(size, flags=pg.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.update_draw()
+
+    def on_flex(self, new_size):
+        self.set_rect(new_size)
 
     @property
     def value(self):
@@ -268,12 +279,26 @@ class ProgressBar(Entity):
     def update_draw(self):
         self.image.fill(self.bg_color)
 
+        fill_value = self._value / self._max_value
+        draw_rect = self.rect.copy()
+        draw_rect.top += self.margin[1]
+        draw_rect.left += self.margin[0]
+        draw_rect.width -= self.margin[2] + self.margin[0]
+        draw_rect.height -= self.margin[3] + self.margin[1]
+
         if self.font:
+            # TODO implement text to progress bar
             pass
 
-        fill_value = self._value / self._max_value
-
         pg.draw.rect(self.image, self.color, pg.Rect(
-            0, 0, self.rect.width*fill_value, self.rect.height))
+            draw_rect.left, draw_rect.top, (draw_rect.width)*fill_value, draw_rect.height))
+        pg.draw.rect(self.image, self.color, draw_rect, self.border_width)
 
-        pg.draw.rect(self.image, self.color, self.rect, self.border_width)
+
+class ReferenceImage(Entity):
+    def __init__(self, surf: pg.Surface):
+        super().__init__()
+        self.image = scale_surface_keep_aspect(ResourceLoader.add_image(
+            "debug", "../temp/menu1.png"), None, surf.get_height()+8)
+        self.rect = self.image.get_rect()
+        self.rect.centerx = surf.get_rect().centerx
