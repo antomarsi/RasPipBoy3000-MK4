@@ -2,7 +2,7 @@ import pygame as pg
 import os
 from core.scene_base import SceneBase
 from core.resource_loader import ResourceLoader
-from utils.config import ConfigSettings
+from utils.settings import ConfigSettings
 from core.events import CURSOR_COOLDOWN, TYPING_COOLDOWN, INTRO_FINISHED, LOADING_CONTENT
 from components.fading_text import FadingText
 from components.animated_sprite import AnimatedSprite

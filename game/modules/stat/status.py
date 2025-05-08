@@ -2,7 +2,7 @@ from core.engine import AnimatedSprite, Entity
 from core.resource_loader import ResourceLoader
 from game.modules import SubModule
 from game.ui import Footer, ProgressBar
-from utils.config import config
+from utils.settings import config
 import pygame as pg
 
 

@@ -1,6 +1,6 @@
 import pygame as pg
 from os.path import join
-from utils.config import config as pipconfig
+from utils.settings import config as pipconfig
 
 
 class ResourceLoader:

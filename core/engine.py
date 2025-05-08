@@ -1,5 +1,5 @@
 import pygame as pg
-from utils.config import config
+from utils.settings import config
 
 class Engine():
 

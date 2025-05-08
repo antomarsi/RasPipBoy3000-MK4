@@ -2,7 +2,7 @@
 from game.modules import BaseModule
 from game.modules.stat import perks, special, status
 from game.ui import Header
-from utils.config import config
+from utils.settings import config
 
 
 class Module(BaseModule):

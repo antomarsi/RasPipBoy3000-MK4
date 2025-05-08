@@ -1,7 +1,7 @@
 from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from game.modules import SubModule
-from utils.config import config
+from utils.settings import config
 import pygame as pg
 
 from utils.events import BOOT_EVENT

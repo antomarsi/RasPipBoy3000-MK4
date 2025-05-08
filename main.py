@@ -1,6 +1,6 @@
 import pygame as pg
 import os
-from utils.config import config
+from utils.settings import config
 from game.pipboy import PipBoy
 from utils.logger import logger
 

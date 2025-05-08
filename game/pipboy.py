@@ -3,7 +3,7 @@ from pygame.locals import *
 from game.data.player import PlayerStatus
 from game.modules import stat, inv, data, radio, map as pipmap, boot
 from game.ui import Overlay, ReferenceImage, Scanlines
-from utils.config import config
+from utils.settings import config
 from core.resource_loader import ResourceLoader
 from core.engine import Engine, EntityGroup
 from utils.logger import logger
@@ -73,7 +73,7 @@ class PipBoy(Engine):
         playerStatus = PlayerStatus()
         self.init_full_modules()
 
-        self.switch_module("stat")
+        self.switch_module("radio")
 
     def switch_module(self, module):
         if module in self.modules:
@@ -118,9 +118,8 @@ class PipBoy(Engine):
         elif event.type == pg.QUIT:
             self.running = False
         # elif event.type == config.EVENTS['SONG_END']
-        else:
-            if self.active:
-                self.active.handle_event(event)
+        if self.active and self.running:
+            self.active.handle_event(event)
 
     def run(self):
         self.running = True

@@ -1,7 +1,7 @@
 from core.scene_base import SceneBase
 from game.scenes.stats import StatsScene
 import pygame as pg
-import utils.config as cfg
+import utils.settings as cfg
 from components.animated_sprite import AnimatedSprite
 from components.progress_bar import ProgressBar
 import os

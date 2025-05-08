@@ -1,7 +1,7 @@
 from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from typing import Union
-from utils.config import config
+from utils.settings import config
 import pygame as pg
 
 from utils.layout import layout_flex_row, scale_surface_keep_aspect
@@ -302,3 +302,66 @@ class ReferenceImage(Entity):
             "debug", "../temp/menu1.png"), None, surf.get_height()+8)
         self.rect = self.image.get_rect()
         self.rect.centerx = surf.get_rect().centerx
+
+
+class Menu(Entity):
+    def __init__(self, items=[], callback=[], selected=0, color=config.DRAW_COLOR, bg_color=config.BG_COLOR, max_items = 7):
+        super().__init__((config.WIDTH - UI_MARGIN*2, config.HEIGHT - 172))
+        self.items = items
+        self.color = color
+        self.soft_color = (color[0]*0.65, color[1]*0.65, color[2]*0.65)
+        self.bg_color = bg_color
+        self.rect.top = 92
+        self.rect.left = UI_MARGIN
+
+        self.callback = callback
+
+        self.index = 0
+        self.font = ResourceLoader.get_font("MONOFONTO", 24)
+
+        self.menu_item_size = 38
+        self.max_items = max_items
+        self.selected = selected
+
+        # Create arrow surfaces
+        self.arrow_down = pg.Surface((15, 20), flags=pg.SRCALPHA)
+        pg.draw.lines(self.arrow_down, self.soft_color,
+                      False, [(0, 0), (7, 7), (14, 0)])
+        pg.draw.lines(self.arrow_down, self.soft_color,
+                      False, [(0, 8), (7, 15), (14, 8)])
+        self.arrow_up = pg.transform.flip(self.arrow_down, False, True)
+        self.render()
+
+    def select(self, value):
+        value = min(max(value, 0), len(self.items)-1)
+        if self.selected != value:
+            if value > self.index + self.max_items - 1:
+                self.index = value - self.max_items + 1
+            if self.index > value:
+                self.index = value
+            self.selected = value
+            self.render()
+
+    def render(self):
+        pg.draw.rect(self.image, self.color,
+                     (0, 0, self.rect.width*0.45, self.menu_item_size))
+        item_count = 0
+        current_index = self.index
+        for idx, item in enumerate(self.items):
+            if idx < current_index or item_count >= self.max_items:
+                continue
+            item_count += 1
+            position_y = (idx - current_index) * self.menu_item_size
+            surf = self.generate_item(item, idx == self.selected)
+            self.image.blit(surf, (0, position_y))
+
+    def generate_item(self, text, selected=False):
+        surface = pg.Surface((self.rect.width*0.55, self.menu_item_size))
+        text_color = self.soft_color
+        if selected:
+            text_color = self.bg_color
+            surface.fill(self.soft_color)
+        font_surf = self.font.render(text, True, text_color)
+        surface.blit(
+            font_surf, (20, surface.get_rect().centery - font_surf.get_height()/2))
+        return surface
