@@ -177,6 +177,14 @@ class Footer(Entity):
         self.padding = 4
         self.render()
 
+    def update_section(self, index, value):
+        if index >= len(self.sections):
+            raise Exception("Index not found")
+        if self.sections[index] != value:
+            self.sections[index] = value
+            return True
+        return False
+
     def _parse_sections(self):
         sections = []
         for value in self.sections:
@@ -190,7 +198,7 @@ class Footer(Entity):
             sections.append((section, size))
         return sections
 
-    def render(self):
+    def render(self, render_only_indexes=None):
         if self.sections:
             sections = self._parse_sections()
 
@@ -200,20 +208,20 @@ class Footer(Entity):
             next_pos = 0
             box_color = (self.color[0]/2, self.color[1]/2, self.color[2]/2)
 
-            for (section, size) in sections:
-
+            for idx, (section, size) in enumerate(sections):
+                not_skip = not render_only_indexes or idx in render_only_indexes
                 current_size = (rect_size * size) + (self.padding * (size-1))
                 rect = pg.Rect(next_pos, 0, current_size,
                                self.image.get_height())
-
-                pg.draw.rect(self.image, box_color, rect)
+                if not_skip:
+                    pg.draw.rect(self.image, box_color, rect)
 
                 rect.left = - self.padding
                 rect.right = - self.padding
 
                 surface = self.get_surface_section(section, rect)
 
-                if isinstance(surface, pg.Surface):
+                if isinstance(surface, pg.Surface) and not_skip:
                     self.image.blit(surface, (next_pos + self.padding, 0))
 
                 next_pos += current_size + self.padding

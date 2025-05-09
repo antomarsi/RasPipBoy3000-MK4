@@ -73,7 +73,7 @@ class PipBoy(Engine):
         playerStatus = PlayerStatus()
         self.init_full_modules()
 
-        self.switch_module("radio")
+        self.switch_module("map")
 
     def switch_module(self, module):
         if module in self.modules:
@@ -120,6 +120,11 @@ class PipBoy(Engine):
         # elif event.type == config.EVENTS['SONG_END']
         if self.active and self.running:
             self.active.handle_event(event)
+
+    def update(self, deltatime):
+        if self.active and self.running:
+            self.active.update(deltatime)
+        return super().update(deltatime)
 
     def run(self):
         self.running = True
