@@ -3,8 +3,9 @@ from core.resource_loader import ResourceLoader
 from typing import Union
 from utils.settings import config
 import pygame as pg
+from os.path import join
 
-from utils.layout import layout_flex_row, scale_surface_keep_aspect
+from utils.layout import layout_flex_row, load_svg, scale_surface_keep_aspect
 
 UI_MARGIN = 14
 
@@ -332,12 +333,9 @@ class Menu(Entity):
         self.selected = selected
 
         # Create arrow surfaces
-        self.arrow_down = pg.Surface((15, 20), flags=pg.SRCALPHA)
-        pg.draw.lines(self.arrow_down, self.soft_color,
-                      False, [(0, 0), (7, 7), (14, 0)])
-        pg.draw.lines(self.arrow_down, self.soft_color,
-                      False, [(0, 8), (7, 15), (14, 8)])
-        self.arrow_up = pg.transform.flip(self.arrow_down, False, True)
+        self.arrow_up = load_svg(join(ResourceLoader._asset_folder, "images/arrow.svg"), 13, 13, self.soft_color)
+        self.arrow_down = pg.transform.flip(self.arrow_up, False, True)
+
         self.render()
 
     def select(self, value):
@@ -354,14 +352,18 @@ class Menu(Entity):
         pg.draw.rect(self.image, self.color,
                      (0, 0, self.rect.width*0.45, self.menu_item_size))
         item_count = 0
-        current_index = self.index
+
         for idx, item in enumerate(self.items):
-            if idx < current_index or item_count >= self.max_items:
+            if idx < self.index or item_count >= self.max_items:
                 continue
             item_count += 1
-            position_y = (idx - current_index) * self.menu_item_size
+            position_y = (idx - self.index) * self.menu_item_size
             surf = self.generate_item(item, idx == self.selected)
             self.image.blit(surf, (0, position_y))
+        # TODO implement arrows
+        # if True:
+        #     self.image.blit(self.arrow_up, (10, 0))
+        #     self.image.blit(self.arrow_down, (10, self.menu_item_size * self.max_items - 20))
 
     def generate_item(self, text, selected=False):
         surface = pg.Surface((self.rect.width*0.55, self.menu_item_size))

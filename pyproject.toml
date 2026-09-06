@@ -1,0 +1,22 @@
+[project]
+name = "raspipboy3000-mk4"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "esper>=3.8",
+    "ffmpeg-python>=0.2.0",
+    "numpy>=2.4.6",
+    "pyaudio>=0.2.14",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "pygame-ce>=2.5.8",
+    "python-dotenv>=1.2.3",
+    "pytweening>=1.2.0",
+]
+
+[project.optional-dependencies]
+pi = [
+    "gpiozero>=2.0.1.post3",
+    "lgpio>=0.2.2.0 ; sys_platform == 'linux'",
+]

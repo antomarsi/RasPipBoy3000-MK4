@@ -96,3 +96,12 @@ def layout_flex_row_sizes(surfaces: List[pg.Surface], container_rect: pg.Rect, s
         sizes.append(fs.get_size())
 
     return sizes
+
+def load_svg(filename, width, height, color):
+    image = pg.image.load(filename).convert_alpha()
+    size = image.get_size()
+    scale = min(width / size[0], height / size[1])
+    if size[1] != height:
+        image = pg.transform.smoothscale(image, (round(size[0] * scale), round(size[1] * scale)))
+    image.fill(color, None, pg.BLEND_RGB_MULT)
+    return image

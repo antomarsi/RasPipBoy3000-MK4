@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, Any, Optional, Union
+from typing import Tuple, Any, Optional
 from functools import cached_property
 from pydantic import Field, computed_field
 from pydantic.fields import FieldInfo
@@ -7,10 +7,10 @@ from utils.color import hex_to_rgb
 from utils.logger import logger
 import pygame as pg
 
-from pydantic_settings import EnvSettingsSource, BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
+from pydantic_settings import DotEnvSettingsSource, BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
 
 
-class MyCustomSource(EnvSettingsSource):
+class MyCustomSource(DotEnvSettingsSource):
     def prepare_field_value(
         self, field_name: str, field: FieldInfo, value: Any, value_is_complex: bool
     ) -> Any:
@@ -30,8 +30,9 @@ class ConfigSettings(BaseSettings):
     RESCALE: bool = False
 
     FRAMERATE: int = 60
+    IDLE_FRAMERATE: int = 15
+    STARTUP_MODULE: str = "map"
 
-    SOUND_ENABLED: bool = Field(default=False, validation_alias="SOUND_ENABLED")
     DRAW_COLOR: Tuple[float, float, float] = Field(
         default=(0.0, 255.0, 0.0), validation_alias="DRAW_COLOR")
     TINT_COLOR: Tuple[float, float, float] = Field(
@@ -39,22 +40,19 @@ class ConfigSettings(BaseSettings):
     BG_COLOR: Tuple[int, int, int] = Field(
         default=(0, 0, 0), validation_alias="BG_COLOR")
 
-    ASSETS_FOLDER: str
-
-
     GPIO_ACTIONS: dict = {
-        4: "module_stat",  # GPIO 4
-        14: "module_inv",  # GPIO 14
-        15: "module_data",  # GPIO 15
-        16: "module_map",  # GPIO ?
-        19: "module_radio",  # GPIO ?
-        17:	"knob_1",  # GPIO 17
-        18: "knob_2",  # GPIO 18
-        7: "knob_3",  # GPIO 7
-        22: "knob_4",  # GPIO 22
-        23: "knob_5",  # GPIO 27
-        31: "dial_up", #GPIO 23
-        27: "dial_down"  # GPIO 7
+        4: "module_stat",
+        14: "module_inv",
+        15: "module_data",
+        16: "module_map",
+        19: "module_radio",
+        17:	"knob_1",
+        18: "knob_2",
+        7: "knob_3",
+        22: "knob_4",
+        23: "knob_5",
+        24: "dial_up",
+        27: "dial_down"
     }
 
     ACTIONS: dict = {
@@ -85,7 +83,7 @@ class ConfigSettings(BaseSettings):
 
     @computed_field
     @cached_property
-    def GPIO_AVALIABLE(self) -> bool:
+    def GPIO_AVAILABLE(self) -> bool:
         try:
             import RPi.GPIO as GPIO  # type: ignore
             logger.info("✅ GPIO found")
@@ -94,6 +92,15 @@ class ConfigSettings(BaseSettings):
             logger.info("❌ GPIO not found")
 
         return False
+
+    @computed_field
+    @cached_property
+    def SOUND_ENABLED(self) -> bool:
+        try:
+            pg.mixer.init(44100, -16, 2, 2048)
+            return True
+        except Exception:
+            return False
 
     @computed_field
     @cached_property
@@ -108,9 +115,7 @@ class ConfigSettings(BaseSettings):
         return (self.OUTPUT_WIDTH, self.OUTPUT_HEIGHT)
 
     ASSETS_FOLDER: str = os.path.abspath("./assets")
-    DOWNLOAD_FOLDER: str = os.path.abspath("./download")
 
-    DOWNLOAD_RADIO: bool = True
     USE_BLUR: bool = True
     USE_SCANLINE: bool = True
     SKIP_INTRO: bool = Field(default=False, validation_alias="SKIP_INTRO")
@@ -118,9 +123,10 @@ class ConfigSettings(BaseSettings):
         "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
     }
 
+    # TODO(Phase 5): MODULE_TEXTS is superseded by game/modules/registry.py's
+    # declarative module table and will be removed once every module reads
+    # its tab labels from there instead.
     MODULE_TEXTS: list[str] = ["STAT", "INV", "DATA", "MAP", "RADIO"]
-
-    hide_top_menu: Union[bool, int] = False
 
 
 config = ConfigSettings()

@@ -8,7 +8,7 @@ from core.resource_loader import ResourceLoader
 from core.engine import Engine, EntityGroup
 from utils.logger import logger
 
-if config.GPIO_AVALIABLE:
+if config.GPIO_AVAILABLE:
     import RPi.GPIO as GPIO  # type: ignore
 
 
@@ -28,7 +28,7 @@ class PipBoy(Engine):
         self.init_modules()
 
         self.gpio_actions = {}
-        if config.GPIO_AVALIABLE:
+        if config.GPIO_AVAILABLE:
             self.init_gpio_controls()
 
     def init_fonts(self):
