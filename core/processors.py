@@ -15,6 +15,19 @@ class TweenProcessor(esper.Processor):
             easing = tween.easing or pytweening.linear
             value = tween.start + (tween.end - tween.start) * easing(t)
             tween.apply(value)
+
+            # Arm Dirty every frame a tween is actually moving something --
+            # unlike AnimationProcessor (which only arms it on a frame where
+            # the visible frame actually changed), a Tween changes its value
+            # every single frame it's playing, so this is unconditional here.
+            # Without it, a Tween-driven Position/ProgressBarState.value never
+            # signals "this frame changed" to the idle-framerate battery
+            # heuristic, and boot's scrolling text / loading bar would be
+            # throttled to IDLE_FRAMERATE instead of animating smoothly.
+            dirty = esper.try_component(ent, Dirty)
+            if dirty is not None:
+                dirty.state = max(dirty.state, 1)
+
             if t >= 1.0:
                 tween.playing = False
                 esper.remove_component(ent, Tween)

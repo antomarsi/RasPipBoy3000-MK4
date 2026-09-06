@@ -4,31 +4,17 @@ from core.components import Active, Dirty, Layer, Position, Renderable, Running
 from game.modules.registry import create_node
 from game.ui import UI_MARGIN, MenuState
 from utils.logger import logger
+from utils.settings import config
 
 NODE_KEY = "radio"
 STATIONS_NODE_KEY = "radio.stations"
 
-# Hard-coded placeholder list -- Phase 7 reads real station labels from
-# config.RADIOS instead (see the plan).
-STATIONS = [
-    "1 Classical Radio",
-    "2 Diamond City Radio",
-    "3 Diamond City Radio",
-    "4 Diamond City Radio",
-    "5 Diamond City Radio",
-    "6 Diamond City Radio",
-    "7 Diamond City Radio",
-    "8 Diamond City Radio",
-    "9 Diamond City Radio",
-    "10 Diamond City Radio",
-    "11 Diamond City Radio",
-]
-
 
 def register(pipboy):
+    stations = list(config.RADIOS.keys())
     node_ent = create_node(NODE_KEY, "RADIO", background=True)
     menu_ent = create_node(STATIONS_NODE_KEY, "", parent=NODE_KEY, background=True, components=[
-        Position(UI_MARGIN, 92), Renderable(), Layer(5), Dirty(1), MenuState(items=STATIONS, max_items=9),
+        Position(UI_MARGIN, 92), Renderable(), Layer(5), Dirty(1), MenuState(items=stations, max_items=9),
     ])
     esper.add_processor(_RadioTickProcessor(node_ent, menu_ent), priority=10)
 

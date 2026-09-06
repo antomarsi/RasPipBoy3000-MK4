@@ -122,6 +122,11 @@ def render_header(state: HeaderState) -> pg.Surface:
         text_surf = font.render(text, True, state.color)
         tab_area_width -= text_surf.get_width()
         text_surfaces.append(text_surf)
+    if current_index is None and text_surfaces:
+        # state.label doesn't match any option (e.g. a transient initial
+        # state before the first real chrome update) -- fall back to the
+        # first tab instead of leaving selected_text as None below.
+        current_index = 0
     tab_spacing = tab_spacing / (len(options) - 1)
 
     for index, text_surface in enumerate(text_surfaces):

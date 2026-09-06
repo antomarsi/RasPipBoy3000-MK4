@@ -1,7 +1,10 @@
+import collections
+
 import esper
 import pygame as pg
 from pygame.locals import *
 from game.data.store import save_data, save_save
+from game import audio
 from game.modules import registry
 from utils.settings import config
 from utils.layout import scale_surface_keep_aspect
@@ -11,7 +14,7 @@ from core.engine import Engine
 from utils.logger import logger
 
 if config.GPIO_AVAILABLE:
-    import RPi.GPIO as GPIO  # type: ignore
+    from gpiozero import Button  # type: ignore
 
 AUTOSAVE_INTERVAL = 30.0
 IDLE_THRESHOLD_TICKS = 30  # frames with nothing dirty before dropping to IDLE_FRAMERATE
@@ -26,12 +29,14 @@ class PipBoy(Engine):
         self.framerate = framerate
         self._time_since_save = 0.0
         self._idle_ticks = 0
+        self.action_queue = collections.deque()
 
         self.init_fonts()
         self.init_children()
+        audio.init()
         self.init_modules()
 
-        self.gpio_actions = {}
+        self.gpio_buttons = []
         if config.GPIO_AVAILABLE:
             self.init_gpio_controls()
 
@@ -51,27 +56,33 @@ class PipBoy(Engine):
     def init_children(self):
         logger.debug("Initializing childs")
 
-        scanline_image = ResourceLoader.add_image(
-            "scanline", "images/scanline.png")
-        self.scanline_entity = esper.create_entity(
-            Position(0, -130),
-            Renderable(image=scanline_image),
-            Layer(11),
-            Dirty(2),
-            AutoScroll(speed=100.0, min_y=-130.0,
-                       max_y=self.screen.get_height() + 130.0),
-            Active(),
-        )
+        # Gated behind config: a perpetually-scrolling Scanlines entity keeps
+        # Dirty pinned at 2 forever (see AutoScrollProcessor), which defeats
+        # the idle-framerate battery throttle entirely while it's on --
+        # turning both off is how that throttle is actually reachable.
+        if config.USE_SCANLINE:
+            scanline_image = ResourceLoader.add_image(
+                "scanline", "images/scanline.png")
+            self.scanline_entity = esper.create_entity(
+                Position(0, -130),
+                Renderable(image=scanline_image),
+                Layer(11),
+                Dirty(2),
+                AutoScroll(speed=100.0, min_y=-130.0,
+                           max_y=self.screen.get_height() + 130.0),
+                Active(),
+            )
 
-        overlay_image = ResourceLoader.add_image(
-            "overlay", "images/overlay.png")
-        self.overlay_entity = esper.create_entity(
-            Position(0, 0),
-            Renderable(image=overlay_image),
-            Layer(10),
-            Dirty(1),
-            Active(),
-        )
+        if config.USE_BLUR:
+            overlay_image = ResourceLoader.add_image(
+                "overlay", "images/overlay.png")
+            self.overlay_entity = esper.create_entity(
+                Position(0, 0),
+                Renderable(image=overlay_image),
+                Layer(10),
+                Dirty(1),
+                Active(),
+            )
 
         debug_raw = ResourceLoader.add_image("debug", "../temp/menu1.png")
         debug_image = scale_surface_keep_aspect(
@@ -87,23 +98,33 @@ class PipBoy(Engine):
         logger.debug("Childs initialized")
 
     def init_modules(self):
-        registry.init_modules(self)
-        registry.switch_module(config.STARTUP_MODULE)
+        tasks = registry.init_modules(self)
+        if config.SKIP_INTRO:
+            # No loading screen to run these as real-time tasks on -- just
+            # do the real work (registering every other module) right now.
+            for _, task in tasks:
+                task()
+            registry.switch_module(config.STARTUP_MODULE)
+            audio.start_hum()
+        else:
+            registry.switch_node("boot.boot_text")
 
     def init_gpio_controls(self):
-        for pin in config.GPIO_ACTIONS.keys():
-            logger.info(
-                f"Initializing pin {pin} as action '{config.GPIO_ACTIONS[pin]}'")
-            GPIO.setup(pin, GPIO.IN)
-            self.gpio_actions[pin] = config.GPIO_ACTIONS[pin]
+        # gpiozero.Button.when_pressed fires on its own thread, so the
+        # callback only ever touches the plain deque -- esper/pygame state is
+        # only ever touched from the main thread, in drain_gpio_actions().
+        for pin, action in config.GPIO_ACTIONS.items():
+            logger.info(f"Initializing pin {pin} as action '{action}'")
+            button = Button(pin, pull_up=True, bounce_time=0.05)
+            button.when_pressed = lambda action=action: self.action_queue.append(action)
+            self.gpio_buttons.append(button)
 
-    def check_gpio_input(self):
-        for pin in self.gpio_actions.keys():
-            if not GPIO.input(pin):
-                self.handle_action(self.gpio_actions[pin])
+    def drain_gpio_actions(self):
+        while self.action_queue:
+            self.handle_action(self.action_queue.popleft())
 
     def handle_action(self, action):
-        registry.handle_action(action)
+        esper.dispatch_event("action", action)
 
     def handle_event(self, event):
         super().handle_event(event)
@@ -138,7 +159,7 @@ class PipBoy(Engine):
 
             self.update(deltatime)
             self.render()
-            self.check_gpio_input()
+            self.drain_gpio_actions()
 
             if self.render_processor.dirty_this_frame:
                 self._idle_ticks = 0

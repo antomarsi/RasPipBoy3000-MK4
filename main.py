@@ -6,9 +6,6 @@ from utils.logger import logger
 
 def main():
     if config.GPIO_AVAILABLE:
-        import RPi.GPIO as GPIO  # type: ignore
-        GPIO.setmode(GPIO.BCM)
-
         os.environ['SDL_VIDEODRIVER'] = 'fbcon'
         os.environ['SDL_FBDEV'] = '/dev/fb1'
         os.environ['SDL_MOUSEDRV'] = 'TSLIB'

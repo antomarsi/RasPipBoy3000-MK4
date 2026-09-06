@@ -31,8 +31,8 @@ NODES: dict[str, int] = {}
 LABELS: dict[str, str] = {}
 
 # Top-level tabs shown in the header, in display order. `boot` is
-# intentionally excluded -- it isn't a user-navigable tab (see Phase 7 for
-# wiring it in as the startup sequence).
+# intentionally excluded -- it isn't a user-navigable tab, just the startup
+# sequence (PipBoy.init_modules() enters it directly unless SKIP_INTRO).
 TOP_LEVEL = ["stat", "inv", "data", "map", "radio"]
 
 ACTIVE_LEAF: Optional[str] = None
@@ -97,6 +97,26 @@ def _set_active(node_key: str, active: bool):
 
 
 def _update_chrome(top_key: str):
+    # Narrows _header_ent/_submenu_ent from Optional[int] to int for the type
+    # checker -- both are always set by init_modules() before switch_node()
+    # (and therefore _update_chrome) can ever be called.
+    assert _header_ent is not None and _submenu_ent is not None
+
+    # boot isn't a navigable tab (see TOP_LEVEL) -- hide the shared chrome
+    # entirely while it's the active top-level, matching the old BaseModule
+    # system's boot module (no Header at all, submenu explicitly hidden).
+    if top_key == "boot":
+        if esper.has_component(_header_ent, Active):
+            esper.remove_component(_header_ent, Active)
+        if esper.has_component(_submenu_ent, Active):
+            esper.remove_component(_submenu_ent, Active)
+        return
+
+    if not esper.has_component(_header_ent, Active):
+        esper.add_component(_header_ent, Active())
+    if not esper.has_component(_submenu_ent, Active):
+        esper.add_component(_submenu_ent, Active())
+
     header_state = esper.component_for_entity(_header_ent, HeaderState)
     header_state.label = LABELS[top_key]
     esper.component_for_entity(_header_ent, Dirty).state = 1
@@ -202,6 +222,11 @@ def init_modules(pipboy):
 
     logger.debug("Initializing Modules")
 
+    # handle_action is a module-level function (not a local closure), so the
+    # weak reference esper.set_handler keeps is safe -- this module stays
+    # imported (and the function alive) for the life of the process.
+    esper.set_handler("action", handle_action)
+
     _header_ent = esper.create_entity(
         Position(UI_MARGIN, 0), Renderable(), Layer(20), Dirty(1), HeaderState(), Active(),
     )
@@ -216,12 +241,22 @@ def init_modules(pipboy):
     from game.modules.map import register as register_map
     from game.modules.radio import register as register_radio
 
-    register_boot(pipboy)
-    register_stat(pipboy)
-    register_inv(pipboy)
-    register_data(pipboy)
-    register_map(pipboy)
-    register_radio(pipboy)
+    # Real work, run one task per frame by boot/loading.py while its screen
+    # is up (or all at once if SKIP_INTRO -- see PipBoy.init_modules()), not
+    # eagerly here. Header options below are derived from TOP_LEVEL directly
+    # (not the per-node LABELS dict) since these tasks -- and the LABELS
+    # entries they create -- haven't run yet at this point.
+    tasks = [
+        ("Loading STAT...", lambda: register_stat(pipboy)),
+        ("Loading INV...", lambda: register_inv(pipboy)),
+        ("Loading DATA...", lambda: register_data(pipboy)),
+        ("Loading MAP...", lambda: register_map(pipboy)),
+        ("Loading RADIO...", lambda: register_radio(pipboy)),
+    ]
+    register_boot(pipboy, tasks)
 
     header_state = esper.component_for_entity(_header_ent, HeaderState)
-    header_state.options = [LABELS[key] for key in TOP_LEVEL]
+    header_state.options = [key.upper() for key in TOP_LEVEL]
+    header_state.label = header_state.options[0]
+
+    return tasks

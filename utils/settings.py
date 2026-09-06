@@ -71,7 +71,7 @@ class ConfigSettings(BaseSettings):
     @cached_property
     def GPIO_AVAILABLE(self) -> bool:
         try:
-            import RPi.GPIO as GPIO  # type: ignore
+            import gpiozero  # type: ignore
             logger.info("✅ GPIO found")
             return True
         except:
@@ -105,6 +105,7 @@ class ConfigSettings(BaseSettings):
 
     USE_BLUR: bool = True
     USE_SCANLINE: bool = True
+    HUM_ENABLED: bool = True
     SKIP_INTRO: bool = Field(default=False, validation_alias="SKIP_INTRO")
     RADIOS: dict = {
         "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",

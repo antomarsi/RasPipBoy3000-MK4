@@ -1,13 +1,13 @@
 from game.modules.registry import create_node
+from game.modules.boot import boot_text, loading
 
 
-def register(pipboy):
-    """Structural port only: registers the boot node tree so the old
-    BaseModule/SubModule system can be fully retired, but none of these are
-    reachable yet (PipBoy starts directly on config.STARTUP_MODULE). Phase 7
-    wires the real content (scrolling text via Tween, vault-boy AnimationState,
-    a Tween-driven progress bar) and makes `boot` the actual startup node."""
+def register(pipboy, tasks):
+    """Unlike every other top-level register(pipboy), boot also takes the
+    real module-loading task list (see registry.init_modules()) to hand to
+    loading.py -- boot owns the startup sequence, it isn't a navigable tab
+    (see registry.TOP_LEVEL). PipBoy.init_modules() enters boot.boot_text
+    directly unless config.SKIP_INTRO."""
     create_node("boot", "BOOT")
-    create_node("boot.boot_text", "BOOT_TEXT", parent="boot")
-    create_node("boot.pip_os", "PIP_OS", parent="boot")
-    create_node("boot.thumbs_up", "THUMBS_UP", parent="boot")
+    boot_text.register(pipboy)
+    loading.register(pipboy, tasks)
