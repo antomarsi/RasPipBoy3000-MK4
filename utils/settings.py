@@ -110,10 +110,5 @@ class ConfigSettings(BaseSettings):
         "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
     }
 
-    # TODO(Phase 5): MODULE_TEXTS is superseded by game/modules/registry.py's
-    # declarative module table and will be removed once every module reads
-    # its tab labels from there instead.
-    MODULE_TEXTS: list[str] = ["STAT", "INV", "DATA", "MAP", "RADIO"]
-
 
 config = ConfigSettings()

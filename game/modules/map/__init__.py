@@ -1,48 +1,56 @@
-
 from datetime import datetime
-from core.engine import Entity
-from game.modules import BaseModule, SubModule
-from game.ui import Footer, Header
+
+import esper
+
+from core.components import Active, Dirty, Layer, OwnedBy, Position, Renderable
+from core.resource_loader import ResourceLoader
+from game.data.store import theme
+from game.modules.registry import create_node
+from game.ui import UI_MARGIN, FooterState, render_text
 from utils.settings import config
 
-class Module(BaseModule):
+LOCAL_NODE_KEY = "map.local"
 
-    def __init__(self, pipboy, *sprites, **kwargs):
-        self.submodules = [
-            MapSubmodule(self)
-        ]
-        super().__init__(pipboy, *sprites, **kwargs)
-        self.header = Header(label=str(self), options=config.MODULE_TEXTS)
-        self.footer = Footer(["10.23.2287","6:02 PM", ("LOCAL MAP", 2)])
-        self.add(self.footer)
-        self.add(self.header)
-        self.switch_submodule(0)
 
-    def handle_resume(self):
-        self.switch_submodule(0)
-        return super().handle_resume()
+def register(pipboy):
+    create_node("map", "MAP")
+    create_node(LOCAL_NODE_KEY, "LOCAL", parent="map")
+    create_node("map.world", "WORLD", parent="map")
 
-    def get_time(self):
+    _register_local_footer()
+    _register_world_placeholder()
+
+
+def _register_local_footer():
+    footer_state = FooterState(sections=["", "", ("LOCAL MAP", 2)])
+    footer_ent = esper.create_entity(
+        Position(UI_MARGIN, config.HEIGHT - 45), Renderable(), Layer(5), Dirty(1),
+        footer_state, OwnedBy(LOCAL_NODE_KEY))
+    esper.add_processor(_ClockFooterProcessor(footer_ent), priority=32)
+
+
+def _register_world_placeholder():
+    font = ResourceLoader.get_font("MONOFONTO", 30)
+    image = render_text(font, "WORLD MAP", theme.draw_color)
+    esper.create_entity(
+        Position(UI_MARGIN, 92), Renderable(image=image), Layer(5), Dirty(1), OwnedBy("map.world"))
+
+
+class _ClockFooterProcessor(esper.Processor):
+    """Ports the old Map.update() override: keeps LOCAL's footer date/time
+    live while it's on screen. Priority 32 so it runs before UIRenderProcessor
+    (30) in the same frame -- otherwise a section change wouldn't be picked up
+    until the following frame."""
+
+    def __init__(self, footer_ent):
+        self.footer_ent = footer_ent
+
+    def process(self, dt):
+        if not esper.has_component(self.footer_ent, Active):
+            return
+        state = esper.component_for_entity(self.footer_ent, FooterState)
         now = datetime.now()
-        date = f"{now.strftime('%d')}.{now.strftime('%m')}.{now.strftime('%Y')}"
-        time = now.strftime("%H:%M:%S")
-        return date, time
-
-    def update(self, *args, **kwargs):
-        date, time = self.get_time()
-        if self.footer.update_section(0, date) or self.footer.update_section(1, time):
-            self.footer.render([0, 1])
-        return super().update(*args, **kwargs)
-
-    def __str__(self):
-        return "MAP"
-
-
-class MapSubmodule(SubModule):
-    def __init__(self, parent, *sprites, **kwargs):
-        super().__init__(parent, *sprites, **kwargs)
-
-
-class Map(Entity):
-    def __init__(self, dimensions=..., layer=0, *args, **kwargs):
-        super().__init__(dimensions, layer, *args, **kwargs)
+        changed_date = state.update_section(0, now.strftime("%d.%m.%Y"))
+        changed_time = state.update_section(1, now.strftime("%H:%M:%S"))
+        if changed_date or changed_time:
+            esper.component_for_entity(self.footer_ent, Dirty).state = 1

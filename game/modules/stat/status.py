@@ -1,186 +1,105 @@
-from core.engine import Entity
-from core.resource_loader import ResourceLoader
-from game.modules import SubModule
-from game.ui import Footer, ProgressBar
-from game.data.store import theme
-from utils.settings import config
 import pygame as pg
+import esper
+
+from core.components import AnimationState, Dirty, Layer, OwnedBy, Position, Renderable
+from core.resource_loader import ResourceLoader
+from game.data.store import theme
+from game.modules.registry import create_node
+from game.ui import UI_MARGIN, FooterState, ProgressBarState, render_progressbar
+from utils.settings import config
+
+NODE_KEY = "stat.status"
 
 
-class Module(SubModule):
-
-    def __init__(self, parent, *sprites, **kwargs):
-        super().__init__(parent, *sprites, **kwargs)
-        progressbar = ProgressBar(
-            (200, 29), value=26, max_value=100, border_width=2, margin=(0, 4, 0, 4))
-        self.footer = Footer(
-            ["HP 90/100", [["LEVEL 120", progressbar], 2], "AP 90/90"])
-        self.health = HealthContainer()
-        self.stimpak = BottomTextContainer("Stimpak")
-        self.radaway = BottomTextContainer("Radaway")
-
-        self.stimpak.rect.topleft = [50, config.HEIGHT - 79]
-        self.radaway.rect.topleft = [
-            50 + self.stimpak.rect.width + 14, config.HEIGHT - 79]
-
-        self.pipboy_anim = PipBoyHealthAnim()
-        self.pipboy_anim.rect.center = (
-            config.WIDTH * 0.5, config.HEIGHT * 0.45)
-
-        self.add(self.pipboy_anim)
-        self.add(self.stimpak)
-        self.add(self.radaway)
-        self.add(self.health)
-        self.add(self.footer)
-
-    def __str__(self):
-        return "STATUS"
+def register(pipboy):
+    create_node(NODE_KEY, "STATUS", parent="stat")
+    _register_footer()
+    _register_vaultboy_anim()
+    _register_bottom_text()
+    _register_health_bars()
 
 
-class PipBoyHealthAnim(Entity):
-
-    drugged = False
-    radiation = False
-
-    head_wounded = False
-    left_arm_wounded = False
-    left_leg_wounded = False
-    right_arm_wounded = False
-    right_leg_wounded = False
-
-    def __init__(self, color=theme.draw_color, bg_color=theme.bg_color):
-        super().__init__()
-        self.color = color
-        self.bg_color = bg_color
-
-        self.duration_per_frame = 0.2
-        self.start_frame = 0
-
-        self.current_anim_index = 0
-        self.body = [ResourceLoader.add_image(
-            f"body_ok_0_{x}", f"images/health_cond/icon_condition_body_0_{x}.png") for x in range(0, 8)]
-        self.head = ResourceLoader.add_image(
-            f"head_ok_0", f"images/health_cond/head_normal.png")
-        self.image = pg.Surface(
-            (self.body[0].get_width(), self.body[0].get_height() + self.head.get_height()))
-        self.rect = self.image.get_rect()
-        self.body_top = self.rect.height - self.body[0].get_height()
-
-        self.timer = 0
-        self.render()
-
-    def render(self):
-        self.image.fill(self.bg_color)
-        self.image.blit(self.head, (27, 10))
-        self.image.blit(self.body[self.current_anim_index], (0, self.body_top))
-        self.image.fill(self.color, special_flags=pg.BLEND_MULT)
-        self.dirty = 1
-
-    def update(self, deltatime=0):
-        self.timer += deltatime
-        new_frame = int(self.timer * 10) % len(self.body)
-        if new_frame != self.current_anim_index:
-            self.current_anim_index = new_frame
-            self.render()
+def _register_footer():
+    progressbar_image = render_progressbar(ProgressBarState(
+        dimensions=(200, 29), value=26, max_value=100, border_width=2, margin=(0, 4, 0, 4)))
+    footer_state = FooterState(sections=["HP 90/100", [["LEVEL 120", progressbar_image], 2], "AP 90/90"])
+    esper.create_entity(
+        Position(UI_MARGIN, config.HEIGHT - 45), Renderable(), Layer(5), Dirty(1),
+        footer_state, OwnedBy(NODE_KEY))
 
 
+def _build_vaultboy_frames(color):
+    body_frames = [
+        ResourceLoader.add_image(f"body_ok_0_{x}", f"images/health_cond/icon_condition_body_0_{x}.png")
+        for x in range(8)
+    ]
+    head = ResourceLoader.add_image("head_ok_0", "images/health_cond/head_normal.png")
+    body_w, body_h = body_frames[0].get_size()
+    total_h = body_h + head.get_height()
 
-class HealthContainer(Entity):
-    def __init__(self):
-        super().__init__((config.WIDTH * 0.8, config.HEIGHT - 172))
-        self.rect.top = 92
-        self.rect.left = config.WIDTH * 0.1
-        self.body_part_position = {
-            # "head":  ,
-            # "left_arm": 1,
-            # "right_arm": 1,
-            # "left_leg": 1,
-            # "right_leg": 1
-        }
-        self.init_body_parts()
-        self.render()
-
-    def init_body_parts(self):
-        # Head
-        self.body_part_position["head"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["head"].rect.centerx = self.image.get_rect(
-        ).centerx + 4
-        self.body_part_position["head"].rect.top = self.image.get_height(
-        ) * 0.06
-
-        # Left Arm
-        self.body_part_position["left_arm"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["left_arm"].rect.centerx = self.image.get_rect(
-        ).centerx * 0.63
-        self.body_part_position["left_arm"].rect.top = self.image.get_height(
-        ) * 0.3
-
-        # Left Leg
-        self.body_part_position["left_leg"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["left_leg"].rect.centerx = self.image.get_rect(
-        ).centerx * 0.63
-        self.body_part_position["left_leg"].rect.top = self.image.get_height(
-        ) * 0.61
-
-        # Right Arm
-        self.body_part_position["right_arm"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["right_arm"].rect.centerx = self.image.get_rect(
-        ).centerx * 1.38
-        self.body_part_position["right_arm"].rect.top = self.image.get_height(
-        ) * 0.3 + 1
-
-        # Right Leg
-        self.body_part_position["right_leg"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["right_leg"].rect.centerx = self.image.get_rect(
-        ).centerx * 1.38
-        self.body_part_position["right_leg"].rect.top = self.image.get_height(
-        ) * 0.61 + 1
-
-        # Full
-        self.body_part_position["full"] = ProgressBar(
-            (32, 9), value=100, max_value=100, border_width=1)
-        self.body_part_position["full"].rect.centerx = self.image.get_rect(
-        ).centerx + 4
-        self.body_part_position["full"].rect.top = self.image.get_height(
-        ) * 0.72 + 14
-
-    def render(self):
-        global playerStatus
-
-        for e in self.body_part_position.values():
-            self.image.blit(e.image, e.rect.topleft)
+    frames = []
+    for body in body_frames:
+        surface = pg.Surface((body_w, total_h))
+        surface.blit(head, (27, 10))
+        surface.blit(body, (0, total_h - body_h))
+        surface.fill(color, special_flags=pg.BLEND_MULT)
+        frames.append(surface)
+    return frames
 
 
-class BottomTextContainer(Entity):
-    def __init__(self, text: str, quantity=0, color=theme.draw_color):
-        super().__init__()
-        self.text = text.upper()
-        self.font = ResourceLoader.get_font("MONOFONTO", 24)
-        self._quantity = quantity
-        self.bg_color = (color[0] * 0.75, color[1] * 0.75, color[2] * 0.75)
-        self.color = (color[0] * 0.5, color[1] * 0.5, color[2] * 0.5)
-        self.render()
-        self.rect = self.image.get_rect()
+def _register_vaultboy_anim():
+    frames = _build_vaultboy_frames(theme.draw_color)
+    body_w, total_h = frames[0].get_size()
+    x = config.WIDTH * 0.5 - body_w / 2
+    y = config.HEIGHT * 0.45 - total_h / 2
+    esper.create_entity(
+        Position(x, y), Renderable(image=frames[0]), Layer(5), Dirty(2),
+        AnimationState(frames=frames, duration_per_frame=0.1, loop=True, playing=True),
+        OwnedBy(NODE_KEY))
 
-    @property
-    def quantity(self):
-        return self._quantity
 
-    @quantity.setter
-    def quantity(self, quantity):
-        self._quantity = quantity
-        self.render()
+def _render_bottom_text(font, text, quantity, color):
+    bg_color = tuple(c * 0.75 for c in color)
+    text_color = tuple(c * 0.5 for c in color)
+    text_surface = font.render(f"{text.upper()}({quantity})", True, text_color)
+    image = pg.Surface((text_surface.get_width() + 7, text_surface.get_height()))
+    image.fill(bg_color)
+    image.blit(text_surface, (4, -1))
+    return image
 
-    def render(self):
-        text = self.font.render(
-            f"{self.text}({self.quantity})", True, self.color)
-        self.image = pg.Surface((text.get_width() + 7, text.get_height()))
-        self.image.fill(self.bg_color)
-        self.image.blit(text, (4, -1))
-        self.rect = self.image.get_rect()
-        self.dirty = 1
+
+def _register_bottom_text():
+    font = ResourceLoader.get_font("MONOFONTO", 24)
+    color = theme.draw_color
+
+    stimpak_image = _render_bottom_text(font, "Stimpak", 0, color)
+    stim_x, stim_y = 50, config.HEIGHT - 79
+    esper.create_entity(Position(stim_x, stim_y), Renderable(image=stimpak_image), Layer(5), Dirty(1), OwnedBy(NODE_KEY))
+
+    radaway_image = _render_bottom_text(font, "Radaway", 0, color)
+    radaway_x = stim_x + stimpak_image.get_width() + 14
+    esper.create_entity(Position(radaway_x, stim_y), Renderable(image=radaway_image), Layer(5), Dirty(1), OwnedBy(NODE_KEY))
+
+
+def _register_health_bars():
+    left, top = config.WIDTH * 0.1, 92
+    width, height = config.WIDTH * 0.8, config.HEIGHT - 172
+    bar_size = (32, 9)
+    half_width = width / 2
+
+    # (local centerx, local top) within the old HealthContainer's rect,
+    # translated to absolute screen positions below.
+    local_positions = [
+        (half_width + 4, height * 0.06),        # head
+        (half_width * 0.63, height * 0.3),      # left arm
+        (half_width * 0.63, height * 0.61),     # left leg
+        (half_width * 1.38, height * 0.3 + 1),  # right arm
+        (half_width * 1.38, height * 0.61 + 1), # right leg
+        (half_width + 4, height * 0.72 + 14),   # full body
+    ]
+
+    for local_centerx, local_top in local_positions:
+        image = render_progressbar(ProgressBarState(dimensions=bar_size, value=100, max_value=100, border_width=1))
+        x = left + local_centerx - bar_size[0] / 2
+        y = top + local_top
+        esper.create_entity(Position(x, y), Renderable(image=image), Layer(5), Dirty(1), OwnedBy(NODE_KEY))

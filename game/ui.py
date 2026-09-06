@@ -1,15 +1,14 @@
 """Pure-data UI widgets for the ECS render pipeline.
 
-Each *State dataclass below is the state-only counterpart of a sprite class in
-game/ui/__init__.py (Header, SubMenu, Footer, Menu, ProgressBar). A *State
-holds only the values needed to draw a widget; UIRenderProcessor turns a state
-change into a rebuilt Renderable.image whenever the owning entity's Dirty is
-armed. Mutating a *State in place does NOT redraw by itself -- the mutator
-must also arm Dirty (e.g. `esper.add_component(footer_ent, Dirty(1))`), same
-convention used by the rest of the ECS (see core/processors.py).
+Each *State dataclass below is a widget's state; UIRenderProcessor turns a
+state change into a rebuilt Renderable.image whenever the owning entity's
+Dirty is armed. Mutating a *State in place does NOT redraw by itself -- the
+mutator must also arm Dirty (e.g. `esper.add_component(footer_ent, Dirty(1))`),
+same convention used by the rest of the ECS (see core/processors.py).
 
-The old sprite classes stay in game/ui/__init__.py until every module is
-ported off them (Phase 5) -- this module is additive, not a replacement yet.
+Supersedes the old sprite-based Header/SubMenu/Footer/Menu/ProgressBar classes
+(deleted in Phase 5 along with core.engine.Entity/EntityGroup and
+game.modules.BaseModule/SubModule -- see the architecture plan).
 """
 from dataclasses import dataclass, field
 from typing import Optional
@@ -20,9 +19,10 @@ import pygame as pg
 from core.components import Dirty, Renderable
 from core.resource_loader import ResourceLoader
 from game.data.store import theme
-from game.ui import UI_MARGIN
 from utils.layout import layout_flex_row
 from utils.settings import config
+
+UI_MARGIN = 14
 
 
 @dataclass
@@ -76,6 +76,25 @@ class ProgressBarState:
     bg_color: tuple = (0, 0, 0, 0)
     border_width: int = 1
     margin: tuple = (0, 0, 0, 0)
+
+
+def render_text(font, text: str, color, bg_color=theme.bg_color) -> pg.Surface:
+    """A standalone label, pre-flattened onto an opaque background.
+
+    RenderProcessor composites everything with additive blending (to match
+    the app's CRT-glow look -- see core/processors.py), which does NOT weigh
+    by source alpha. A bare `font.render(...)` result has a transparent
+    background with partially-transparent anti-aliased edges, and additive
+    blending an unweighted anti-aliased image paints every touched pixel at
+    full brightness -- text reads as a solid blob instead of glyphs. Baking
+    the text onto an opaque surface first (like every other widget in this
+    module already does) resolves the anti-aliasing before the additive
+    compositing step, avoiding that."""
+    text_surface = font.render(text, True, color)
+    image = pg.Surface(text_surface.get_size())
+    image.fill(bg_color)
+    image.blit(text_surface, (0, 0))
+    return image
 
 
 def render_header(state: HeaderState) -> pg.Surface:

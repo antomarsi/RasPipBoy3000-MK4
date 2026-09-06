@@ -106,3 +106,4 @@ cache/
 .cache-*
 .vscode/PythonImportHelper-v2-Completion.json
 temp/
+CLAUDE.md

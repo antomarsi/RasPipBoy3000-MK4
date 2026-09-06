@@ -1,14 +1,9 @@
 import pygame as pg
-from typing import List, Union
-
-from core.engine import Entity
+from typing import List
 
 
-def scale_surface_keep_aspect(surface, max_width=None, max_height=None):
-    if isinstance(surface, pg.Surface):
-        orig_width, orig_height = surface.get_size()
-    else:
-        orig_width, orig_height = surface.rect.size
+def scale_surface_keep_aspect(surface: pg.Surface, max_width=None, max_height=None):
+    orig_width, orig_height = surface.get_size()
 
     if max_width is None and max_height is None:
         return surface  # No scaling needed
@@ -33,7 +28,7 @@ def scale_surface_keep_aspect(surface, max_width=None, max_height=None):
     return pg.transform.smoothscale(surface, (scale_w, scale_h))
 
 
-def layout_flex_row(surfaces: List[Union[pg.Surface, Entity]], container_rect: pg.Rect, spacing=0):
+def layout_flex_row(surfaces: List[pg.Surface], container_rect: pg.Rect, spacing=0):
     final_surface = pg.Surface(container_rect.size, pg.SRCALPHA)
     total_fixed_width = 0
     flex_surfaces_indexes = []
@@ -52,13 +47,10 @@ def layout_flex_row(surfaces: List[Union[pg.Surface, Entity]], container_rect: p
         flex_width = max(0, remaining_width // flex_count)
         for index, fs in enumerate(surfaces):
             if index in flex_surfaces_indexes:
-                if isinstance(fs, Entity) and hasattr(fs, "on_flex"):
-                    fs.on_flex((flex_width, container_rect.height))
-                else:
-                    fs = scale_surface_keep_aspect(
-                        fs,
-                        flex_width, container_rect.height
-                    )
+                fs = scale_surface_keep_aspect(
+                    fs,
+                    flex_width, container_rect.height
+                )
 
     x = final_surface.get_rect().left
     for fs in surfaces:
@@ -96,12 +88,3 @@ def layout_flex_row_sizes(surfaces: List[pg.Surface], container_rect: pg.Rect, s
         sizes.append(fs.get_size())
 
     return sizes
-
-def load_svg(filename, width, height, color):
-    image = pg.image.load(filename).convert_alpha()
-    size = image.get_size()
-    scale = min(width / size[0], height / size[1])
-    if size[1] != height:
-        image = pg.transform.smoothscale(image, (round(size[0] * scale), round(size[1] * scale)))
-    image.fill(color, None, pg.BLEND_RGB_MULT)
-    return image

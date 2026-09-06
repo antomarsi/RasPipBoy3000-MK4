@@ -69,3 +69,24 @@ class AutoScroll:
     speed: float = 100.0
     min_y: float = -130.0
     max_y: float = 540.0
+
+
+@dataclass
+class Node:
+    """A node in the module tree: a top-level tab, a submodule, or (not
+    exercised by any real content yet) a level below that. Depth is just how
+    many `parent` links you follow -- there is no separate "module" vs
+    "submodule" type. See game/modules/registry.py."""
+    key: str
+    parent: Optional[str] = None
+    children: list = field(default_factory=list)
+    active_child: int = -1
+    background: bool = False
+
+
+@dataclass
+class OwnedBy:
+    """Tags a visual entity as belonging to a Node, so switch_node() can
+    activate/deactivate every entity a node owns as a group without each one
+    needing to be the Node's own entity."""
+    node: str

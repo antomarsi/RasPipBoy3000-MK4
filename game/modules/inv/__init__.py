@@ -1,20 +1,33 @@
+from core.components import Dirty, Layer, Position, Renderable
+from game.data import catalog
+from game.data.store import INVENTORY_CATEGORIES, save_data
+from game.modules.registry import create_node
+from game.ui import UI_MARGIN, MenuState
 
-from game.modules import BaseModule
-from game.ui import Footer, Header
-from utils.settings import config
+# category -> its catalog dict (baseid -> item). No per-item right panel or
+# weight/caps totals yet -- title-only lists, see the plan's "Explicitly out
+# of scope" section.
+CATALOGS = {
+    "weapons": catalog.weapons,
+    "apparel": catalog.apparel,
+    "aid": catalog.aid,
+    "misc": catalog.misc,
+    "junk": catalog.junk,
+    "mods": catalog.mods,
+    "ammo": catalog.ammo,
+}
 
 
-class Module(BaseModule):
+def register(pipboy):
+    create_node("inv", "INV")
+    for category in INVENTORY_CATEGORIES:
+        _register_category(category)
 
-    def __init__(self, pipboy, *sprites, **kwargs):
-        self.submodules = [
-        ]
-        super().__init__(pipboy, *sprites, **kwargs)
-        self.header = Header(label=str(self), options=config.MODULE_TEXTS)
-        self.footer = Footer([])
-        self.add(self.footer)
-        self.add(self.header)
-        self.switch_submodule(0)
 
-    def __str__(self):
-        return "INV"
+def _register_category(category):
+    owned_items = save_data.inventory.get(category, [])
+    catalog_map = CATALOGS[category]
+    titles = [catalog_map[item.baseid]["title"] for item in owned_items if item.baseid in catalog_map]
+    create_node(f"inv.{category}", category.upper(), parent="inv", components=[
+        Position(UI_MARGIN, 92), Renderable(), Layer(5), Dirty(1), MenuState(items=titles),
+    ])

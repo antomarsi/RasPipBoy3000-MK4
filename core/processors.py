@@ -1,4 +1,5 @@
 import esper
+import pygame as pg
 import pytweening
 
 from core.components import Active, AnimationState, AutoScroll, Dirty, Layer, Position, Renderable, Tween
@@ -78,11 +79,13 @@ class RenderProcessor:
     Engine.render().
     """
 
-    def __init__(self, screen):
+    def __init__(self, screen, bg_color=(0, 0, 0)):
         self.screen = screen
+        self.bg_color = bg_color
         self.dirty_this_frame = False
 
     def process(self):
+        self.screen.fill(self.bg_color)
         entities = [
             (layer.order, ent, pos, renderable)
             for ent, (pos, renderable, layer) in esper.get_components(Position, Renderable, Layer)
@@ -93,7 +96,13 @@ class RenderProcessor:
         self.dirty_this_frame = False
         rects = []
         for _, ent, pos, renderable in entities:
-            rects.append(self.screen.blit(renderable.image, (pos.x, pos.y)))
+            # Additive blending, matching the app's CRT-glow look: every
+            # sprite in the pre-ECS system blitted this way by default (see
+            # the old core.engine.Entity.blendmode), which is what lets a
+            # near-black, fully-opaque texture like the scanline/overlay
+            # effect sit on top of content as a subtle brightness pattern
+            # instead of occluding it outright.
+            rects.append(self.screen.blit(renderable.image, (pos.x, pos.y), special_flags=pg.BLEND_RGBA_ADD))
             dirty = esper.try_component(ent, Dirty)
             if dirty and dirty.state != 0:
                 self.dirty_this_frame = True

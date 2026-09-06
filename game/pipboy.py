@@ -2,7 +2,7 @@ import esper
 import pygame as pg
 from pygame.locals import *
 from game.data.store import save_data, save_save
-from game.modules import stat, inv, data, radio, map as pipmap, boot
+from game.modules import registry
 from utils.settings import config
 from utils.layout import scale_surface_keep_aspect
 from core.components import Active, AutoScroll, Dirty, Layer, Position, Renderable
@@ -18,15 +18,12 @@ IDLE_THRESHOLD_TICKS = 30  # frames with nothing dirty before dropping to IDLE_F
 
 
 class PipBoy(Engine):
-    current_submodule = 0
-    modules = {}
 
     def __init__(self, framerate=30, *args, **kwargs):
         logger.debug("Initializing PipBoy Engine")
         super().__init__(*args, **kwargs)
         self.clock = pg.time.Clock()
         self.framerate = framerate
-        self.active = None
         self._time_since_save = 0.0
         self._idle_ticks = 0
 
@@ -89,33 +86,9 @@ class PipBoy(Engine):
         )
         logger.debug("Childs initialized")
 
-    def init_full_modules(self):
-        self.modules["inv"] = inv.Module(self)
-        self.modules["stat"] = stat.Module(self)
-        self.modules["map"] = pipmap.Module(self)
-        self.modules["radio"] = radio.Module(self)
-        self.modules["data"] = data.Module(self)
-
     def init_modules(self):
-        logger.debug("Initializing Modules")
-        self.modules = {
-            "boot": boot.Module(self)
-        }
-        self.init_full_modules()
-
-        self.switch_module("map")
-
-    def switch_module(self, module):
-        if module in self.modules:
-            if self.active:
-                self.active.handle_action("pause")
-                self.remove(self.active)
-            self.active = self.modules[module]
-            self.active.parent = self
-            self.active.handle_resume()
-            self.add(self.active)
-        else:
-            raise Exception(f"Module {module} not implemented")
+        registry.init_modules(self)
+        registry.switch_module(config.STARTUP_MODULE)
 
     def init_gpio_controls(self):
         for pin in config.GPIO_ACTIONS.keys():
@@ -130,11 +103,7 @@ class PipBoy(Engine):
                 self.handle_action(self.gpio_actions[pin])
 
     def handle_action(self, action):
-        if action.startswith('module_'):
-            self.switch_module(action[7:])
-        else:
-            if self.active:
-                self.active.handle_action(action)
+        registry.handle_action(action)
 
     def handle_event(self, event):
         super().handle_event(event)
@@ -149,14 +118,6 @@ class PipBoy(Engine):
                 self.handle_action(config.ACTIONS[event.key])
         elif event.type == pg.QUIT:
             self.running = False
-        # elif event.type == config.EVENTS['SONG_END']
-        if self.active and self.running:
-            self.active.handle_event(event)
-
-    def update(self, deltatime):
-        if self.active and self.running:
-            self.active.update(deltatime)
-        return super().update(deltatime)
 
     def run(self):
         self.running = True

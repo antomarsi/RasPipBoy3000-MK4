@@ -1,114 +1,58 @@
+import esper
 
-from game.modules import BaseModule, SubModule
-from game.ui import Footer, Header, Menu
-from game.data.store import theme
-from utils.settings import config
-import pygame as pg
+from core.components import Active, Dirty, Layer, Position, Renderable, Running
+from game.modules.registry import create_node
+from game.ui import UI_MARGIN, MenuState
+from utils.logger import logger
 
+NODE_KEY = "radio"
+STATIONS_NODE_KEY = "radio.stations"
 
-class Module(BaseModule):
-
-    def __init__(self, pipboy, *sprites, **kwargs):
-        self.submodules = [
-            RadioSubModule(self)
-        ]
-        super().__init__(pipboy, *sprites, **kwargs)
-        self.header = Header(label=str(self), options=config.MODULE_TEXTS)
-        self.footer = Footer([""])
-        self.add(self.footer)
-        self.add(self.header)
-
-    def handle_resume(self):
-        self.switch_submodule(0)
-        return super().handle_resume()
-
-
-
-    def __str__(self):
-        return "RADIO"
+# Hard-coded placeholder list -- Phase 7 reads real station labels from
+# config.RADIOS instead (see the plan).
+STATIONS = [
+    "1 Classical Radio",
+    "2 Diamond City Radio",
+    "3 Diamond City Radio",
+    "4 Diamond City Radio",
+    "5 Diamond City Radio",
+    "6 Diamond City Radio",
+    "7 Diamond City Radio",
+    "8 Diamond City Radio",
+    "9 Diamond City Radio",
+    "10 Diamond City Radio",
+    "11 Diamond City Radio",
+]
 
 
-class RadioSubModule(SubModule):
-
-    def __init__(self, parent, *sprites, **kwargs):
-        super().__init__(parent, *sprites, **kwargs)
-        radios = [
-            "1 Classical Radio",
-            "2 Diamond City Radio",
-            "3 Diamond City Radio",
-            "4 Diamond City Radio",
-            "5 Diamond City Radio",
-            "6 Diamond City Radio",
-            "7 Diamond City Radio",
-            "8 Diamond City Radio",
-            "9 Diamond City Radio",
-            "10 Diamond City Radio",
-            "11 Diamond City Radio",
-        ]
-        self.radio_menu = RadioMenu(radios, max_items=9)
-        self.add(self.radio_menu)
-
-    def handle_event(self, event):
-        if event.type == pg.KEYDOWN:
-            if event.key == pg.K_UP:
-                self.radio_menu.select(self.radio_menu.selected - 1)
-            elif event.key == pg.K_DOWN:
-                self.radio_menu.select(self.radio_menu.selected + 1)
-        return super().handle_event(event)
-
-    def __str__(self):
-        return ""
+def register(pipboy):
+    node_ent = create_node(NODE_KEY, "RADIO", background=True)
+    menu_ent = create_node(STATIONS_NODE_KEY, "", parent=NODE_KEY, background=True, components=[
+        Position(UI_MARGIN, 92), Renderable(), Layer(5), Dirty(1), MenuState(items=STATIONS, max_items=9),
+    ])
+    esper.add_processor(_RadioTickProcessor(node_ent, menu_ent), priority=10)
 
 
-class RadioMenu(Menu):
-    radio_grid = None
+class _RadioTickProcessor(esper.Processor):
+    """Proves the background mechanism: RADIO is `background=True`, so it
+    keeps its `Running` tag (and this keeps ticking) even while another tab
+    is Active. Logs the current "station" every 5s -- no real audio, see the
+    plan's "Explicitly out of scope" section."""
 
-    def __init__(self, items=..., callback=..., selected=0, color=theme.draw_color, bg_color=theme.bg_color, max_items=7):
-        super().__init__(items, callback, selected, color, bg_color, max_items)
-        self.generate_radio_grid()
-        self.render()
+    def __init__(self, node_ent, menu_ent):
+        self.node_ent = node_ent
+        self.menu_ent = menu_ent
+        self._elapsed = 0.0
 
-    def generate_radio_grid(self):
-        self.radio_grid = pg.Surface(
-            (self.rect.width*0.3, self.rect.width*0.3))
-        radio_grid_rect = self.radio_grid.get_rect()
-        bottom = radio_grid_rect.height
-        right = radio_grid_rect.width
+    def process(self, dt):
+        if not esper.has_component(self.node_ent, Running):
+            return
+        self._elapsed += dt
+        if self._elapsed < 5.0:
+            return
+        self._elapsed = 0.0
 
-        pg.draw.lines(self.radio_grid, self.soft_color,
-                      False, [(0, bottom - 2), (right-2, bottom - 2), (right - 2, 0)], 2)
-        long_line = 8
-        long_lines = 9
-        short_line = 6
-        short_lines = long_lines * 4
-        line_start = 0
-
-        line_x = int(bottom / long_lines)
-        short_line_x = line_x / 3
-
-        short_line_start = 0
-        for i in range(3):
-            pg.draw.line(self.radio_grid, self.soft_color, (short_line_start,
-                         bottom), (short_line_start, bottom - short_line), 1)
-            pg.draw.line(self.radio_grid, self.soft_color, (right,
-                         short_line_start), (right - short_line, short_line_start), 1)
-            short_line_start += short_line_x
-
-        for _ in range(long_lines):
-            line_start += line_x
-            short_line_start = line_start
-            for i in range(3):
-                pg.draw.line(self.radio_grid, self.soft_color, (short_line_start,
-                             bottom), (short_line_start, bottom - short_line), 1)
-                pg.draw.line(self.radio_grid, self.soft_color, (right,
-                             short_line_start), (right - short_line, short_line_start), 1)
-                short_line_start += short_line_x
-            pg.draw.line(self.radio_grid, self.soft_color, (line_start,
-                         bottom), (line_start, bottom - long_line), 1)
-            pg.draw.line(self.radio_grid, self.soft_color, (right,
-                         line_start), (right - long_line, line_start), 1)
-
-    def render(self):
-        super().render()
-        if self.radio_grid:
-            self.image.blit(self.radio_grid, (self.rect.width*0.65, 0))
+        menu_state = esper.component_for_entity(self.menu_ent, MenuState)
+        station = menu_state.items[menu_state.selected] if menu_state.items else "(no station)"
+        in_background = not esper.has_component(self.node_ent, Active)
+        logger.debug(f"[RADIO] now playing: {station} (backgrounded: {in_background})")
