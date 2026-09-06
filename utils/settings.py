@@ -20,7 +20,7 @@ class ConfigSettings(BaseSettings):
 
     FRAMERATE: int = 60
     IDLE_FRAMERATE: int = 15
-    STARTUP_MODULE: str = "map"
+    STARTUP_MODULE: str = "stat"
 
     # Visual theme (draw/tint/background colors) lives in the save-data store
     # (game/data/store.py's ThemeSettings), not here — it's user-changeable

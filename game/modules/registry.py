@@ -189,6 +189,8 @@ def _dispatch_menu_action(action: str):
         dirty = esper.try_component(ent, Dirty)
         if dirty is not None:
             dirty.state = 1
+        if menu_state.on_change:
+            menu_state.on_change(menu_state.selected)
 
 
 def handle_action(action: str):

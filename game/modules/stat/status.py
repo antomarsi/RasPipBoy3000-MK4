@@ -5,7 +5,7 @@ from core.components import AnimationState, Dirty, Layer, OwnedBy, Position, Ren
 from core.resource_loader import ResourceLoader
 from game.data.store import theme
 from game.modules.registry import create_node
-from game.ui import UI_MARGIN, FooterState, ProgressBarState, render_progressbar
+from game.ui import ProgressBarState, render_progressbar
 from utils.settings import config
 
 NODE_KEY = "stat.status"
@@ -13,19 +13,9 @@ NODE_KEY = "stat.status"
 
 def register(pipboy):
     create_node(NODE_KEY, "STATUS", parent="stat")
-    _register_footer()
     _register_vaultboy_anim()
     _register_bottom_text()
     _register_health_bars()
-
-
-def _register_footer():
-    progressbar_image = render_progressbar(ProgressBarState(
-        dimensions=(200, 29), value=26, max_value=100, border_width=2, margin=(0, 4, 0, 4)))
-    footer_state = FooterState(sections=["HP 90/100", [["LEVEL 120", progressbar_image], 2], "AP 90/90"])
-    esper.create_entity(
-        Position(UI_MARGIN, config.HEIGHT - 45), Renderable(), Layer(5), Dirty(1),
-        footer_state, OwnedBy(NODE_KEY))
 
 
 def _build_vaultboy_frames(color):

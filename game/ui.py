@@ -11,7 +11,7 @@ Supersedes the old sprite-based Header/SubMenu/Footer/Menu/ProgressBar classes
 game.modules.BaseModule/SubModule -- see the architecture plan).
 """
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Callable, Optional
 
 import esper
 import pygame as pg
@@ -59,12 +59,21 @@ class FooterState:
 
 @dataclass
 class MenuState:
+    # Each item is either a plain label (str) or a (label, value) tuple --
+    # value renders right-aligned in the same row (e.g. a SPECIAL stat's
+    # score, or a future INV item's weight).
     items: list = field(default_factory=list)
     selected: int = 0
     index: int = 0
     max_items: int = 7
     color: tuple = theme.draw_color
     bg_color: tuple = theme.bg_color
+    # Called with the new `selected` index after dial_up/dial_down actually
+    # changes it (see registry._dispatch_menu_action) -- for a menu whose
+    # selection drives other on-screen content (SPECIAL's animation +
+    # description), same "component carries an optional callback" pattern as
+    # AnimationState/Tween's on_complete.
+    on_change: Optional[Callable[[int], None]] = None
 
 
 @dataclass
@@ -228,14 +237,19 @@ def render_footer(state: FooterState) -> pg.Surface:
     return image
 
 
-def _render_menu_item(font, soft_color, bg_color, menu_width, item_height, text, selected):
+def _render_menu_item(font, soft_color, bg_color, menu_width, item_height, item, selected):
+    label, value = item if isinstance(item, tuple) else (item, None)
     surface = pg.Surface((menu_width * 0.55, item_height))
     text_color = soft_color
     if selected:
         text_color = bg_color
         surface.fill(soft_color)
-    font_surf = font.render(text, True, text_color)
-    surface.blit(font_surf, (20, surface.get_rect().centery - font_surf.get_height() / 2))
+    label_surf = font.render(label, True, text_color)
+    surface.blit(label_surf, (20, surface.get_rect().centery - label_surf.get_height() / 2))
+    if value is not None:
+        value_surf = font.render(str(value), True, text_color)
+        value_x = surface.get_width() - value_surf.get_width() - 20
+        surface.blit(value_surf, (value_x, surface.get_rect().centery - value_surf.get_height() / 2))
     return surface
 
 
