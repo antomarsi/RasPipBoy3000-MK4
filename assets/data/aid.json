@@ -1,0 +1,10 @@
+[
+    {
+        "baseid":"0001eeca",
+        "title":"Stimpak",
+        "image": "img/aid/stimpak.png",
+        "weight": 0.1,
+        "value": 40,
+        "heal_amount": 100
+    }
+]

@@ -2,6 +2,7 @@ from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from typing import Union
 from utils.settings import config
+from game.data.store import theme
 import pygame as pg
 from os.path import join
 
@@ -12,7 +13,7 @@ UI_MARGIN = 14
 
 class Header(Entity):
 
-    def __init__(self, label=None, options=[], color=config.DRAW_COLOR, bg_color=config.BG_COLOR):
+    def __init__(self, label=None, options=[], color=theme.draw_color, bg_color=theme.bg_color):
         super().__init__((config.WIDTH-(UI_MARGIN*2), 60))
         self.rect[0] = UI_MARGIN
         self._label = label
@@ -93,7 +94,7 @@ class Header(Entity):
 class SubMenu(Entity):
     options = []
 
-    def __init__(self, options=[], color=config.DRAW_COLOR, bg_color=config.BG_COLOR, active_index=0):
+    def __init__(self, options=[], color=theme.draw_color, bg_color=theme.bg_color, active_index=0):
         super().__init__((config.WIDTH - 80, 32))
         self.color = color
         self.bg_color = bg_color
@@ -135,38 +136,8 @@ class SubMenu(Entity):
             margin += text_sur.get_width() + 18
 
 
-class Scanlines(Entity):
-    _layer = 11
-
-    def __init__(self, size=(config.WIDTH, 129), height=config.HEIGHT):
-        super().__init__(size)
-        self.height = height
-        self.image = ResourceLoader.add_image(
-            "scanline", "images/scanline.png")
-        self.rectimage = self.image.get_rect()
-        self.rect[1] = 0
-        self.top = -130
-        self.speed = 100
-        self.prev_time = 0
-
-    def update(self, deltatime=0, *args, **kwargs):
-        self.top += self.speed * deltatime
-        if self.top >= self.height + 130:
-            self.top = -130
-        self.rect[1] = self.top
-        super().update(deltatime, *args, **kwargs)
-
-
-class Overlay(Entity):
-    _layer = 10
-
-    def __init__(self):
-        super().__init__()
-        self.image = ResourceLoader.add_image("overlay", "images/overlay.png")
-
-
 class Footer(Entity):
-    def __init__(self, sections=[], color=config.DRAW_COLOR, bg_color=config.BG_COLOR):
+    def __init__(self, sections=[], color=theme.draw_color, bg_color=theme.bg_color):
         super(Footer, self).__init__((config.WIDTH - UI_MARGIN * 2, 30))
         self.color = color
         self.box_color = color
@@ -244,7 +215,7 @@ class Footer(Entity):
 class ProgressBar(Entity):
     _value = 0
 
-    def __init__(self, dimensions, font=None, color=config.DRAW_COLOR, bg_color=(0, 0, 0, 0), value=0, max_value=1, border_width=1, text_format="{0}", margin=(0, 0, 0, 0)):
+    def __init__(self, dimensions, font=None, color=theme.draw_color, bg_color=(0, 0, 0, 0), value=0, max_value=1, border_width=1, text_format="{0}", margin=(0, 0, 0, 0)):
         super().__init__(dimensions)
         self.image = self.image.convert_alpha()
         self._value = value
@@ -304,17 +275,8 @@ class ProgressBar(Entity):
         pg.draw.rect(self.image, self.color, draw_rect, self.border_width)
 
 
-class ReferenceImage(Entity):
-    def __init__(self, surf: pg.Surface):
-        super().__init__()
-        self.image = scale_surface_keep_aspect(ResourceLoader.add_image(
-            "debug", "../temp/menu1.png"), None, surf.get_height()+8)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = surf.get_rect().centerx
-
-
 class Menu(Entity):
-    def __init__(self, items=[], callback=[], selected=0, color=config.DRAW_COLOR, bg_color=config.BG_COLOR, max_items = 7):
+    def __init__(self, items=[], callback=[], selected=0, color=theme.draw_color, bg_color=theme.bg_color, max_items = 7):
         super().__init__((config.WIDTH - UI_MARGIN*2, config.HEIGHT - 172))
         self.items = items
         self.color = color

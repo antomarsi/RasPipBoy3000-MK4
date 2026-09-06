@@ -1,0 +1,10 @@
+[
+    {
+        "baseid":"0003a1cb",
+        "title":"Holotape: Automatron",
+        "image": "img/misc/holotape.png",
+        "weight": 0.1,
+        "value": 5,
+        "kind": "holotape"
+    }
+]

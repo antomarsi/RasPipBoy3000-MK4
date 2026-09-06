@@ -1,0 +1,10 @@
+[
+    {
+        "baseid":"0004835f",
+        "title":"Duct Tape",
+        "image": "img/junk/duct_tape.png",
+        "weight": 0.1,
+        "value": 1,
+        "components": ["Adhesive"]
+    }
+]

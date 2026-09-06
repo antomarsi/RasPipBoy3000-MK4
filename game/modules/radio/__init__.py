@@ -1,6 +1,7 @@
 
 from game.modules import BaseModule, SubModule
 from game.ui import Footer, Header, Menu
+from game.data.store import theme
 from utils.settings import config
 import pygame as pg
 
@@ -62,7 +63,7 @@ class RadioSubModule(SubModule):
 class RadioMenu(Menu):
     radio_grid = None
 
-    def __init__(self, items=..., callback=..., selected=0, color=config.DRAW_COLOR, bg_color=config.BG_COLOR, max_items=7):
+    def __init__(self, items=..., callback=..., selected=0, color=theme.draw_color, bg_color=theme.bg_color, max_items=7):
         super().__init__(items, callback, selected, color, bg_color, max_items)
         self.generate_radio_grid()
         self.render()

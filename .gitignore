@@ -79,6 +79,9 @@ celerybeat-schedule
 # dotenv
 .env
 
+# save data (per-device runtime state; save/state.example.json stays tracked)
+save/state.json
+
 # virtualenv
 .venv/
 venv/

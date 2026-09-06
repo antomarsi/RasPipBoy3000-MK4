@@ -1,0 +1,60 @@
+{
+  "theme": {
+    "draw_color": "00c800",
+    "tint_color": "00c800",
+    "bg_color": "000000"
+  },
+  "player": {
+    "name": "Antomarsi",
+    "level": 1,
+    "total_exp": 100,
+    "next_level_xp": 201,
+    "current_ap": 140,
+    "max_ap": 140,
+    "current_hp": 82,
+    "max_hp": 85,
+    "strenght": 2,
+    "perception": 9,
+    "endurance": 1,
+    "charisma": 1,
+    "inteligence": 2,
+    "agility": 8,
+    "luck": 6,
+    "radiaton": 0,
+    "drugs": false,
+    "body_parts": {
+      "head": 1,
+      "left_arm": 1,
+      "right_arm": 1,
+      "left_leg": 1,
+      "right_leg": 1
+    }
+  },
+  "inventory": {
+    "weapons": [
+      { "baseid": "00004822", "qtd": 1, "fav": false, "eqp": true }
+    ],
+    "apparel": [
+      { "baseid": "0022da6a", "qtd": 1, "fav": false, "eqp": true }
+    ],
+    "aid": [
+      { "baseid": "0001eeca", "qtd": 3, "fav": false, "eqp": false }
+    ],
+    "misc": [],
+    "junk": [],
+    "mods": [],
+    "ammo": [
+      { "baseid": "0001f276", "qtd": 24, "fav": false, "eqp": false }
+    ]
+  },
+  "perks": [
+    { "baseid": "gunnut", "rank": 1 }
+  ],
+  "quests": [
+    { "title": "A New Threat", "status": "active", "objectives": ["Investigate the signal"] }
+  ],
+  "workshops": [
+    { "name": "Sanctuary Hills", "population": 5, "happiness": 80 }
+  ],
+  "location": "Sanctuary Hills"
+}

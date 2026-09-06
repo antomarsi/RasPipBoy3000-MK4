@@ -1,15 +1,20 @@
+import esper
 import pygame as pg
 from pygame.locals import *
-from game.data.player import PlayerStatus
+from game.data.store import save_data, save_save
 from game.modules import stat, inv, data, radio, map as pipmap, boot
-from game.ui import Overlay, ReferenceImage, Scanlines
 from utils.settings import config
+from utils.layout import scale_surface_keep_aspect
+from core.components import Active, AutoScroll, Dirty, Layer, Position, Renderable
 from core.resource_loader import ResourceLoader
-from core.engine import Engine, EntityGroup
+from core.engine import Engine
 from utils.logger import logger
 
 if config.GPIO_AVAILABLE:
     import RPi.GPIO as GPIO  # type: ignore
+
+AUTOSAVE_INTERVAL = 30.0
+IDLE_THRESHOLD_TICKS = 30  # frames with nothing dirty before dropping to IDLE_FRAMERATE
 
 
 class PipBoy(Engine):
@@ -22,6 +27,8 @@ class PipBoy(Engine):
         self.clock = pg.time.Clock()
         self.framerate = framerate
         self.active = None
+        self._time_since_save = 0.0
+        self._idle_ticks = 0
 
         self.init_fonts()
         self.init_children()
@@ -47,14 +54,39 @@ class PipBoy(Engine):
     def init_children(self):
         logger.debug("Initializing childs")
 
-        self.foregroundGroup = EntityGroup()
-        self.scanlines = Scanlines()
-        self.overlay = Overlay()
-        self.debug_image = ReferenceImage(self.screen)
-        self.debug_image.visible = False
-        self.add(self.overlay)
-        self.add(self.scanlines)
-        self.add(self.debug_image)
+        scanline_image = ResourceLoader.add_image(
+            "scanline", "images/scanline.png")
+        self.scanline_entity = esper.create_entity(
+            Position(0, -130),
+            Renderable(image=scanline_image),
+            Layer(11),
+            Dirty(2),
+            AutoScroll(speed=100.0, min_y=-130.0,
+                       max_y=self.screen.get_height() + 130.0),
+            Active(),
+        )
+
+        overlay_image = ResourceLoader.add_image(
+            "overlay", "images/overlay.png")
+        self.overlay_entity = esper.create_entity(
+            Position(0, 0),
+            Renderable(image=overlay_image),
+            Layer(10),
+            Dirty(1),
+            Active(),
+        )
+
+        debug_raw = ResourceLoader.add_image("debug", "../temp/menu1.png")
+        debug_image = scale_surface_keep_aspect(
+            debug_raw, None, self.screen.get_height() + 8)
+        debug_x = (self.screen.get_width() - debug_image.get_width()) / 2
+        self.debug_entity = esper.create_entity(
+            Position(debug_x, 0),
+            Renderable(image=debug_image, visible=False),
+            Layer(0),
+            Dirty(1),
+            Active(),
+        )
         logger.debug("Childs initialized")
 
     def init_full_modules(self):
@@ -65,12 +97,10 @@ class PipBoy(Engine):
         self.modules["data"] = data.Module(self)
 
     def init_modules(self):
-        global playerStatus
         logger.debug("Initializing Modules")
         self.modules = {
             "boot": boot.Module(self)
         }
-        playerStatus = PlayerStatus()
         self.init_full_modules()
 
         self.switch_module("map")
@@ -112,7 +142,9 @@ class PipBoy(Engine):
             if event.key == pg.K_ESCAPE:
                 self.running = False
             elif event.key == pg.K_h:
-                self.debug_image.visible = not self.debug_image.visible
+                debug_renderable = esper.component_for_entity(
+                    self.debug_entity, Renderable)
+                debug_renderable.visible = not debug_renderable.visible
             elif event.key in config.ACTIONS:
                 self.handle_action(config.ACTIONS[event.key])
         elif event.type == pg.QUIT:
@@ -129,12 +161,35 @@ class PipBoy(Engine):
     def run(self):
         self.running = True
         while self.running:
-            deltatime = self.clock.tick(self.framerate) / 1000
-            for event in pg.event.get():
-                self.handle_event(event)
+            # Battery: while nothing's changed on screen for a while, drop to
+            # IDLE_FRAMERATE and actually block (near-zero CPU) waiting for the
+            # next input instead of busy-polling at the full framerate.
+            target_fps = config.IDLE_FRAMERATE if self._idle_ticks >= IDLE_THRESHOLD_TICKS else self.framerate
+            timeout_ms = max(1, int(1000 / target_fps))
+
+            events = [pg.event.wait(timeout_ms)]
+            events += pg.event.get()
+            deltatime = self.clock.tick(target_fps) / 1000
+
+            for event in events:
+                if event.type != pg.NOEVENT:
+                    self.handle_event(event)
+
             self.update(deltatime)
             self.render()
             self.check_gpio_input()
+
+            if self.render_processor.dirty_this_frame:
+                self._idle_ticks = 0
+            else:
+                self._idle_ticks += 1
+
+            self._time_since_save += deltatime
+            if self._time_since_save >= AUTOSAVE_INTERVAL:
+                self._time_since_save = 0.0
+                save_save(save_data)
+
+        save_save(save_data)
         try:
             pg.mixer.quit()
         except:

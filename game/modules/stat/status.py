@@ -1,7 +1,8 @@
-from core.engine import AnimatedSprite, Entity
+from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from game.modules import SubModule
 from game.ui import Footer, ProgressBar
+from game.data.store import theme
 from utils.settings import config
 import pygame as pg
 
@@ -47,7 +48,7 @@ class PipBoyHealthAnim(Entity):
     right_arm_wounded = False
     right_leg_wounded = False
 
-    def __init__(self, color=config.DRAW_COLOR, bg_color=config.BG_COLOR):
+    def __init__(self, color=theme.draw_color, bg_color=theme.bg_color):
         super().__init__()
         self.color = color
         self.bg_color = bg_color
@@ -156,7 +157,7 @@ class HealthContainer(Entity):
 
 
 class BottomTextContainer(Entity):
-    def __init__(self, text: str, quantity=0, color=config.DRAW_COLOR):
+    def __init__(self, text: str, quantity=0, color=theme.draw_color):
         super().__init__()
         self.text = text.upper()
         self.font = ResourceLoader.get_font("MONOFONTO", 24)

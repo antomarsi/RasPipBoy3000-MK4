@@ -1,5 +1,7 @@
+import esper
 import pygame as pg
-from utils.settings import config
+from game.data.store import theme
+from core.processors import AnimationProcessor, AutoScrollProcessor, RenderProcessor, TweenProcessor
 
 class Engine():
 
@@ -25,7 +27,14 @@ class Engine():
         self.groups = EntityGroup()
         self.background = pg.surface.Surface(
             self.screen.get_size()).convert()
-        self.background.fill(config.BG_COLOR)
+        self.background.fill(theme.bg_color)
+
+        # ECS scaffold (esper). Coexists with the sprite-based `self.groups`
+        # above until every module is ported off it; see the architecture plan.
+        esper.add_processor(TweenProcessor(), priority=50)
+        esper.add_processor(AnimationProcessor(), priority=40)
+        esper.add_processor(AutoScrollProcessor(), priority=35)
+        self.render_processor = RenderProcessor(self.screen)
 
     def handle_event(self, event):
         pass
@@ -33,7 +42,14 @@ class Engine():
     def render(self):
         self.groups.clear(self.screen, self.background)
         self.groups.draw(self.screen)
+        self.render_processor.process()
 
+        # Deliberately an unconditional flip while the sprite-based `self.groups`
+        # and the ECS render layer coexist: the ECS layer fully recomposites on
+        # top every frame (see RenderProcessor), so a partial pg.display.update()
+        # here could miss regions the old system just redrew underneath it. Once
+        # every module is ported to the ECS and `self.groups` is retired, this
+        # can go back to skipping the flip on frames with nothing dirty.
         if self.rescale:
             frame = pg.transform.scale(self.screen, self.window.get_size())
             self.window.blit(frame, (0,0))
@@ -41,6 +57,7 @@ class Engine():
 
     def update(self, deltatime):
         self.groups.update(deltatime)
+        esper.process(deltatime)
 
     def add(self, group, *args, **kwargs):
         if not self.groups.has(group):
@@ -80,46 +97,3 @@ class Entity(pg.sprite.DirtySprite):
         if type(self) == type(other):
             return self.label <= other.label
         return 0
-
-
-class AnimatedSprite(pg.sprite.DirtySprite):
-    def __init__(self, autoplay=False, loop=False, duration_per_frame=0.2, start_frame=0, images=[], *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.autoplay = autoplay
-        self.loop = loop
-        self.is_playing = self.autoplay
-        self.duration_per_frame = duration_per_frame
-        self.internal_cd = 0
-        self.current_frame = start_frame
-        self.finished = False
-        self.images = images
-        if len(self.images):
-            self.image = self.images[0]
-            self.rect = self.image.get_rect()
-
-    def set_images(self, images):
-        self.images = images
-        self.image = self.images[0]
-        self.rect = self.image.get_rect()
-
-    def play(self):
-        self.is_playing = True
-
-    def update(self, dt):
-        new_frame = self.current_frame
-        if self.is_playing:
-            if self.internal_cd >= self.duration_per_frame:
-                self.internal_cd = 0
-                if self.current_frame == len(self.images)-1:
-                    if not self.loop:
-                        self.is_playing = False
-                        self.finished = True
-                    else:
-                        self.current_frame = 0
-                elif self.current_frame < len(self.images)-1:
-                    self.current_frame += 1
-
-                self.image = self.images[self.current_frame]
-            self.internal_cd += dt
-        if new_frame is not self.current_frame:
-            self.dirty = 1

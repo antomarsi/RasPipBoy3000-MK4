@@ -1,0 +1,12 @@
+[
+    {
+        "baseid": "gunnut",
+        "title": "Gun Nut",
+        "ranks": [
+            "You are a master engineer... allowing you to construct Rank 1 gun mods.",
+            "Your gun modification skills increase... allowing you to construct Rank 2 gun mods.",
+            "Your gun modification skills increase further... allowing you to construct Rank 3 gun mods.",
+            "You are a certified Gun Nut... allowing you to construct Rank 4 gun mods."
+        ]
+    }
+]

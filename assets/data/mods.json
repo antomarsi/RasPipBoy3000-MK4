@@ -1,0 +1,10 @@
+[
+    {
+        "baseid":"0009d861",
+        "title":"Quick Eject Magazine",
+        "image": "img/mods/quick_eject_magazine.png",
+        "weight": 0,
+        "value": 15,
+        "compatible": ["00004822"]
+    }
+]

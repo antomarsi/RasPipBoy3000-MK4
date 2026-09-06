@@ -1,22 +1,11 @@
 import os
-from typing import Tuple, Any, Optional
+from typing import Tuple, Optional
 from functools import cached_property
 from pydantic import Field, computed_field
-from pydantic.fields import FieldInfo
-from utils.color import hex_to_rgb
 from utils.logger import logger
 import pygame as pg
 
 from pydantic_settings import DotEnvSettingsSource, BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource
-
-
-class MyCustomSource(DotEnvSettingsSource):
-    def prepare_field_value(
-        self, field_name: str, field: FieldInfo, value: Any, value_is_complex: bool
-    ) -> Any:
-        if field_name in ['BG_COLOR', "TINT_COLOR", "DRAW_COLOR"] and value is not None:
-            return hex_to_rgb(value)
-        return value
 
 
 class ConfigSettings(BaseSettings):
@@ -33,12 +22,9 @@ class ConfigSettings(BaseSettings):
     IDLE_FRAMERATE: int = 15
     STARTUP_MODULE: str = "map"
 
-    DRAW_COLOR: Tuple[float, float, float] = Field(
-        default=(0.0, 255.0, 0.0), validation_alias="DRAW_COLOR")
-    TINT_COLOR: Tuple[float, float, float] = Field(
-        default=(0.0, 0.0, 0.0), validation_alias="TINT_COLOR")
-    BG_COLOR: Tuple[int, int, int] = Field(
-        default=(0, 0, 0), validation_alias="BG_COLOR")
+    # Visual theme (draw/tint/background colors) lives in the save-data store
+    # (game/data/store.py's ThemeSettings), not here — it's user-changeable
+    # state, not restart-only deployment config.
 
     GPIO_ACTIONS: dict = {
         4: "module_stat",
@@ -79,7 +65,7 @@ class ConfigSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (MyCustomSource(settings_cls),)
+        return (DotEnvSettingsSource(settings_cls),)
 
     @computed_field
     @cached_property
@@ -115,6 +101,7 @@ class ConfigSettings(BaseSettings):
         return (self.OUTPUT_WIDTH, self.OUTPUT_HEIGHT)
 
     ASSETS_FOLDER: str = os.path.abspath("./assets")
+    SAVE_FILE: str = os.path.abspath("./save/state.json")
 
     USE_BLUR: bool = True
     USE_SCANLINE: bool = True

@@ -1,6 +1,7 @@
 from core.engine import Entity
 from core.resource_loader import ResourceLoader
 from game.modules import SubModule
+from game.data.store import theme
 from utils.settings import config
 import pygame as pg
 
@@ -26,7 +27,7 @@ class Module(SubModule):
 
 
 class BootText(Entity):
-    def __init__(self, color=config.DRAW_COLOR, bg_color=config.BG_COLOR, *args, **kwargs):
+    def __init__(self, color=theme.draw_color, bg_color=theme.bg_color, *args, **kwargs):
         super().__init__((config.WIDTH, config.HEIGHT), *args, **kwargs)
         self.bg_color = bg_color
 
