@@ -34,6 +34,15 @@ class Engine():
         esper.add_processor(TweenProcessor(), priority=50)
         esper.add_processor(AnimationProcessor(), priority=40)
         esper.add_processor(AutoScrollProcessor(), priority=35)
+
+        # Local import: game.ui imports core.engine.Entity at module scope, so
+        # importing game.ui.state up at the top of this file (which needs
+        # game.ui for UI_MARGIN) would be a circular import at parse time.
+        # By the time Engine() is actually constructed, all modules are
+        # already fully loaded, so this is safe.
+        from game.ui.state import UIRenderProcessor
+        esper.add_processor(UIRenderProcessor(), priority=30)
+
         self.render_processor = RenderProcessor(self.screen)
 
     def handle_event(self, event):
