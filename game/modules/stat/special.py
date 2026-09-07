@@ -1,15 +1,13 @@
 import textwrap
 
 import esper
-import pygame as pg
 
 from core.components import AnimationState, Dirty, Layer, OwnedBy, Position, Renderable
 from core.resource_loader import ResourceLoader
 from game.data.catalog import special as special_catalog
 from game.data.store import player_status, theme
 from game.modules.registry import create_node
-from game.ui import UI_MARGIN, MenuState, render_text
-from utils.layout import scale_surface_keep_aspect
+from game.ui import UI_MARGIN, MenuState, fit_icon, render_text
 from utils.settings import config
 
 NODE_KEY = "stat.special"
@@ -53,22 +51,6 @@ _DESC_WRAP_WIDTH = 28
 _BOTTOM_MARGIN = 12
 
 
-def _fit_frame(source: pg.Surface, color) -> pg.Surface:
-    # Icons are white line art on a transparent background -- composite onto
-    # opaque black first, then BLEND_MULT-tint white -> theme color (same
-    # technique as stat/status.py's vault-boy animation), since
-    # RenderProcessor's additive-blend compositing needs an opaque, already
-    # colored frame, not a raw alpha image.
-    tinted = pg.Surface(source.get_size())
-    tinted.blit(source, (0, 0))
-    tinted.fill(color, special_flags=pg.BLEND_MULT)
-
-    fitted = scale_surface_keep_aspect(tinted, max_width=_ICON_BOX[0], max_height=_ICON_BOX[1])
-    canvas = pg.Surface(_ICON_BOX)
-    canvas.blit(fitted, ((_ICON_BOX[0] - fitted.get_width()) / 2, (_ICON_BOX[1] - fitted.get_height()) / 2))
-    return canvas
-
-
 def register(pipboy):
     color = theme.draw_color
     names = list(special_catalog.keys())
@@ -91,7 +73,7 @@ def register(pipboy):
     def _frames_for(name, info):
         if name not in frame_cache:
             frame_cache[name] = [
-                _fit_frame(ResourceLoader.add_image(f"special_{name}_{i}", path), color)
+                fit_icon(ResourceLoader.add_image(f"special_{name}_{i}", path), color, _ICON_BOX)
                 for i, path in enumerate(info["images"])
             ]
         return frame_cache[name]

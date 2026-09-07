@@ -193,6 +193,15 @@ def _dispatch_menu_action(action: str):
             menu_state.on_change(menu_state.selected)
 
 
+def is_locked() -> bool:
+    """True while boot is the active top-level. PipBoy.handle_action checks
+    this before dispatching the "action" event at all, so every subscriber
+    -- this module's own navigation handling, but also game/audio.py's click
+    sounds, and anything added later -- is locked out together, not just
+    whichever handler happens to check for it."""
+    return bool(ACTIVE_LEAF) and _path_to_root(ACTIVE_LEAF)[0] == "boot"
+
+
 def handle_action(action: str):
     if action.startswith("module_"):
         top_key = action[len("module_"):]
@@ -210,8 +219,26 @@ def handle_action(action: str):
             switch_node(resolve_leaf(node.children[index]))
         else:
             logger.debug(f"No submodule ({index}) on [{top_key}]")
+    elif action in ("submodule_prev", "submodule_next"):
+        _cycle_submodule(-1 if action == "submodule_prev" else 1)
     elif action in ("dial_up", "dial_down"):
         _dispatch_menu_action(action)
+
+
+def _cycle_submodule(direction: int):
+    """Q/E on the keyboard -- steps to the next/previous child of the active
+    top-level, wrapping around. GPIO's dedicated per-position knob buttons
+    keep using "knob_N" (direct index select, handled above) instead, since
+    a physical knob has discrete positions rather than a next/prev gesture."""
+    if not ACTIVE_LEAF:
+        return
+    top_key = _path_to_root(ACTIVE_LEAF)[0]
+    node = esper.component_for_entity(NODES[top_key], Node)
+    if not node.children:
+        return
+    current = node.active_child if 0 <= node.active_child < len(node.children) else 0
+    new_index = (current + direction) % len(node.children)
+    switch_node(resolve_leaf(node.children[new_index]))
 
 
 def init_modules(pipboy):

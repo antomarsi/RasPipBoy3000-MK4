@@ -42,16 +42,13 @@ class ConfigSettings(BaseSettings):
     }
 
     ACTIONS: dict = {
-        pg.K_F1: "module_stat",
-        pg.K_F2: "module_inv",
-        pg.K_F3: "module_data",
-        pg.K_F4: "module_map",
-        pg.K_F5: "module_radio",
-        pg.K_1:	"knob_1",
-        pg.K_2: "knob_2",
-        pg.K_3: "knob_3",
-        pg.K_4: "knob_4",
-        pg.K_5: "knob_5",
+        pg.K_1: "module_stat",
+        pg.K_2: "module_inv",
+        pg.K_3: "module_data",
+        pg.K_4: "module_map",
+        pg.K_5: "module_radio",
+        pg.K_q: "submodule_prev",
+        pg.K_e: "submodule_next",
         pg.K_UP: "dial_up",
         pg.K_DOWN: "dial_down"
     }

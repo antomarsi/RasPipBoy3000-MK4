@@ -100,12 +100,14 @@ class PipBoy(Engine):
     def init_modules(self):
         tasks = registry.init_modules(self)
         if config.SKIP_INTRO:
-            # No loading screen to run these as real-time tasks on -- just
-            # do the real work (registering every other module) right now.
-            for _, task in tasks:
-                task()
+            # Local import: by the time this method runs everything is fully
+            # loaded, so this sidesteps any import-order fragility (same
+            # reasoning as registry.init_modules()'s own lazy imports).
+            from game.modules.boot.loading import run_tasks_now
+            run_tasks_now(tasks)
             registry.switch_module(config.STARTUP_MODULE)
             audio.start_hum()
+            audio.play_startup()
         else:
             registry.switch_node("boot.boot_text")
 
@@ -124,6 +126,12 @@ class PipBoy(Engine):
             self.handle_action(self.action_queue.popleft())
 
     def handle_action(self, action):
+        # boot isn't interruptible -- gate dispatch here so every "action"
+        # subscriber (registry's navigation, audio's click sounds, anything
+        # added later) is locked out together instead of each handler having
+        # to separately check registry.is_locked() itself.
+        if registry.is_locked():
+            return
         esper.dispatch_event("action", action)
 
     def handle_event(self, event):

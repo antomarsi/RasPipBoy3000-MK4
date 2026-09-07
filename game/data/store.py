@@ -29,6 +29,8 @@ class SaveData(BaseModel):
     player: PlayerStatus = Field(default_factory=PlayerStatus)
     inventory: dict[str, list[InventoryItem]] = Field(
         default_factory=lambda: {category: [] for category in INVENTORY_CATEGORIES})
+    caps: int = 0
+    max_weight: float = 200.0
     perks: list[dict] = Field(default_factory=list)
     quests: list[dict] = Field(default_factory=list)
     workshops: list[dict] = Field(default_factory=list)

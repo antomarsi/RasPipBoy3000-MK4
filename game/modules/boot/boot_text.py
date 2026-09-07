@@ -37,7 +37,7 @@ def _build_text_image(color, bg_color):
 def register(pipboy):
     create_node(NODE_KEY, "", parent="boot")
 
-    sound = ResourceLoader.add_sound("boot_a", "sounds/boot/a.ogg") if config.SOUND_ENABLED else None
+    sound = ResourceLoader.add_sound("boot_chime", "sounds/boot/boot.ogg") if config.SOUND_ENABLED else None
 
     image = _build_text_image(theme.draw_color, theme.bg_color)
     start_y = float(config.HEIGHT)

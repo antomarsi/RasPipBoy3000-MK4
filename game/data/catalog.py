@@ -28,6 +28,11 @@ perks: dict = _index_by_baseid(_load_json("perks.json"))
 # special.json is keyed by SPECIAL stat name (e.g. "Strength"), not baseid.
 special: dict = _load_json("special.json")
 
+# categories.json is keyed by INV category name (e.g. "weapons") and defines
+# which fields from that category's own catalog to show in a right-panel
+# stat table, in order, with display labels -- see game/modules/inv/.
+categories: dict = _load_json("categories.json")
+
 logger.debug(
     f"Catalog loaded: {len(weapons)} weapons, {len(apparel)} apparel, {len(aid)} aid, "
     f"{len(ammo)} ammo, {len(junk)} junk, {len(mods)} mods, {len(misc)} misc, {len(perks)} perks"

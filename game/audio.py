@@ -27,7 +27,11 @@ def init():
 
 
 def _on_action(action: str):
-    if action.startswith("knob_"):
+    # "Turning" actions -- GPIO's per-position knob buttons, keyboard's
+    # module_* (1-5) top-level switch, and submodule_prev/next (Q/E) -- all
+    # get the horizontal click; dial_up/dial_down (list scrolling) gets the
+    # vertical one.
+    if action.startswith("knob_") or action.startswith("module_") or action in ("submodule_prev", "submodule_next"):
         SoundClick.play_horizontal()
     elif action in ("dial_up", "dial_down"):
         SoundClick.play_vertical()
@@ -43,3 +47,14 @@ def start_hum():
         return
     sound = ResourceLoader.add_sound("hum", "sounds/UI_PipBoy_Hum_LP.wav")
     _hum_channel = sound.play(loops=-1)
+
+
+def play_startup():
+    """Plays once, right when landing on the real startup tab -- whether
+    that's the animated boot sequence finishing (boot/loading.py's
+    on_animation_complete) or config.SKIP_INTRO skipping straight to it
+    (PipBoy.init_modules()) -- both call this alongside start_hum()."""
+    if not config.SOUND_ENABLED:
+        return
+    sound = ResourceLoader.add_sound("startup_chime", "sounds/boot/startup.ogg")
+    sound.play()

@@ -19,7 +19,7 @@ import pygame as pg
 from core.components import Dirty, Renderable
 from core.resource_loader import ResourceLoader
 from game.data.store import theme
-from utils.layout import layout_flex_row
+from utils.layout import layout_flex_row, scale_surface_keep_aspect
 from utils.settings import config
 
 UI_MARGIN = 14
@@ -104,6 +104,26 @@ def render_text(font, text: str, color, bg_color=theme.bg_color) -> pg.Surface:
     image.fill(bg_color)
     image.blit(text_surface, (0, 0))
     return image
+
+
+def fit_icon(source: pg.Surface, color, box: tuple) -> pg.Surface:
+    """Tints white-line-art-on-transparent icon source to the theme color and
+    fits it into a fixed `box`, centered.
+
+    These icon sprite sets (SPECIAL, boot's vault-boy, the INV stat icons)
+    consistently ship with wildly inconsistent canvas sizes per file/frame --
+    from ~100px to ~550px tall for nominally-similar assets, unrelated to how
+    big the actual artwork within the canvas is (trimming artifacts, not
+    intentional sizing). Fitting into a fixed box rather than trusting the
+    source size is what keeps layout around an icon predictable."""
+    tinted = pg.Surface(source.get_size())
+    tinted.blit(source, (0, 0))
+    tinted.fill(color, special_flags=pg.BLEND_MULT)
+
+    fitted = scale_surface_keep_aspect(tinted, max_width=box[0], max_height=box[1])
+    canvas = pg.Surface(box)
+    canvas.blit(fitted, ((box[0] - fitted.get_width()) / 2, (box[1] - fitted.get_height()) / 2))
+    return canvas
 
 
 def render_header(state: HeaderState) -> pg.Surface:

@@ -1,0 +1,54 @@
+{
+    "weapons": {
+        "stats": [
+            {"field": "damage", "label": "Damage", "icon": {"from_field": "damage_icon"}},
+            {"field": "fire_rate", "label": "Fire Rate"},
+            {"field": "range_distance", "label": "Range"},
+            {"field": "accuracy", "label": "Accuracy", "icon": "aim"},
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "apparel": {
+        "stats": [
+            {"field": "DR", "label": "DR", "icon": "armor"},
+            {"field": "ER", "label": "ER", "icon": "armor"},
+            {"field": "RR", "label": "RR", "icon": "armor"},
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "aid": {
+        "stats": [
+            {"field": "heal_amount", "label": "Heal Amount"},
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "junk": {
+        "stats": [
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "mods": {
+        "stats": [
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "misc": {
+        "stats": [
+            {"field": "kind", "label": "Kind"},
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    },
+    "ammo": {
+        "stats": [
+            {"field": "damage_type", "label": "Damage Type"},
+            {"field": "weight", "label": "Weight", "icon": "weight"},
+            {"field": "value", "label": "Value", "icon": "caps"}
+        ]
+    }
+}

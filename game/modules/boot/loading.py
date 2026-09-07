@@ -38,11 +38,26 @@ def _tint(source: pg.Surface, color) -> pg.Surface:
     return frame
 
 
+def run_tasks_now(tasks):
+    """Runs every loading task immediately and synchronously, with no visual
+    feedback -- the config.SKIP_INTRO path still needs the real work (every
+    other module's register(pipboy), which is what actually loads their
+    assets) done before landing on the startup tab, it just never shows the
+    animated loading screen `register()` below builds. Kept in this module
+    rather than duplicated at the call site so there's exactly one place that
+    knows how to run this task list."""
+    for _, task in tasks:
+        task()
+
+
 def register(pipboy, tasks):
     """`tasks` is a list of (label, callable) pairs -- see
     registry.init_modules(), which builds it from every other top-level
     module's register(pipboy)."""
     node_ent = create_node(NODE_KEY, "", parent="boot")
+
+    sound = ResourceLoader.add_sound("loading_loop", "sounds/boot/loading.ogg") if config.SOUND_ENABLED else None
+    sound_channel = None
 
     raw_frames = [ResourceLoader.add_image(f"vault_boy_{i}", f"img/boot/vault_boy_{i}.png") for i in range(1, 9)]
     frames = [_tint(frame, theme.draw_color) for frame in raw_frames]
@@ -87,8 +102,10 @@ def register(pipboy, tasks):
     def on_animation_complete():
         switch_module(config.STARTUP_MODULE)
         audio.start_hum()
+        audio.play_startup()
 
     def on_resumed(key):
+        nonlocal sound_channel
         if key != NODE_KEY:
             return
         state["index"] = 0
@@ -105,11 +122,17 @@ def register(pipboy, tasks):
         esper.component_for_entity(anim_ent, Renderable).image = frames[0]
         esper.component_for_entity(anim_ent, Dirty).state = 1
         set_status("Loading...")
+        if sound:
+            sound_channel = sound.play(loops=-1)
 
     def on_paused(key):
+        nonlocal sound_channel
         if key != NODE_KEY:
             return
         state["phase"] = "done"
+        if sound_channel:
+            sound_channel.stop()
+            sound_channel = None
 
     _HANDLERS[NODE_KEY] = (on_resumed, on_paused)
     esper.set_handler("node_resumed", on_resumed)

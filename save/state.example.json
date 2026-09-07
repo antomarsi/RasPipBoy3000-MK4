@@ -47,6 +47,8 @@
       { "baseid": "0001f276", "qtd": 24, "fav": false, "eqp": false }
     ]
   },
+  "caps": 150,
+  "max_weight": 200.0,
   "perks": [
     { "baseid": "gunnut", "rank": 1 }
   ],

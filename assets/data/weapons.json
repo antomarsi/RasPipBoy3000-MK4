@@ -10,6 +10,7 @@
         "range_distance":83,
         "accuracy":60,
         "damage":18,
+        "damage_icon":"aim",
         "ammo":"0001f276"
     }
 ]
