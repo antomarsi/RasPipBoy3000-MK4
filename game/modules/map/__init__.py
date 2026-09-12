@@ -51,7 +51,14 @@ _DEADZONE.center = (_VIEWPORT.width / 2, _VIEWPORT.height / 2)
 
 _POI_ICON_BOX = (20, 20)
 _PLAYER_ICON_BOX = (24, 24)
-_NO_FIX_POLL_S = 5.0
+# How often the worker rechecks location.get_location() while it's still
+# None. This is a plain in-memory read (no network, no cost to poll often),
+# so it stays short -- found by testing that a coarser value (previously
+# 5.0) made the boot loading bar visibly freeze for several seconds
+# whenever the very first location fix hadn't landed yet by the time this
+# loop's first check ran, instead of picking it up within a fraction of a
+# second of it actually becoming available.
+_NO_FIX_POLL_S = 0.25
 _MIN_RADIUS_M = 50.0
 _ZOOM_FACTOR = 1.25
 _CURSOR_SPEED_PX_S = 260.0
