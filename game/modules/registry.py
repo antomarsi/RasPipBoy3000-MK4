@@ -37,6 +37,18 @@ TOP_LEVEL = ["stat", "inv", "data", "map", "radio"]
 
 ACTIVE_LEAF: Optional[str] = None
 
+# In-universe boot-loading flavor text for RADIO's YouTube preload tasks
+# (init_modules(), below) -- deliberately never the station's own title or
+# URL, so the loading screen reads as a Pip-Boy scanning the airwaves
+# rather than a script naming the file it's fetching.
+_SIGNAL_FLAVOR_TEXT = [
+    "Scanning irradiated airwaves...",
+    "Locking onto a broadcast signal...",
+    "Decoding archived transmission...",
+    "Retuning antenna array...",
+    "Filtering out the radiation static...",
+]
+
 # True while some module (currently only MAP's keyword filter) wants raw
 # keystrokes instead of the usual mapped actions -- see set_text_input_active().
 TEXT_INPUT_ACTIVE: bool = False
@@ -289,30 +301,42 @@ def init_modules(pipboy):
     # eagerly here. Header options below are derived from TOP_LEVEL directly
     # (not the per-node LABELS dict) since these tasks -- and the LABELS
     # entries they create -- haven't run yet at this point.
+    #
+    # Labels are in-universe flavor text, not a literal description of the
+    # underlying operation -- a real Pip-Boy boot sequence wouldn't say
+    # "Downloading Fallout Fire.mp3" (that would immediately break the
+    # illusion that this is a wasteland terminal rather than a Python
+    # script hitting YouTube). Real diagnostics for what's actually
+    # happening still go through utils.logger as always; these strings are
+    # purely what's shown on screen.
     tasks = [
-        ("Loading STAT...", lambda: register_stat(pipboy)),
-        ("Loading INV...", lambda: register_inv(pipboy)),
-        ("Loading DATA...", lambda: register_data(pipboy)),
-        ("Loading MAP...", lambda: register_map(pipboy)),
+        ("Calibrating S.P.E.C.I.A.L. sensors...", lambda: register_stat(pipboy)),
+        ("Cataloging salvaged inventory...", lambda: register_inv(pipboy)),
+        ("Decrypting terminal records...", lambda: register_data(pipboy)),
+        ("Triangulating position...", lambda: register_map(pipboy)),
         # A stateful callable, not a plain lambda -- this one is invoked
         # repeatedly across multiple loading frames (see boot/loading.py's
         # convention: returning False means "still working, call again next
         # frame") rather than assumed to finish on its first call.
-        ("Caching local map...", make_warm_cache_task()),
-        ("Loading RADIO...", lambda: register_radio(pipboy)),
+        ("Surveying the wasteland...", make_warm_cache_task()),
+        ("Scanning local frequencies...", lambda: register_radio(pipboy)),
         # Runs before any preload download below gets a chance to write a
         # fresh file into the same directory -- a plain, fast local
         # file/JSON comparison against the catalog + custom_radios, so it
         # finishes within this one task call, not spread across frames.
-        ("Cleaning radio cache...", lambda: cleanup_orphaned_cache()),
+        ("Purging corrupted signal data...", lambda: cleanup_orphaned_cache()),
     ]
     # One task per YouTube-sourced station not already cached from a
     # previous run, so opening RADIO doesn't hit a fresh download on top of
     # everything else -- each reports real fractional progress (see
     # boot/loading.py's task-list convention: a float return means "still
-    # working, this much done"), not just a done/not-done flag.
-    for station_key in youtube_station_keys():
-        tasks.append((f"Downloading {station_key}...", make_preload_task(station_key)))
+    # working, this much done"), not just a done/not-done flag. Cycles
+    # through _SIGNAL_FLAVOR_TEXT (never the station's own title/URL) so
+    # several downloads in a row still read as distinct in-universe events
+    # rather than one line repeated verbatim.
+    for i, station_key in enumerate(youtube_station_keys()):
+        flavor = _SIGNAL_FLAVOR_TEXT[i % len(_SIGNAL_FLAVOR_TEXT)]
+        tasks.append((flavor, make_preload_task(station_key)))
     register_boot(pipboy, tasks)
 
     header_state = esper.component_for_entity(_header_ent, HeaderState)
