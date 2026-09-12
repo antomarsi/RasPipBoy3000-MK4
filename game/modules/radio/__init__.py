@@ -100,7 +100,13 @@ def register(pipboy):
 
     esper.set_handler("node_resumed", _on_node_resumed)
     esper.set_handler("action", _on_radio_action)
-    esper.add_processor(_RadioTickProcessor(), priority=15)
+    # Priority 32, not something below 30 -- this mutates FooterState/
+    # MenuState and must run BEFORE UIRenderProcessor (30) in the same
+    # frame, or RenderProcessor consumes the Dirty flag before
+    # UIRenderProcessor ever rebuilds the image for it (see
+    # boot/loading.py's _LoadingProcessor for the full explanation -- same
+    # bug class, found there first).
+    esper.add_processor(_RadioTickProcessor(), priority=32)
 
     threading.Thread(target=_discover_online_stations, daemon=True).start()
 

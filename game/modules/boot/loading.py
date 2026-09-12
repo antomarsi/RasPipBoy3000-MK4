@@ -16,7 +16,12 @@ frames to finish (e.g. MAP's warm_cache task, waiting on a background
 network fetch) can instead return False to mean "still working, call me
 again next frame" -- letting the loading screen actually render and show
 its label while such a task is pending, instead of a single call blocking
-the whole frame loop until it's done.
+the whole frame loop until it's done. A task that can report real
+sub-progress (e.g. RADIO's YouTube preload, which knows actual bytes
+downloaded) can return a float in [0, 1) instead of plain False -- the
+progress bar then advances smoothly *within* that task's own slot instead
+of just sitting still until it flips to done, using real progress rather
+than a simulated fill.
 """
 import time
 
@@ -48,6 +53,17 @@ def _tint(source: pg.Surface, color) -> pg.Surface:
     return frame
 
 
+def _task_progress(result):
+    """Interprets a task's return value per this module's convention: None
+    if done (the usual case: True, None, or a number >= 1), otherwise the
+    fraction of this task completed so far (0.0 for a plain False)."""
+    if isinstance(result, bool):
+        return None if result else 0.0
+    if isinstance(result, (int, float)) and result < 1:
+        return float(result)
+    return None
+
+
 def run_tasks_now(tasks):
     """Runs every loading task immediately and synchronously, with no visual
     feedback -- the config.SKIP_INTRO path still needs the real work (every
@@ -57,11 +73,11 @@ def run_tasks_now(tasks):
     rather than duplicated at the call site so there's exactly one place that
     knows how to run this task list.
 
-    A multi-frame task (returns False -- see module docstring) is simply
-    retried in a tight loop here, since there's no loading screen to render
-    between attempts anyway in this path."""
+    A multi-frame task (returns False or a progress fraction -- see module
+    docstring) is simply retried in a tight loop here, since there's no
+    loading screen to render between attempts anyway in this path."""
     for _, task in tasks:
-        while task() is False:
+        while _task_progress(task()) is not None:
             time.sleep(0.05)
 
 
@@ -153,9 +169,17 @@ def register(pipboy, tasks):
     esper.set_handler("node_resumed", on_resumed)
     esper.set_handler("node_paused", on_paused)
 
+    # Priority 32 -- must run BEFORE UIRenderProcessor (30) in the same
+    # frame. Found by testing: at 25 (below 30), this sets Dirty *after*
+    # UIRenderProcessor already ran this frame, so RenderProcessor (which
+    # unconditionally resets Dirty 1->0 once composited, whether or not
+    # UIRenderProcessor actually rebuilt the image for it) consumes that
+    # flag before UIRenderProcessor ever gets a chance to see it on a later
+    # frame -- the bar's image then never updates again after its first
+    # render, no matter how many times the value legitimately changes.
     esper.add_processor(
         _LoadingProcessor(node_ent, state, bar_state, bar_ent, anim_ent, set_status, on_animation_complete),
-        priority=25)
+        priority=32)
 
 
 class _LoadingProcessor(esper.Processor):
@@ -183,13 +207,16 @@ class _LoadingProcessor(esper.Processor):
             if state["index"] < len(state["tasks"]):
                 label, task = state["tasks"][state["index"]]
                 self.set_status(label)
-                # False means "still working, call me again next frame" --
-                # everything else (including the usual implicit None) means
-                # done; see this module's docstring.
-                if task() is not False:
+                fraction = _task_progress(task())
+                if fraction is None:
                     state["index"] += 1
                     self.bar_state.value = state["index"]
-                    esper.component_for_entity(self.bar_ent, Dirty).state = 1
+                else:
+                    # Advances smoothly *within* this task's own slot when it
+                    # reports real sub-progress (e.g. RADIO's YouTube
+                    # preload), instead of the bar sitting still until done.
+                    self.bar_state.value = state["index"] + fraction
+                esper.component_for_entity(self.bar_ent, Dirty).state = 1
             else:
                 state["phase"] = "waiting"
         elif state["phase"] == "waiting":
