@@ -282,6 +282,7 @@ def init_modules(pipboy):
     from game.modules.data import register as register_data
     from game.modules.map import register as register_map, make_warm_cache_task
     from game.modules.radio import register as register_radio
+    from game.modules.radio.playback import cleanup_orphaned_cache, make_preload_task, youtube_station_keys
 
     # Real work, run one task per frame by boot/loading.py while its screen
     # is up (or all at once if SKIP_INTRO -- see PipBoy.init_modules()), not
@@ -299,7 +300,19 @@ def init_modules(pipboy):
         # frame") rather than assumed to finish on its first call.
         ("Caching local map...", make_warm_cache_task()),
         ("Loading RADIO...", lambda: register_radio(pipboy)),
+        # Runs before any preload download below gets a chance to write a
+        # fresh file into the same directory -- a plain, fast local
+        # file/JSON comparison against the catalog + custom_radios, so it
+        # finishes within this one task call, not spread across frames.
+        ("Cleaning radio cache...", lambda: cleanup_orphaned_cache()),
     ]
+    # One task per YouTube-sourced station not already cached from a
+    # previous run, so opening RADIO doesn't hit a fresh download on top of
+    # everything else -- each reports real fractional progress (see
+    # boot/loading.py's task-list convention: a float return means "still
+    # working, this much done"), not just a done/not-done flag.
+    for station_key in youtube_station_keys():
+        tasks.append((f"Downloading {station_key}...", make_preload_task(station_key)))
     register_boot(pipboy, tasks)
 
     header_state = esper.component_for_entity(_header_ent, HeaderState)

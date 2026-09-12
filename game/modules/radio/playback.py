@@ -156,6 +156,60 @@ def _youtube_cache_path(station_key: str) -> str:
     return os.path.join(config.RADIO_CACHE_DIR, f"{station_key}.mp3")
 
 
+def cleanup_orphaned_cache():
+    """Removes files under RADIO_CACHE_DIR that no longer correspond to any
+    currently configured station -- the shipped catalog
+    (assets/data/radio_stations.json) or the user's own custom_radios
+    (save/state.json). Two independent rules, either one is enough to
+    remove a file:
+
+    - Wrong/stale title: a ".mp3" whose name (minus extension) doesn't
+      match any current station title -- e.g. one that was renamed or
+      deleted from custom_radios since it was downloaded. Compared
+      case-insensitively, since NTFS treats a title's casing as
+      cosmetic (so a rename-by-case alone wouldn't even produce a new
+      file here) but a case-sensitive filesystem -- the real Pi target --
+      would not reuse an old cache under new casing at all; tolerating
+      case either way keeps this in sync with what actually happens on
+      both.
+    - Wrong format: anything that isn't a ".mp3" at all. The app only
+      ever *writes* "<title>.mp3" (see _youtube_cache_path()) and only
+      ever *reads* that same path back -- so a ".webm"/".part"/etc. next
+      to it is always a stale yt-dlp intermediate from an older or
+      interrupted run, never something currently in use, regardless of
+      whether its title matches.
+
+    Skips `directory*.json` (the online-directory search's own cache --
+    see game.modules.radio.directory -- a different cache with its own
+    freshness rules, not a per-station audio file). Purely a local
+    file/JSON comparison, no network request -- behaves identically
+    online or offline. Meant to run once, early, as a boot task (see
+    registry.init_modules()) -- before any YouTube preload task in the
+    same task list has a chance to start writing a fresh file here."""
+    if not os.path.isdir(config.RADIO_CACHE_DIR):
+        return
+
+    valid_titles = {station.title.lower() for station in catalog.radio_stations}
+    valid_titles.update(station.title.lower() for station in save_data.custom_radios)
+
+    for name in os.listdir(config.RADIO_CACHE_DIR):
+        path = os.path.join(config.RADIO_CACHE_DIR, name)
+        if not os.path.isfile(path):
+            continue
+        if name.startswith("directory") and name.endswith(".json"):
+            continue
+
+        title, ext = os.path.splitext(name)
+        if ext.lower() == ".mp3" and title.lower() in valid_titles:
+            continue
+
+        try:
+            os.remove(path)
+            logger.debug(f"Removed orphaned radio cache file: {name}")
+        except OSError as exc:
+            logger.debug(f"Failed to remove orphaned radio cache file {name!r}: {exc}")
+
+
 def make_preload_task(station_key: str):
     """Returns a callable for boot/loading.py's task list that downloads
     `station_key` ahead of time if it isn't already cached, so opening
