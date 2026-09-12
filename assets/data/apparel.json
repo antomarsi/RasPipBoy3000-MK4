@@ -10,5 +10,41 @@
         "DR":0,
         "ER":5,
         "RR":10
+    },
+    {
+        "baseid":"0004f2a2",
+        "title":"Combat Armor (Chest)",
+        "icon":null,
+        "image": "img/apparel/combat_armor_chest.png",
+        "armorType": 20,
+        "weight":8.0,
+        "value":120,
+        "DR":25,
+        "ER":15,
+        "RR":10
+    },
+    {
+        "baseid":"0009f741",
+        "title":"Leather Armor",
+        "icon":null,
+        "image": "img/apparel/leather_armor.png",
+        "armorType": 15,
+        "weight":5.0,
+        "value":45,
+        "DR":10,
+        "ER":6,
+        "RR":8
+    },
+    {
+        "baseid":"0007e284",
+        "title":"Baseball Cap",
+        "icon":null,
+        "image": "img/apparel/baseball_cap.png",
+        "armorType": 5,
+        "weight":0.5,
+        "value":5,
+        "DR":1,
+        "ER":1,
+        "RR":1
     }
 ]

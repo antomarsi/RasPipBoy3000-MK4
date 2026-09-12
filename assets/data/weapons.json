@@ -1,7 +1,7 @@
 [
     {
         "baseid":"00004822",
-        "title":"10mm pisto",
+        "title":"10mm Pistol",
         "icon":null,
         "image": "img/weapons/Fallout4_10mm_pistol.png",
         "weight":3.5,
@@ -12,5 +12,43 @@
         "damage":18,
         "damage_icon":"aim",
         "ammo":"0001f276"
+    },
+    {
+        "baseid":"0006c084",
+        "title":"Combat Rifle",
+        "icon":null,
+        "image": "img/weapons/combat_rifle.png",
+        "weight":7.5,
+        "value":145,
+        "fire_rate":65,
+        "range_distance":90,
+        "accuracy":70,
+        "damage":32,
+        "damage_icon":"aim",
+        "ammo":"0004ba39"
+    },
+    {
+        "baseid":"00020c5b",
+        "title":"Laser Pistol",
+        "icon":null,
+        "image": "img/weapons/laser_pistol.png",
+        "weight":3.5,
+        "value":78,
+        "fire_rate":20,
+        "range_distance":70,
+        "accuracy":65,
+        "damage":22,
+        "damage_icon":"thunder",
+        "ammo":"0004ce87"
+    },
+    {
+        "baseid":"0004ebca",
+        "title":"Baseball Bat",
+        "icon":null,
+        "image": "img/weapons/baseball_bat.png",
+        "weight":4.0,
+        "value":15,
+        "damage":13,
+        "damage_icon":"aim"
     }
 ]

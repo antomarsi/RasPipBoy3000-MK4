@@ -6,5 +6,29 @@
         "weight": 0.1,
         "value": 5,
         "kind": "holotape"
+    },
+    {
+        "baseid":"0003a1cc",
+        "title":"Vault 111 Keycard",
+        "image": "img/misc/keycard.png",
+        "weight": 0,
+        "value": 0,
+        "kind": "key"
+    },
+    {
+        "baseid":"0003a1cd",
+        "title":"Terminal Password",
+        "image": "img/misc/password.png",
+        "weight": 0,
+        "value": 0,
+        "kind": "password"
+    },
+    {
+        "baseid":"0003a1ce",
+        "title":"Locket",
+        "image": "img/misc/locket.png",
+        "weight": 0.1,
+        "value": 10,
+        "kind": "quest_item"
     }
 ]

@@ -6,5 +6,29 @@
         "weight": 0,
         "value": 15,
         "compatible": ["00004822"]
+    },
+    {
+        "baseid":"0009d862",
+        "title":"Long Barrel",
+        "image": "img/mods/long_barrel.png",
+        "weight": 0,
+        "value": 25,
+        "compatible": ["0006c084"]
+    },
+    {
+        "baseid":"0009d863",
+        "title":"Reflex Sight",
+        "image": "img/mods/reflex_sight.png",
+        "weight": 0,
+        "value": 20,
+        "compatible": ["00004822", "0006c084"]
+    },
+    {
+        "baseid":"0009d864",
+        "title":"Sturdy Frame",
+        "image": "img/mods/sturdy_frame.png",
+        "weight": 0,
+        "value": 30,
+        "compatible": ["0004f2a2"]
     }
 ]

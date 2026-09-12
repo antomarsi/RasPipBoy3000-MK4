@@ -6,5 +6,27 @@
         "weight": 0.1,
         "value": 40,
         "heal_amount": 100
+    },
+    {
+        "baseid":"0004f7d4",
+        "title":"RadAway",
+        "image": "img/aid/radaway.png",
+        "weight": 0.3,
+        "value": 55,
+        "rad_reduction": 200
+    },
+    {
+        "baseid":"0004f7d5",
+        "title":"Rad-X",
+        "image": "img/aid/radx.png",
+        "weight": 0.2,
+        "value": 35
+    },
+    {
+        "baseid":"0007e2a1",
+        "title":"Buffout",
+        "image": "img/aid/buffout.png",
+        "weight": 0.2,
+        "value": 60
     }
 ]

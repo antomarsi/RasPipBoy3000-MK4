@@ -6,5 +6,29 @@
         "weight": 0.1,
         "value": 1,
         "components": ["Adhesive"]
+    },
+    {
+        "baseid":"0004ab21",
+        "title":"Gear",
+        "image": "img/junk/gear.png",
+        "weight": 0.3,
+        "value": 2,
+        "components": ["Steel", "Gears"]
+    },
+    {
+        "baseid":"0004ab22",
+        "title":"Screw",
+        "image": "img/junk/screw.png",
+        "weight": 0.1,
+        "value": 1,
+        "components": ["Screw"]
+    },
+    {
+        "baseid":"0004ab23",
+        "title":"Desk Fan",
+        "image": "img/junk/desk_fan.png",
+        "weight": 1.0,
+        "value": 4,
+        "components": ["Copper", "Screw", "Plastic"]
     }
 ]

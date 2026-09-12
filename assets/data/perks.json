@@ -8,5 +8,33 @@
             "Your gun modification skills increase further... allowing you to construct Rank 3 gun mods.",
             "You are a certified Gun Nut... allowing you to construct Rank 4 gun mods."
         ]
+    },
+    {
+        "baseid": "armorer",
+        "title": "Armorer",
+        "ranks": [
+            "You've got a knack for building armor. Allows you to build Rank 1 armor mods.",
+            "Your armor modification skills increase. Allows you to build Rank 2 armor mods.",
+            "Your armor modification skills increase further. Allows you to build Rank 3 armor mods.",
+            "You are a master armorsmith. Allows you to build Rank 4 armor mods."
+        ]
+    },
+    {
+        "baseid": "lonewanderer",
+        "title": "Lone Wanderer",
+        "ranks": [
+            "When adventuring alone, you take 15% less damage and can carry 50 more pounds of gear.",
+            "When adventuring alone, you take 20% less damage, can carry 50 more pounds of gear, and gain +1 to melee and unarmed damage."
+        ]
+    },
+    {
+        "baseid": "ironfist",
+        "title": "Iron Fist",
+        "ranks": [
+            "Your unarmed attacks now do +20% damage.",
+            "Your unarmed attacks now do +40% damage and have a chance to stagger your opponent.",
+            "Your unarmed attacks now do +60% damage and have a greater chance to stagger.",
+            "Your unarmed attacks now do +80% damage and have an even greater chance to stagger."
+        ]
     }
 ]

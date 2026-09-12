@@ -21,6 +21,7 @@
     "aid": {
         "stats": [
             {"field": "heal_amount", "label": "Heal Amount"},
+            {"field": "rad_reduction", "label": "Rad Reduction", "icon": "radioactive"},
             {"field": "weight", "label": "Weight", "icon": "weight"},
             {"field": "value", "label": "Value", "icon": "caps"}
         ]
