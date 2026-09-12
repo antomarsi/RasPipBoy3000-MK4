@@ -18,5 +18,15 @@
             "volume=2", "aecho=0.8:0.9:1000:0.3", "acrusher=bits=8:mode=log"
         ],
         "waveform_enabled": true
+    },
+
+    "fallout_radio": {
+        "label": "Fallout Radio",
+        "filters": [
+            "highpass=f=400", "lowpass=f=3000", "compand",
+            "tremolo=f=5:d=0.35", "acrusher=bits=8:mode=log",
+            "aecho=0.6:0.3:35:0.25", "volume=1.8"
+        ],
+        "waveform_enabled": true
     }
 }
