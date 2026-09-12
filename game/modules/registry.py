@@ -37,8 +37,21 @@ TOP_LEVEL = ["stat", "inv", "data", "map", "radio"]
 
 ACTIVE_LEAF: Optional[str] = None
 
+# True while some module (currently only MAP's keyword filter) wants raw
+# keystrokes instead of the usual mapped actions -- see set_text_input_active().
+TEXT_INPUT_ACTIVE: bool = False
+
 _header_ent: Optional[int] = None
 _submenu_ent: Optional[int] = None
+
+
+def set_text_input_active(active: bool):
+    """While True, PipBoy.handle_event routes every KEYDOWN to the "key_text"
+    event instead of the normal config.ACTIONS mapping (and skips the global
+    Escape-quits/H-toggles-debug shortcuts) -- so typing a filter keyword
+    like "police" doesn't also toggle debug or quit the app on 'h'/'p'/'q'."""
+    global TEXT_INPUT_ACTIVE
+    TEXT_INPUT_ACTIVE = active
 
 
 def create_node(key: str, label: str, parent: Optional[str] = None, background: bool = False, components=()) -> int:
@@ -267,7 +280,7 @@ def init_modules(pipboy):
     from game.modules.stat import register as register_stat
     from game.modules.inv import register as register_inv
     from game.modules.data import register as register_data
-    from game.modules.map import register as register_map
+    from game.modules.map import register as register_map, make_warm_cache_task
     from game.modules.radio import register as register_radio
 
     # Real work, run one task per frame by boot/loading.py while its screen
@@ -280,6 +293,11 @@ def init_modules(pipboy):
         ("Loading INV...", lambda: register_inv(pipboy)),
         ("Loading DATA...", lambda: register_data(pipboy)),
         ("Loading MAP...", lambda: register_map(pipboy)),
+        # A stateful callable, not a plain lambda -- this one is invoked
+        # repeatedly across multiple loading frames (see boot/loading.py's
+        # convention: returning False means "still working, call again next
+        # frame") rather than assumed to finish on its first call.
+        ("Caching local map...", make_warm_cache_task()),
         ("Loading RADIO...", lambda: register_radio(pipboy)),
     ]
     register_boot(pipboy, tasks)

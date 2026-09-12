@@ -1,0 +1,137 @@
+{
+    "_comment": "OSM tag (key -> value -> marker icon) driving MAP's POI icons. Icon names must match a file under assets/images/mapmarkers/icon_map_<name>.png. A value mapped to null has no good thematic fit in the current (Fallout-wasteland-styled) icon set -- map it by hand once you've decided, or add a new icon file and reference it here. '_default' under a key applies to any value of that key not listed explicitly; the top-level '_default' is the last-resort fallback.",
+
+    "amenity": {
+        "place_of_worship": "monument",
+        "school": "office",
+        "university": "office",
+        "college": "office",
+        "kindergarten": "office",
+        "library": "office",
+        "townhall": "office",
+        "courthouse": "office",
+        "embassy": "office",
+        "police": "military",
+        "fire_station": "military",
+        "prison": "military",
+        "fuel": "factory",
+        "car_wash": "factory",
+        "car_rental": null,
+        "hospital": null,
+        "clinic": null,
+        "doctors": null,
+        "dentist": null,
+        "veterinary": null,
+        "pharmacy": null,
+        "bank": null,
+        "atm": null,
+        "post_office": null,
+        "restaurant": null,
+        "cafe": null,
+        "bar": null,
+        "pub": null,
+        "fast_food": null,
+        "nightclub": null,
+        "casino": null,
+        "cinema": null,
+        "theatre": null,
+        "community_centre": null,
+        "marketplace": "city",
+        "charging_station": null,
+        "parking": null
+    },
+
+    "shop": {
+        "_default": "city",
+        "supermarket": "city",
+        "mall": "city",
+        "convenience": "city",
+        "clothes": null,
+        "shoes": null,
+        "electronics": null,
+        "hardware": null,
+        "bakery": null,
+        "butcher": null,
+        "hairdresser": null,
+        "books": null,
+        "jewelry": null,
+        "furniture": null,
+        "car": null,
+        "bicycle": null,
+        "doityourself": null,
+        "gift": null,
+        "toys": null,
+        "pet": null,
+        "alcohol": null
+    },
+
+    "tourism": {
+        "museum": "monument",
+        "gallery": "monument",
+        "attraction": "monument",
+        "artwork": "monument",
+        "viewpoint": "monument",
+        "hotel": "settlement",
+        "motel": "settlement",
+        "hostel": "settlement",
+        "guest_house": "settlement",
+        "camp_site": "encampment",
+        "picnic_site": "natural_landmark",
+        "zoo": null,
+        "theme_park": null,
+        "information": null
+    },
+
+    "leisure": {
+        "park": "natural_landmark",
+        "garden": "natural_landmark",
+        "playground": "natural_landmark",
+        "golf_course": "natural_landmark",
+        "pitch": "natural_landmark",
+        "sports_centre": null,
+        "stadium": null,
+        "swimming_pool": null,
+        "fitness_centre": null,
+        "marina": null,
+        "ice_rink": null
+    },
+
+    "natural": {
+        "water": "natural_landmark",
+        "wood": "natural_landmark",
+        "forest": "natural_landmark",
+        "peak": "natural_landmark",
+        "cliff": "natural_landmark",
+        "volcano": "natural_landmark",
+        "glacier": "natural_landmark",
+        "wetland": "natural_landmark",
+        "scrub": "natural_landmark",
+        "grassland": "natural_landmark",
+        "beach": "natural_landmark",
+        "cave_entrance": "cave"
+    },
+
+    "historic": {
+        "monument": "monument",
+        "memorial": "monument",
+        "ruins": "ruins_town",
+        "archaeological_site": "ruins_urban",
+        "castle": null,
+        "fort": "military"
+    },
+
+    "railway": {
+        "station": "metro",
+        "subway_entrance": "metro"
+    },
+
+    "public_transport": {
+        "station": "metro"
+    },
+
+    "military": {
+        "_default": "military"
+    },
+
+    "_default": "undiscovered"
+}

@@ -5,11 +5,21 @@ thumbs-up animation once that work is done.
 The task list passed to register() is the actual, real work being done --
 each (label, callable) pair's callable is invoked for real, one per frame,
 and the callable doesn't care whether it does local file I/O, decodes an
-image, or (not built yet, but the shape supports it) fetches something over
-the network. The progress bar and status text reflect that real work, not a
-timer -- MIN_DURATION only pads the *end* of it so the screen doesn't flash
-by while today's placeholder assets are still trivially small.
+image, or fetches something over the network. The progress bar and status
+text reflect that real work, not a timer -- MIN_DURATION only pads the *end*
+of it so the screen doesn't flash by while today's placeholder assets are
+still trivially small.
+
+A task is normally assumed done the moment it returns (this covers every
+plain register(pipboy) call, which return None). A task that needs several
+frames to finish (e.g. MAP's warm_cache task, waiting on a background
+network fetch) can instead return False to mean "still working, call me
+again next frame" -- letting the loading screen actually render and show
+its label while such a task is pending, instead of a single call blocking
+the whole frame loop until it's done.
 """
+import time
+
 import esper
 import pygame as pg
 
@@ -45,9 +55,14 @@ def run_tasks_now(tasks):
     assets) done before landing on the startup tab, it just never shows the
     animated loading screen `register()` below builds. Kept in this module
     rather than duplicated at the call site so there's exactly one place that
-    knows how to run this task list."""
+    knows how to run this task list.
+
+    A multi-frame task (returns False -- see module docstring) is simply
+    retried in a tight loop here, since there's no loading screen to render
+    between attempts anyway in this path."""
     for _, task in tasks:
-        task()
+        while task() is False:
+            time.sleep(0.05)
 
 
 def register(pipboy, tasks):
@@ -168,10 +183,13 @@ class _LoadingProcessor(esper.Processor):
             if state["index"] < len(state["tasks"]):
                 label, task = state["tasks"][state["index"]]
                 self.set_status(label)
-                task()
-                state["index"] += 1
-                self.bar_state.value = state["index"]
-                esper.component_for_entity(self.bar_ent, Dirty).state = 1
+                # False means "still working, call me again next frame" --
+                # everything else (including the usual implicit None) means
+                # done; see this module's docstring.
+                if task() is not False:
+                    state["index"] += 1
+                    self.bar_state.value = state["index"]
+                    esper.component_for_entity(self.bar_ent, Dirty).state = 1
             else:
                 state["phase"] = "waiting"
         elif state["phase"] == "waiting":

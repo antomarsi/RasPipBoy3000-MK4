@@ -50,7 +50,16 @@ class ConfigSettings(BaseSettings):
         pg.K_q: "submodule_prev",
         pg.K_e: "submodule_next",
         pg.K_UP: "dial_up",
-        pg.K_DOWN: "dial_down"
+        pg.K_DOWN: "dial_down",
+        # MAP-only today (ignored elsewhere -- registry.handle_action() has
+        # no branch for map_filter). Keyboard-only stand-in for now; real
+        # hardware controls (GPIO) still to be worked out for the map screen.
+        # W/A/S/D are NOT mapped here -- MAP's cursor needs smooth,
+        # continuous movement (held-key polling via pg.key.get_pressed()
+        # every frame), which this discrete one-shot-per-keydown action
+        # system can't express. See game/modules/map/__init__.py's
+        # _CursorMoveProcessor.
+        pg.K_f: "map_filter",
     }
 
     @classmethod
@@ -107,6 +116,33 @@ class ConfigSettings(BaseSettings):
     RADIOS: dict = {
         "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
     }
+
+    GPS_SERIAL_PORT: str = "/dev/serial0"
+    GPS_BAUDRATE: int = 9600
+    GPS_POLL_INTERVAL_S: float = 2.0
+    IP_GEO_URL: str = "http://ip-api.com/json/"
+    # Fallback radii, used only before the first successful reverse-geocode
+    # (or forever, in the degraded no-geocode offline case) -- once a city is
+    # resolved, LOCAL's radius comes from that city's own bounding box
+    # instead (see game/modules/map/geocode.py).
+    MAP_LOCAL_RADIUS_M: float = 300.0
+    MAP_WORLD_RADIUS_M: float = 3000.0
+    MAP_CITY_RADIUS_MIN_M: float = 1000.0
+    MAP_CITY_RADIUS_MAX_M: float = 15000.0
+    MAP_CITY_RADIUS_DEFAULT_M: float = 5000.0
+    MAP_REFRESH_INTERVAL_S: float = 120.0
+    MAP_CACHE_DIR: str = os.path.abspath("./save/map_cache")
+    MAP_CACHE_MAX_AGE_S: float = 86400.0
+
+    @computed_field
+    @cached_property
+    def GPS_AVAILABLE(self) -> bool:
+        try:
+            import serial  # type: ignore
+            import pynmea2  # type: ignore
+            return True
+        except ImportError:
+            return False
 
 
 config = ConfigSettings()

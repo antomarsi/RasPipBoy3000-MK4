@@ -137,6 +137,13 @@ class PipBoy(Engine):
     def handle_event(self, event):
         super().handle_event(event)
         if event.type == pg.KEYDOWN:
+            if registry.TEXT_INPUT_ACTIVE:
+                # A module (MAP's keyword filter) wants raw keystrokes right
+                # now -- skip the global shortcuts/action mapping below
+                # entirely, so e.g. typing "police" can't also quit the app
+                # or toggle debug on its 'p'/'h' keypresses.
+                esper.dispatch_event("key_text", event)
+                return
             if event.key == pg.K_ESCAPE:
                 self.running = False
             elif event.key == pg.K_h:

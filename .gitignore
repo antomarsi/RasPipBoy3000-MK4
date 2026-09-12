@@ -82,6 +82,9 @@ celerybeat-schedule
 # save data (per-device runtime state; save/state.example.json stays tracked)
 save/state.json
 
+# cached OSM map data (re-fetchable, per-device)
+save/map_cache/
+
 # virtualenv
 .venv/
 venv/
