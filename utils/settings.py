@@ -113,9 +113,37 @@ class ConfigSettings(BaseSettings):
     USE_SCANLINE: bool = True
     HUM_ENABLED: bool = True
     SKIP_INTRO: bool = Field(default=False, validation_alias="SKIP_INTRO")
+    # Each station is a local file (looped from assets/sounds/radio/, `path`
+    # relative to that folder), a YouTube URL (downloaded once via yt-dlp
+    # into RADIO_CACHE_DIR on first tune-in, then played from that local
+    # copy forever after -- never a live stream, so a parked prop with
+    # spotty connectivity still plays fine once fetched), or a direct
+    # internet radio stream URL (`source: "stream"`, played live, never
+    # cached -- see RADIO_ONLINE_STATION_COUNT below for stations found this
+    # way automatically). `source: "tuner"` is a stub for real FM/AM
+    # hardware, gated by LOCAL_RADIO_AVAILABLE -- not wired to any actual
+    # receiver yet, since that's real hardware this project doesn't have
+    # specifics for.
+    #
+    # `profile` (optional, per station) picks a distortion profile from
+    # assets/data/radio_profiles.json -- defaults to "clean" (no distortion)
+    # when omitted.
     RADIOS: dict = {
-        "Wastland": "https://www.youtube.com/watch?v=5eAalHA1bAc",
+        "Wasteland Radio": {
+            "source": "youtube", "url": "https://www.youtube.com/watch?v=5eAalHA1bAc",
+            "profile": "fallout_broadcast",
+        },
+        "Local Mixtape": {"source": "local", "path": "mixtape.mp3"},
     }
+    RADIO_CACHE_DIR: str = os.path.abspath("./save/radio_cache")
+    LOCAL_RADIO_AVAILABLE: bool = False
+
+    # How many currently-online stations (checked against the free,
+    # community-run radio-browser.info directory -- no API key, filtered to
+    # verified-working ones) get appended to the station list automatically.
+    # 0 disables the online check entirely.
+    RADIO_ONLINE_STATION_COUNT: int = 8
+    RADIO_DIRECTORY_CACHE_MAX_AGE_S: float = 21600.0  # 6h -- the directory doesn't change fast
 
     GPS_SERIAL_PORT: str = "/dev/serial0"
     GPS_BAUDRATE: int = 9600

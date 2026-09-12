@@ -37,6 +37,10 @@ categories: dict = _load_json("categories.json")
 # name -- see game/modules/map/osm.py.
 map_categories: dict = _load_json("map_categories.json")
 
+# radio_profiles.json defines RADIO's distortion profiles (ffmpeg audio
+# filter chains) -- see game/modules/radio/playback.py.
+radio_profiles: dict = _load_json("radio_profiles.json")
+
 logger.debug(
     f"Catalog loaded: {len(weapons)} weapons, {len(apparel)} apparel, {len(aid)} aid, "
     f"{len(ammo)} ammo, {len(junk)} junk, {len(mods)} mods, {len(misc)} misc, {len(perks)} perks"

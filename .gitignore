@@ -85,6 +85,9 @@ save/state.json
 # cached OSM map data (re-fetchable, per-device)
 save/map_cache/
 
+# cached radio audio downloaded from YouTube (re-fetchable, per-device)
+save/radio_cache/
+
 # virtualenv
 .venv/
 venv/

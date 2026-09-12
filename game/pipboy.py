@@ -188,6 +188,11 @@ class PipBoy(Engine):
 
         save_save(save_data)
         try:
+            from game.modules.radio import playback as radio_playback
+            radio_playback.stop()
+        except Exception:
+            pass
+        try:
             pg.mixer.quit()
         except:
             pass
