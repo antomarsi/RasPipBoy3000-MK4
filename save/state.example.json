@@ -56,5 +56,32 @@
     { "title": "A New Threat", "status": "active", "objectives": ["Investigate the signal", "Find the source"] },
     { "title": "Out of Time", "status": "completed", "objectives": ["Exit Vault 111"] }
   ],
-  "location": "Sanctuary Hills"
+  "location": "Sanctuary Hills",
+  "custom_radios": [
+    {
+      "title": "My Local Track",
+      "source": "local",
+      "path": "my_track.mp3",
+      "description": "A local file looped from assets/sounds/radio/."
+    },
+    {
+      "title": "My YouTube Station",
+      "source": "youtube",
+      "url": "https://www.youtube.com/watch?v=REPLACE_ME",
+      "profile": "am_radio",
+      "description": "Downloaded once via yt-dlp, then played from the cached copy from then on."
+    },
+    {
+      "title": "My Online Stream",
+      "source": "stream",
+      "url": "https://example.com/live.mp3",
+      "description": "A live internet radio stream -- played directly, never cached."
+    },
+    {
+      "title": "College Radio 88.5",
+      "source": "tuner",
+      "frequency": "88.5 FM",
+      "description": "FM/AM tuner stub -- see LOCAL_RADIO_AVAILABLE."
+    }
+  ]
 }

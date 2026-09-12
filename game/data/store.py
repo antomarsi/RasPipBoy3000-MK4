@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from game.data.player import PlayerStatus
+from game.data.radio_models import RadioStation
 from utils.color import hex_to_rgb
 from utils.logger import logger
 from utils.settings import config
@@ -34,6 +35,12 @@ class SaveData(BaseModel):
     perks: list[dict] = Field(default_factory=list)
     quests: list[dict] = Field(default_factory=list)
     location: Optional[str] = None
+    # User-added RADIO stations, merged at runtime with the shipped
+    # defaults in assets/data/radio_stations.json (a matching `title` wins)
+    # -- see game/data/radio_models.py's RadioStation for the field
+    # documentation, and save/state.example.json for a worked example of
+    # each source kind.
+    custom_radios: list[RadioStation] = Field(default_factory=list)
 
 
 def save_save(data: SaveData, path: Optional[str] = None) -> None:

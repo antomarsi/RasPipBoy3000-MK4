@@ -1,9 +1,15 @@
 """Checks a free, community-run online radio directory (radio-browser.info,
 no API key needed) for currently-online stations, so RADIO isn't limited to
-whatever the user hand-configured in config.RADIOS. `hidebroken=true` asks
-the directory itself for only stations its own checker last verified as
-actually reachable -- this is "the radio checking for online radios",
-not just a fixed list of URLs that may or may not still work.
+the shipped/user-defined station list. `hidebroken=true` asks the directory
+itself for only stations its own checker last verified as actually
+reachable -- this is "the radio checking for online radios", not just a
+fixed list of URLs that may or may not still work.
+
+Ordering by global click count (no country filter) skews heavily toward a
+handful of huge European broadcasters -- confirmed by hand: an unfiltered
+query returns mostly French/UK stations, while `countrycode=US` returns an
+all-US top-8. `RADIO_ONLINE_COUNTRY` (utils/settings.py, unset by default)
+lets that be tuned per-device instead of guessing a "better" global default.
 
 Cached to disk (like MAP's OSM data) both to be a polite API citizen and so
 the list survives being offline after the first successful check.
@@ -23,14 +29,18 @@ _HEADERS = {"User-Agent": "RasPipBoy3000-MK4/1.0 (cosplay prop; personal use)"}
 
 
 def _cache_path() -> str:
-    return os.path.join(config.RADIO_CACHE_DIR, "directory.json")
+    # Keyed by country filter too -- switching RADIO_ONLINE_COUNTRY shouldn't
+    # reuse a list fetched under a different (or no) filter.
+    country = config.RADIO_ONLINE_COUNTRY or "global"
+    return os.path.join(config.RADIO_CACHE_DIR, f"directory_{country.lower()}.json")
 
 
 def get_online_stations(limit: int) -> Optional[list]:
     """Up to `limit` currently-online, popular stations as
-    {"name", "url", "tags", "country"} dicts. Prefers a fresh disk cache
-    over hitting the API; falls back to a stale cache (or None, if there's
-    never been a successful check) when the API is unreachable."""
+    {"name", "url", "tags", "country"} dicts, optionally restricted to
+    RADIO_ONLINE_COUNTRY. Prefers a fresh disk cache over hitting the API;
+    falls back to a stale cache (or None, if there's never been a
+    successful check) when the API is unreachable."""
     if limit <= 0:
         return None
 
@@ -58,6 +68,8 @@ def _cache_fresh(path: str) -> bool:
 def _fetch(limit: int) -> Optional[list]:
     try:
         params = {"limit": limit, "order": "clickcount", "reverse": "true", "hidebroken": "true"}
+        if config.RADIO_ONLINE_COUNTRY:
+            params["countrycode"] = config.RADIO_ONLINE_COUNTRY
         response = requests.get(_API_URL, params=params, headers=_HEADERS, timeout=15)
         response.raise_for_status()
         raw = response.json()

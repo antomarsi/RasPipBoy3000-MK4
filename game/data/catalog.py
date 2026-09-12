@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from game.data.map_models import MapCategories
+from game.data.radio_models import RadioProfile, RadioStation
 from utils.settings import config
 from utils.logger import logger
 
@@ -39,9 +40,16 @@ categories: dict = _load_json("categories.json")
 # the field documentation and game/modules/map/osm.py for how it's used.
 map_categories: MapCategories = MapCategories(**_load_json("map_categories.json"))
 
-# radio_profiles.json defines RADIO's distortion profiles (ffmpeg audio
-# filter chains) -- see game/modules/radio/playback.py.
-radio_profiles: dict = _load_json("radio_profiles.json")
+# radio_profiles.json/radio_stations.json define RADIO's distortion
+# profiles and shipped default stations -- see game/data/radio_models.py
+# for the field documentation (RadioProfile/RadioStation) and
+# game/modules/radio/playback.py for how they're used. A user's own
+# stations live in SaveData.custom_radios (game/data/store.py) instead,
+# merged with these at runtime.
+radio_profiles: dict[str, RadioProfile] = {
+    key: RadioProfile(**value) for key, value in _load_json("radio_profiles.json").items()
+}
+radio_stations: list[RadioStation] = [RadioStation(**entry) for entry in _load_json("radio_stations.json")]
 
 logger.debug(
     f"Catalog loaded: {len(weapons)} weapons, {len(apparel)} apparel, {len(aid)} aid, "

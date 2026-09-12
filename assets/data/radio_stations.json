@@ -1,0 +1,13 @@
+[
+    {
+        "title": "Fallout fire",
+        "source": "youtube",
+        "url": "https://www.youtube.com/watch?v=n9D6GNzpmkM",
+        "description": "A looping wasteland broadcast."
+    },
+    {
+        "title": "Local Mixtape",
+        "source": "local",
+        "path": "mixtape.mp3"
+    }
+]

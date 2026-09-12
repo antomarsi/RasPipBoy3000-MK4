@@ -60,6 +60,13 @@ class ConfigSettings(BaseSettings):
         # system can't express. See game/modules/map/__init__.py's
         # _CursorMoveProcessor.
         pg.K_f: "map_filter",
+        # RADIO-only (ignored elsewhere) -- cycles the currently-playing
+        # station's distortion profile at runtime. Left/Right were
+        # completely unmapped before this, so no conflict with dial_up/
+        # dial_down (Up/Down, list scrolling) or anything else.
+        pg.K_LEFT: "profile_prev",
+        pg.K_RIGHT: "profile_next",
+        pg.K_SPACE: "radio_toggle",
     }
 
     @classmethod
@@ -113,28 +120,12 @@ class ConfigSettings(BaseSettings):
     USE_SCANLINE: bool = True
     HUM_ENABLED: bool = True
     SKIP_INTRO: bool = Field(default=False, validation_alias="SKIP_INTRO")
-    # Each station is a local file (looped from assets/sounds/radio/, `path`
-    # relative to that folder), a YouTube URL (downloaded once via yt-dlp
-    # into RADIO_CACHE_DIR on first tune-in, then played from that local
-    # copy forever after -- never a live stream, so a parked prop with
-    # spotty connectivity still plays fine once fetched), or a direct
-    # internet radio stream URL (`source: "stream"`, played live, never
-    # cached -- see RADIO_ONLINE_STATION_COUNT below for stations found this
-    # way automatically). `source: "tuner"` is a stub for real FM/AM
-    # hardware, gated by LOCAL_RADIO_AVAILABLE -- not wired to any actual
-    # receiver yet, since that's real hardware this project doesn't have
-    # specifics for.
-    #
-    # `profile` (optional, per station) picks a distortion profile from
-    # assets/data/radio_profiles.json -- defaults to "clean" (no distortion)
-    # when omitted.
-    RADIOS: dict = {
-        "Wasteland Radio": {
-            "source": "youtube", "url": "https://www.youtube.com/watch?v=5eAalHA1bAc",
-            "profile": "fallout_broadcast",
-        },
-        "Local Mixtape": {"source": "local", "path": "mixtape.mp3"},
-    }
+    # Default stations live in assets/data/radio_stations.json (shipped) and
+    # SaveData.custom_radios (save/state.json, user-added -- same shape,
+    # wins on a matching key) instead of here, mirroring the catalog/save
+    # split already used for items/quests/perks. See either file's own
+    # comment for the per-source field shapes ("local"/"youtube"/"stream"/
+    # "tuner").
     RADIO_CACHE_DIR: str = os.path.abspath("./save/radio_cache")
     LOCAL_RADIO_AVAILABLE: bool = False
 
@@ -144,6 +135,11 @@ class ConfigSettings(BaseSettings):
     # 0 disables the online check entirely.
     RADIO_ONLINE_STATION_COUNT: int = 8
     RADIO_DIRECTORY_CACHE_MAX_AGE_S: float = 21600.0  # 6h -- the directory doesn't change fast
+    # ISO 3166-1 alpha-2 (e.g. "US", "BR"), or unset for no filter. Unset
+    # skews heavily toward a handful of huge European broadcasters, since
+    # the directory is ordered by global click count -- confirmed by hand
+    # (see game/modules/radio/directory.py's docstring).
+    RADIO_ONLINE_COUNTRY: Optional[str] = None
 
     GPS_SERIAL_PORT: str = "/dev/serial0"
     GPS_BAUDRATE: int = 9600

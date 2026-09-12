@@ -1,6 +1,4 @@
 {
-    "_comment": "Distortion profiles for RADIO playback. Each is an ffmpeg audio filter chain (empty = no distortion) applied to whatever's playing -- a station picks one via its 'profile' field in config.RADIOS (utils/settings.py), defaulting to 'clean' when omitted. waveform_enabled controls whether the live waveform panel draws for that profile; when it does, it always reflects the actual post-filter audio (captured from the same decoded stream), never the pre-distortion original. Filter chains reused directly from the project owner's own radio_test.py experiment.",
-
     "clean": {
         "label": "Clean",
         "filters": [],
