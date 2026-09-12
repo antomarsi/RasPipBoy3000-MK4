@@ -40,18 +40,18 @@ _POI_TAG_KEYS = (
 
 
 def poi_icon(tags: dict) -> str:
-    categories = catalog.map_categories
+    map_categories = catalog.map_categories
     for key in _POI_TAG_KEYS:
         value = tags.get(key)
         if value is None:
             continue
-        key_map = categories.get(key)
-        if not key_map:
+        rules = map_categories.categories.get(key)
+        if not rules:
             continue
-        icon = key_map.get(value) or key_map.get("_default")
+        icon = rules.values.get(value) or rules.default
         if icon:
             return icon
-    return categories.get("_default", "undiscovered")
+    return map_categories.default
 
 
 def _build_query(lat: float, lon: float, radius_m: float) -> str:

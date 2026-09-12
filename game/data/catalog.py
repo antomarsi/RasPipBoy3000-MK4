@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from game.data.map_models import MapCategories
 from utils.settings import config
 from utils.logger import logger
 
@@ -34,8 +35,9 @@ special: dict = _load_json("special.json")
 categories: dict = _load_json("categories.json")
 
 # map_categories.json maps OSM tag (key -> value) onto a MAP marker icon
-# name -- see game/modules/map/osm.py.
-map_categories: dict = _load_json("map_categories.json")
+# name -- see game/data/map_models.py (MapCategories/MapCategoryRules) for
+# the field documentation and game/modules/map/osm.py for how it's used.
+map_categories: MapCategories = MapCategories(**_load_json("map_categories.json"))
 
 # radio_profiles.json defines RADIO's distortion profiles (ffmpeg audio
 # filter chains) -- see game/modules/radio/playback.py.
