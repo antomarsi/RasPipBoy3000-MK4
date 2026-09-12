@@ -1,11 +1,16 @@
-"""RADIO: three submodules by source kind -- STATIONS (curated local files
-+ YouTube downloads), TUNER (the FM/AM hardware stub), and SIGNAL (internet
-radio, both user-added stream URLs and whatever the online directory check
-finds) -- each a station list (dial up/down, same MenuState pattern as
-SPECIAL/INV/DATA), sharing one waveform panel + footer across all three
-(same "shared chrome owned by the top-level node" pattern as STAT's
-footer). See game.modules.radio.playback for the real audio engine and
-game.modules.radio.directory for the online-station check.
+"""RADIO: four submodules by source kind -- STATIONS (curated local files +
+YouTube downloads), TUNER (the FM/AM hardware stub), LOCAL SIGNAL (internet
+radio filtered to the device's own region -- see directory.py) and GLOBAL
+SIGNAL (user-added stream URLs of any origin, plus the online directory's
+unfiltered worldwide chart) -- each a station list (dial up/down, same
+MenuState pattern as SPECIAL/INV/DATA), sharing one waveform panel + footer
+across all four (same "shared chrome owned by the top-level node" pattern
+as STAT's footer). Every SIGNAL entry sourced from the online directory
+carries a description naming which country (and, when the directory has
+one, region) it broadcasts from -- shown in the description panel below the
+waveform, same panel STATIONS/custom entries already use for their own
+`description` field. See game.modules.radio.playback for the real audio
+engine and game.modules.radio.directory for the online-station check.
 
 Stays `background=True` (unchanged from the original proof-of-concept): once
 tuned, playback keeps running on its own thread regardless of which tab is
@@ -32,10 +37,14 @@ from utils.settings import config
 NODE_KEY = "radio"
 STATIONS_NODE_KEY = "radio.stations"
 TUNER_NODE_KEY = "radio.tuner"
-SIGNAL_NODE_KEY = "radio.signal"
+SIGNAL_LOCAL_NODE_KEY = "radio.signal_local"
+SIGNAL_GLOBAL_NODE_KEY = "radio.signal_global"
 
 _TUNER_STATION_KEY = "AM/FM Tuner"
-_LEAF_TO_MENU = {STATIONS_NODE_KEY: "stations", TUNER_NODE_KEY: "tuner", SIGNAL_NODE_KEY: "signal"}
+_LEAF_TO_MENU = {
+    STATIONS_NODE_KEY: "stations", TUNER_NODE_KEY: "tuner",
+    SIGNAL_LOCAL_NODE_KEY: "signal_local", SIGNAL_GLOBAL_NODE_KEY: "signal_global",
+}
 
 _WAVEFORM_LEFT = menu_right_column_left()
 _WAVEFORM_RECT = pg.Rect(_WAVEFORM_LEFT, 92, config.WIDTH - UI_MARGIN - _WAVEFORM_LEFT, 220)
@@ -68,7 +77,7 @@ _waveform_ent = None
 _footer_ent = None
 _description_ent = None
 _last_description_key: Optional[str] = "__unset__"  # forces the first real refresh to actually render
-_discovery_queue: "queue.Queue[list]" = queue.Queue()
+_discovery_queue: "queue.Queue[dict]" = queue.Queue()
 
 _static_channel = None
 _static_kind = None  # None | "background" | "tuning" -- avoids restarting the same loop every tick
@@ -85,7 +94,16 @@ def register(pipboy):
     registry.create_node(NODE_KEY, "RADIO", background=True)
     _register_submenu(STATIONS_NODE_KEY, "STATIONS", _curated_station_keys())
     _register_submenu(TUNER_NODE_KEY, "TUNER", [_TUNER_STATION_KEY])
-    _register_submenu(SIGNAL_NODE_KEY, "SIGNAL", _signal_station_keys())
+    # LOCAL SIGNAL starts empty -- it's exclusively populated by the online
+    # directory's region-filtered discovery, which hasn't run yet at this
+    # point (see _discover_online_stations, kicked off below). GLOBAL
+    # SIGNAL starts with whatever manual stream URLs the user/catalog
+    # already configured (radio_stations.json/custom_radios), since those
+    # are real and available immediately -- the directory's own unfiltered
+    # worldwide chart gets appended to this same band once discovery
+    # finishes.
+    _register_submenu(SIGNAL_LOCAL_NODE_KEY, "LOCAL SIGNAL", [])
+    _register_submenu(SIGNAL_GLOBAL_NODE_KEY, "GLOBAL SIGNAL", _manual_stream_keys())
 
     _waveform_ent = _register_waveform_panel()
     _description_ent = _register_description_panel()
@@ -115,8 +133,23 @@ def _curated_station_keys() -> list:
     return [k for k in playback.list_station_keys() if playback.get_station_source(k) in ("local", "youtube")]
 
 
-def _signal_station_keys() -> list:
+def _manual_stream_keys() -> list:
+    # Only the user/catalog's own hand-configured stream URLs -- called
+    # exactly once, at register() time, before the online directory's
+    # discovery thread has added anything, so "every 'stream' station that
+    # exists right now" and "every manually configured one" are the same
+    # set. Stations the directory discovers later are appended straight to
+    # the relevant MenuState instead (see _RadioTickProcessor), not found
+    # by re-scanning source=="stream" (which would also catch them).
     return [k for k in playback.list_station_keys() if playback.get_station_source(k) == "stream"]
+
+
+def _format_location(country: str, state: str) -> Optional[str]:
+    country = (country or "").strip()
+    state = (state or "").strip()
+    if country and state:
+        return f"{country} — {state}"
+    return country or state or None
 
 
 def _register_submenu(node_key: str, label: str, items: list):
@@ -297,23 +330,31 @@ def _on_radio_action(action):
 
 def _discover_online_stations():
     """Background thread: checks the free online radio directory (see
-    directory.py) and merges any real, currently-verified-online stations
-    into SIGNAL's tunable set -- never touches esper/pygame state directly
+    directory.py) for both scopes -- "local" (the device's own region) and
+    "global" (an unfiltered worldwide chart) -- and merges any real,
+    currently-verified-online stations into LOCAL SIGNAL / GLOBAL SIGNAL's
+    tunable sets respectively. Never touches esper/pygame state directly
     (see _RadioTickProcessor's queue drain), same convention as MAP's
     worker."""
-    found = directory.get_online_stations(config.RADIO_ONLINE_STATION_COUNT)
-    if not found:
-        return
-
     existing = set(playback.list_station_keys())
-    extra = {}
-    for entry in found:
-        key = _unique_key(entry["name"], existing)
-        existing.add(key)
-        extra[key] = RadioStation(title=key, source="stream", url=entry["url"], profile="clean")
+    result = {}
+    for scope, which in (("local", "signal_local"), ("global", "signal_global")):
+        found = directory.get_online_stations(config.RADIO_ONLINE_STATION_COUNT, scope=scope)
+        if not found:
+            continue
+        extra = {}
+        for entry in found:
+            key = _unique_key(entry["name"], existing)
+            existing.add(key)
+            description = _format_location(entry.get("country"), entry.get("state"))
+            extra[key] = RadioStation(title=key, source="stream", url=entry["url"], profile="clean",
+                                       description=description)
+        if extra:
+            playback.add_stations(extra)
+            result[which] = list(extra.keys())
 
-    playback.add_stations(extra)
-    _discovery_queue.put(list(extra.keys()))
+    if result:
+        _discovery_queue.put(result)
 
 
 def _unique_key(name: str, existing: set) -> str:
@@ -378,13 +419,14 @@ class _RadioTickProcessor(esper.Processor):
 
         while True:
             try:
-                new_keys = _discovery_queue.get_nowait()
+                new_keys_by_menu = _discovery_queue.get_nowait()
             except queue.Empty:
                 break
-            signal_ent = _menu_ents["signal"]
-            menu_state = esper.component_for_entity(signal_ent, MenuState)
-            menu_state.items.extend(new_keys)
-            esper.component_for_entity(signal_ent, Dirty).state = 1
+            for which, new_keys in new_keys_by_menu.items():
+                menu_ent = _menu_ents[which]
+                menu_state = esper.component_for_entity(menu_ent, MenuState)
+                menu_state.items.extend(new_keys)
+                esper.component_for_entity(menu_ent, Dirty).state = 1
 
         if not esper.has_component(_waveform_ent, Active):
             return

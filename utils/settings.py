@@ -135,10 +135,13 @@ class ConfigSettings(BaseSettings):
     # 0 disables the online check entirely.
     RADIO_ONLINE_STATION_COUNT: int = 8
     RADIO_DIRECTORY_CACHE_MAX_AGE_S: float = 21600.0  # 6h -- the directory doesn't change fast
-    # ISO 3166-1 alpha-2 (e.g. "US", "BR"), or unset for no filter. Unset
-    # skews heavily toward a handful of huge European broadcasters, since
-    # the directory is ordered by global click count -- confirmed by hand
-    # (see game/modules/radio/directory.py's docstring).
+    # ISO 3166-1 alpha-2 (e.g. "US", "BR") to force the online directory
+    # search to one country. Unset (default) auto-detects from the device's
+    # own GPS/IP-resolved location instead (see game/modules/radio/
+    # directory.py's docstring) -- only falls back to a fully unfiltered,
+    # global-click-count search (which skews heavily toward a handful of
+    # huge European broadcasters, confirmed by hand) if that location has
+    # never been resolved.
     RADIO_ONLINE_COUNTRY: Optional[str] = None
 
     GPS_SERIAL_PORT: str = "/dev/serial0"

@@ -20,6 +20,20 @@ NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse"
 # ~1km cell (see game/modules/map/__init__.py's worker loop).
 _HEADERS = {"User-Agent": "RasPipBoy3000-MK4/1.0 (cosplay prop; personal use)"}
 
+# The device's last resolved (country_code, state) as an ISO-3166-1 alpha-2
+# code + region/state name, e.g. ("br", "Santa Catarina") -- a side effect of
+# reverse_geocode() below, kept module-level so other code (RADIO's online
+# directory search) can reuse whatever MAP already resolved instead of
+# making its own Nominatim call. None until the first successful lookup.
+_last_region = None
+
+
+def get_last_region():
+    """Returns the last (country_code, state) resolved by reverse_geocode(),
+    or None if no lookup has succeeded yet. country_code is lowercase ISO
+    3166-1 alpha-2 (e.g. "br"); state may be None if the address had none."""
+    return _last_region
+
 
 def reverse_geocode(lat: float, lon: float):
     """Returns (city_key, radius_m) for the city/town containing (lat, lon),
@@ -28,6 +42,7 @@ def reverse_geocode(lat: float, lon: float):
     visits; radius_m is sized to the resolved area's own bounding box (a
     big metro area gets a bigger fetch than a small town), clamped to a
     sane range so a huge city doesn't produce an unfetchable Overpass query."""
+    global _last_region
     try:
         response = requests.get(
             NOMINATIM_URL,
@@ -46,6 +61,7 @@ def reverse_geocode(lat: float, lon: float):
         return None
 
     country = address.get("country_code", "")
+    _last_region = (country, address.get("state"))
     city_key = f"{city}_{country}".lower().replace(" ", "_")
     radius_m = _radius_from_bbox(data.get("boundingbox"), lat, lon)
     return city_key, radius_m
