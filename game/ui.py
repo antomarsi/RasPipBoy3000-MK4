@@ -14,7 +14,9 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 import esper
+import numpy as np
 import pygame as pg
+import pygame.surfarray as surfarray
 
 from core.components import Dirty, Renderable
 from core.resource_loader import ResourceLoader
@@ -106,7 +108,19 @@ def render_text(font, text: str, color, bg_color=theme.bg_color) -> pg.Surface:
     return image
 
 
-def fit_icon(source: pg.Surface, color, box: tuple) -> pg.Surface:
+def _bake_luminance_as_alpha(surface: pg.Surface) -> None:
+    """In place: sets each pixel's alpha to its own brightness, so a white
+    line on a solid black background becomes a white line on transparent --
+    the intended look for a source that shipped with no real alpha channel."""
+    rgb = surfarray.pixels3d(surface)
+    luminance = rgb.max(axis=2).astype(np.uint8)
+    del rgb
+    alpha = surfarray.pixels_alpha(surface)
+    alpha[:, :] = luminance
+    del alpha
+
+
+def fit_icon(source: pg.Surface, color, box: tuple, bg_color=None) -> pg.Surface:
     """Tints white-line-art-on-transparent icon source to the theme color and
     fits it into a fixed `box`, centered.
 
@@ -115,15 +129,61 @@ def fit_icon(source: pg.Surface, color, box: tuple) -> pg.Surface:
     from ~100px to ~550px tall for nominally-similar assets, unrelated to how
     big the actual artwork within the canvas is (trimming artifacts, not
     intentional sizing). Fitting into a fixed box rather than trusting the
-    source size is what keeps layout around an icon predictable."""
-    tinted = pg.Surface(source.get_size())
-    tinted.blit(source, (0, 0))
-    tinted.fill(color, special_flags=pg.BLEND_MULT)
+    source size is what keeps layout around an icon predictable.
+
+    Pass `bg_color` only when this becomes a Renderable.image directly (e.g.
+    SPECIAL's animated stat icons) -- RenderProcessor's additive blend needs
+    an opaque, pre-flattened image, same reason as render_text(). Omit it
+    (the default) when the icon instead gets composited into something else
+    first via a normal blit (a footer or list-row icon, say): keeping real
+    per-pixel alpha here is what lets it sit on that surface's own
+    background -- whatever color that turns out to be -- instead of carrying
+    a visible black (or wrong-color) square around it.
+
+    Some icon sets (e.g. the map marker set) ship as plain opaque 24-bit
+    line art on a solid black square instead of real transparency -- there's
+    no alpha channel to preserve at all. Detected and handled automatically:
+    the black background becomes transparent by treating luminance as alpha,
+    same visual result as if the source had shipped with real alpha.
+
+    Checking the source's own format (bitsize/mask) for this does NOT work --
+    ResourceLoader.add_image() already runs convert_alpha() on every image at
+    load time, which unconditionally produces a 32-bit surface with an alpha
+    mask regardless of whether the file had real transparency. So instead
+    this inspects the actual alpha *values* after conversion: if every pixel
+    came out fully opaque, there was never any real transparency to begin
+    with, format metadata notwithstanding."""
+    tinted = source.convert_alpha()
+    alpha_view = surfarray.pixels_alpha(tinted)
+    is_opaque = bool(alpha_view.min() == 255)
+    del alpha_view
+    if is_opaque:
+        _bake_luminance_as_alpha(tinted)
+    tinted.fill(color, special_flags=pg.BLEND_RGBA_MULT)
 
     fitted = scale_surface_keep_aspect(tinted, max_width=box[0], max_height=box[1])
-    canvas = pg.Surface(box)
+    if bg_color is not None:
+        canvas = pg.Surface(box)
+        canvas.fill(bg_color)
+    else:
+        canvas = pg.Surface(box, pg.SRCALPHA)
     canvas.blit(fitted, ((box[0] - fitted.get_width()) / 2, (box[1] - fitted.get_height()) / 2))
     return canvas
+
+
+def menu_right_column_left(gap: float = 16) -> float:
+    """x-coordinate where a detail panel can safely start to the right of a
+    MenuState list, without landing on the list's own real content width.
+
+    MenuState always renders at a hardcoded full width (config.WIDTH -
+    UI_MARGIN*2, see render_menu) with each row's own content occupying the
+    left 55% of *that* -- wider than it visually looks. Any screen pairing a
+    list with a detail panel (SPECIAL, INV, DATA's quests) needs its panel to
+    start past that real content width, not a guessed constant, or a row's
+    right-aligned value can land underneath it (additive blending doesn't
+    hide it -- two overlapping glyphs just add together)."""
+    list_content_right = UI_MARGIN + (config.WIDTH - UI_MARGIN * 2) * 0.55
+    return list_content_right + gap
 
 
 def render_header(state: HeaderState) -> pg.Surface:

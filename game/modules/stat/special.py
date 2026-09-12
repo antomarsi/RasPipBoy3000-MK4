@@ -7,7 +7,7 @@ from core.resource_loader import ResourceLoader
 from game.data.catalog import special as special_catalog
 from game.data.store import player_status, theme
 from game.modules.registry import create_node
-from game.ui import UI_MARGIN, MenuState, fit_icon, render_text
+from game.ui import UI_MARGIN, MenuState, fit_icon, menu_right_column_left, render_text
 from utils.settings import config
 
 NODE_KEY = "stat.special"
@@ -25,15 +25,7 @@ PLAYER_FIELD = {
     "Luck": "luck",
 }
 
-# MenuState (the left list) always renders at a hardcoded full width
-# (config.WIDTH - UI_MARGIN*2, see game/ui.py's render_menu) with each row's
-# own content occupying the left 55% of that -- i.e. real list content
-# extends all the way out to UI_MARGIN + (WIDTH - UI_MARGIN*2)*0.55, not just
-# the visually-obvious label column. The right column below has to start
-# past that or a row's right-aligned value can land underneath (additive
-# blending doesn't hide it -- two overlapping glyphs just add together).
-_LIST_CONTENT_RIGHT = UI_MARGIN + (config.WIDTH - UI_MARGIN * 2) * 0.55
-_RIGHT_COLUMN_LEFT = _LIST_CONTENT_RIGHT + 16
+_RIGHT_COLUMN_LEFT = menu_right_column_left()
 _RIGHT_COLUMN_RIGHT = config.WIDTH - UI_MARGIN
 _ICON_TOP = 90
 # Source icon frames come from a sprite rip with wildly inconsistent canvas
@@ -73,7 +65,7 @@ def register(pipboy):
     def _frames_for(name, info):
         if name not in frame_cache:
             frame_cache[name] = [
-                fit_icon(ResourceLoader.add_image(f"special_{name}_{i}", path), color, _ICON_BOX)
+                fit_icon(ResourceLoader.add_image(f"special_{name}_{i}", path), color, _ICON_BOX, bg_color=theme.bg_color)
                 for i, path in enumerate(info["images"])
             ]
         return frame_cache[name]

@@ -33,7 +33,6 @@ class SaveData(BaseModel):
     max_weight: float = 200.0
     perks: list[dict] = Field(default_factory=list)
     quests: list[dict] = Field(default_factory=list)
-    workshops: list[dict] = Field(default_factory=list)
     location: Optional[str] = None
 
 

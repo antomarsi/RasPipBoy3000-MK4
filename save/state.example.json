@@ -53,10 +53,8 @@
     { "baseid": "gunnut", "rank": 1 }
   ],
   "quests": [
-    { "title": "A New Threat", "status": "active", "objectives": ["Investigate the signal"] }
-  ],
-  "workshops": [
-    { "name": "Sanctuary Hills", "population": 5, "happiness": 80 }
+    { "title": "A New Threat", "status": "active", "objectives": ["Investigate the signal", "Find the source"] },
+    { "title": "Out of Time", "status": "completed", "objectives": ["Exit Vault 111"] }
   ],
   "location": "Sanctuary Hills"
 }

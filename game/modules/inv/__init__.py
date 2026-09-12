@@ -6,7 +6,7 @@ from core.resource_loader import ResourceLoader
 from game.data import catalog
 from game.data.store import INVENTORY_CATEGORIES, save_data, theme
 from game.modules.registry import create_node
-from game.ui import UI_MARGIN, FooterState, MenuState, fit_icon
+from game.ui import UI_MARGIN, FooterState, MenuState, fit_icon, menu_right_column_left
 from utils.settings import config
 
 # category -> its catalog dict (baseid -> item).
@@ -20,11 +20,7 @@ CATALOGS = {
     "ammo": catalog.ammo,
 }
 
-# Same list-widget geometry SPECIAL uses: MenuState always renders at a
-# hardcoded full width with each row's own content occupying the left 55% of
-# that (see game/ui.py's render_menu) -- the right column has to start past
-# that real content width, not a guessed constant.
-_RIGHT_COLUMN_LEFT = UI_MARGIN + (config.WIDTH - UI_MARGIN * 2) * 0.55 + 16
+_RIGHT_COLUMN_LEFT = menu_right_column_left()
 _RIGHT_COLUMN_TOP = 92
 _ROW_HEIGHT = 33
 _STAT_ICON_BOX = (28, 28)
