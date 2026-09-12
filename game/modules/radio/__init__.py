@@ -294,20 +294,46 @@ def _on_node_resumed(key):
         # Respect an explicit "radio off" (space bar) -- just browsing to a
         # different band shouldn't implicitly turn it back on.
         return
-    # Switching *band* (not just scrolling within one) retunes to whatever
-    # that band currently has selected -- like changing a real radio's band
-    # control, and also how a brand new RADIO session ends up already
-    # tuned to something the first time you open it, same as a real radio
-    # left on from last time.
     menu_state = esper.component_for_entity(_menu_ents[which], MenuState)
-    if menu_state.items:
-        playback.tune(menu_state.items[menu_state.selected])
-        _refresh_now_playing(playback.get_status())
+    if not menu_state.items:
+        return
+    target = menu_state.items[menu_state.selected]
+    status = playback.get_status()
+    if status["station"] == target and status["state"] != playback.STATE_ERROR:
+        # Already playing exactly this station (e.g. it kept running in the
+        # background while a different tab was shown) -- just refresh the
+        # chrome. Calling tune() here would kill the live stream/file and
+        # restart it from the beginning for no reason, which is audible as
+        # an unwanted stutter every time RADIO is simply reopened.
+        _refresh_now_playing(status)
+        return
+    # Switching *band* (not just scrolling within one), or the previously
+    # selected item actually changed -- retunes to whatever that band
+    # currently has selected, like changing a real radio's band control,
+    # and also how a brand new RADIO session ends up already tuned to
+    # something the first time you open it, same as a real radio left on
+    # from last time.
+    playback.tune(target)
+    _refresh_now_playing(playback.get_status())
 
 
 def _on_radio_action(action):
-    # Left/Right/Space are only meaningful while some RADIO submodule is
-    # actually active.
+    if action == "radio_toggle":
+        # Deliberately global, not gated on RADIO being the active tab --
+        # playback already keeps running in the background regardless of
+        # which screen is shown (background=True), so the one control that
+        # starts/stops it should work the same way, like a real radio's
+        # power button reachable without having to look at it.
+        was_paused = playback.is_paused()
+        playback.toggle()
+        if config.SOUND_ENABLED:
+            ResourceLoader.get_sound("radio_on" if was_paused else "radio_off").play()
+        _refresh_now_playing(playback.get_status())
+        return
+
+    # Left/Right (profile cycling) stay scoped to actually looking at a
+    # RADIO submodule -- twiddling a station's distortion dial only makes
+    # sense while its waveform/footer are the thing on screen.
     if registry.ACTIVE_LEAF not in _LEAF_TO_MENU:
         return
     if action == "profile_prev":
@@ -315,16 +341,6 @@ def _on_radio_action(action):
         _refresh_now_playing(playback.get_status())
     elif action == "profile_next":
         playback.cycle_profile(1)
-        _refresh_now_playing(playback.get_status())
-    elif action == "radio_toggle":
-        # The On/Off sound plays here specifically -- the actual play/pause
-        # transition -- rather than on tab enter/exit, since RADIO keeps
-        # playing in the background across tabs (background=True) and tab
-        # switches don't actually start or stop audio.
-        was_paused = playback.is_paused()
-        playback.toggle()
-        if config.SOUND_ENABLED:
-            ResourceLoader.get_sound("radio_on" if was_paused else "radio_off").play()
         _refresh_now_playing(playback.get_status())
 
 
