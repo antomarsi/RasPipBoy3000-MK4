@@ -24,3 +24,15 @@ pi = [
     "pyserial>=3.5",
     "pynmea2>=1.19.0",
 ]
+# Dev-only asset tooling (objloader/objviewer.py): renders a .obj model via
+# real OpenGL and turntables it into a numbered PNG sprite sequence, the
+# same "multi-frame image sequence" shape already used for vault_boy_1..8
+# and SPECIAL's icons. Never imported by the app itself at runtime (it
+# renders 2D sprites via SDL2, not OpenGL) -- PyOpenGL needs a real GPU/
+# driver context a Pi Zero 2 W headless boot won't have, so it's kept out
+# of the base install entirely, not just the `pi` extra (which is for
+# things the *app* needs on real hardware; this is the opposite case --
+# desktop-only, dev-only). pygame-ce/numpy are already base dependencies.
+objloader = [
+    "PyOpenGL>=3.1.7",
+]

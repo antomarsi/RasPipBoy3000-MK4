@@ -51,6 +51,14 @@ class ConfigSettings(BaseSettings):
         pg.K_e: "submodule_next",
         pg.K_UP: "dial_up",
         pg.K_DOWN: "dial_down",
+        # Forwarded to the active leaf's MenuState (registry._dispatch_menu_action)
+        # same as dial_up/dial_down, but actually activates the highlighted
+        # item instead of just moving the highlight -- needed once a menu's
+        # items aren't safe to trigger just by scrolling past them (DATA's
+        # HOLOTAPES reader: browsing "[Play Tape 3]"/"[< Back]" shouldn't
+        # play/exit on its own). Every other menu in the project still only
+        # uses on_change (preview-as-you-scroll); on_confirm is opt-in.
+        pg.K_RETURN: "confirm",
         # MAP-only today (ignored elsewhere -- registry.handle_action() has
         # no branch for map_filter). Keyboard-only stand-in for now; real
         # hardware controls (GPIO) still to be worked out for the map screen.
@@ -115,6 +123,10 @@ class ConfigSettings(BaseSettings):
 
     ASSETS_FOLDER: str = os.path.abspath("./assets")
     SAVE_FILE: str = os.path.abspath("./save/state.json")
+    # Each subfolder is one holotape: a holotape.xml (ported from the
+    # zapwizard/pypboy project's own format) plus its .ogg clips -- see
+    # game/modules/data/holotape_reader.py.
+    HOLOTAPES_FOLDER: str = os.path.abspath("./assets/holotapes")
 
     USE_BLUR: bool = True
     USE_SCANLINE: bool = True

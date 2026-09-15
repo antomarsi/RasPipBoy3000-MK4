@@ -76,6 +76,13 @@ class MenuState:
     # description), same "component carries an optional callback" pattern as
     # AnimationState/Tween's on_complete.
     on_change: Optional[Callable[[int], None]] = None
+    # Called with `selected` on a "confirm" action (Enter -- see
+    # registry._dispatch_menu_action), for a menu whose items must be
+    # deliberately activated rather than triggered just by scrolling past
+    # them (DATA's HOLOTAPES reader: browsing "[Play Tape 3]"/"[< Back]"
+    # shouldn't play/exit on its own). Every other menu in the project only
+    # uses on_change; this is opt-in, separate from it.
+    on_confirm: Optional[Callable[[int], None]] = None
 
 
 @dataclass

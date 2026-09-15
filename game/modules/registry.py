@@ -210,6 +210,14 @@ def _dispatch_menu_action(action: str):
     if ent is None:
         return
     menu_state = esper.component_for_entity(ent, MenuState)
+
+    if action == "confirm":
+        # Doesn't move the highlight -- activates whatever's already
+        # selected, for menus that opted in via on_confirm (see MenuState).
+        if menu_state.on_confirm and menu_state.items:
+            menu_state.on_confirm(menu_state.selected)
+        return
+
     if menu_handle_action(menu_state, action):
         dirty = esper.try_component(ent, Dirty)
         if dirty is not None:
@@ -246,7 +254,7 @@ def handle_action(action: str):
             logger.debug(f"No submodule ({index}) on [{top_key}]")
     elif action in ("submodule_prev", "submodule_next"):
         _cycle_submodule(-1 if action == "submodule_prev" else 1)
-    elif action in ("dial_up", "dial_down"):
+    elif action in ("dial_up", "dial_down", "confirm"):
         _dispatch_menu_action(action)
 
 
